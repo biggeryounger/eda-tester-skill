@@ -15,8 +15,8 @@
       "name": "命令说明解析",
       "priority": "P0",
       "status": "not_started",
-      "description": "从 Syntax、Parameters、Examples 或自然语言需求提取命令语义。",
-      "acceptance_criteria": ["识别命令名和工具上下文", "提取参数类型、必选性、默认值和约束", "不完整信息被记录为假设或缺口"],
+      "description": "从 Syntax、Parameters、Examples、自然语言需求或 Innovus 专用语料库提取命令语义。",
+      "acceptance_criteria": ["识别命令名、工具上下文和目标版本", "Innovus 命令查询 INNOVUS191 语料库并记录来源", "提取参数类型、必选性、默认值和约束", "版本冲突或不完整信息被记录为假设或缺口", "查询时不发送设计数据、日志或其他敏感内容"],
       "test_cases": [],
       "validation_commands": []
     },
@@ -25,8 +25,8 @@
       "name": "测试场景分解",
       "priority": "P0",
       "status": "not_started",
-      "description": "按正向、负向、边界、交互和状态依赖分解测试场景。",
-      "acceptance_criteria": ["每个必选参数都有缺失反例", "每个可选参数都有独立正例或不适用说明", "范围、枚举、互斥和依赖约束均有覆盖"],
+      "description": "在用户可多选 Smoke case、正向覆盖和负向覆盖策略后，按所选策略分解测试场景。",
+      "acceptance_criteria": ["输出测试设计前询问用户选择策略且支持多选", "Smoke case 覆盖全部选项和枚举值", "正向覆盖从业务场景设计合法用例", "负向覆盖边界值、异常值和选项冲突", "多策略场景取并集、去重并保留策略标签"],
       "test_cases": [],
       "validation_commands": []
     },
@@ -105,8 +105,8 @@
       "name": "多工具扩展",
       "priority": "P2",
       "status": "not_started",
-      "description": "扩展 Optimus、iTools/Innovus 和 PrimeTime 的工具差异配置。",
-      "acceptance_criteria": ["工具专属语法和日志标记隔离", "共享场景模型不复制核心逻辑", "未知工具给出明确诊断"],
+      "description": "扩展 Optimus、iTools/Innovus 和 PrimeTime 的工具差异配置与工具专属生成语料。",
+      "acceptance_criteria": ["Optimus 使用脱敏的全流程阶段模型和 MMMC 对象关系", "工具专属语法和日志标记隔离", "共享场景模型不复制核心逻辑", "语料不包含 PDK、设计数据库或用户本地路径", "未知工具给出明确诊断"],
       "test_cases": [],
       "validation_commands": []
     },
@@ -154,9 +154,9 @@
       "id": "F-015",
       "name": "TCL 脚本规范验证",
       "priority": "P0",
-      "status": "blocked",
+      "status": "not_started",
       "description": "根据版本化 TCL 脚本规范执行 Layer 2B 检查。",
-      "acceptance_criteria": ["语法通过后才执行", "规则具有稳定 ID和自动化正反样例", "规范未配置时返回 NOT_CONFIGURED"],
+      "acceptance_criteria": ["语法通过后才执行", "确定性检查符号链接、目录结构、nith.run 和 pv_check 检查点规则", "规则具有稳定 ID 和自动化正反样例", "规范未配置时返回 NOT_CONFIGURED"],
       "test_cases": [],
       "validation_commands": []
     }

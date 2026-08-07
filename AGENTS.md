@@ -121,13 +121,13 @@ $eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用
 
 本项目属于父仓库中的独立子项目，不使用父目录作为统一构建入口。
 
-## 归档仓库
+## 代码仓库
 
-- 项目归档仓库：<https://github.com/biggeryounger/eda-tester-skill>
-- 该地址只归档 `eda-tester-skill/` 子项目，不包含父仓库的其他目录。
-- 父仓库的 `origin` 仍为 Gitee；不得把父仓库远程改成此 GitHub 地址。
-- 归档前先运行本文件“验证命令”章节中的项目检查、功能检查、单元测试和 Skill 结构检查。
-- 只有用户明确要求归档或推送时，才创建提交并向归档仓库推送。
+- 项目唯一跟踪仓库：<https://github.com/biggeryounger/eda-tester-skill>
+- 当前项目的 `origin` 必须保持为上述 GitHub 仓库，不再使用或同步 Gitee。
+- 仓库范围只包含 `eda-tester-skill/` 项目，不包含父目录中的其他项目。
+- 提交或推送前先运行本文件“验证命令”章节中的项目检查、功能检查、单元测试和 Skill 结构检查。
+- 只有用户明确要求提交或推送时，才向 GitHub 仓库发布变更。
 
 ## 项目文档描述
 
