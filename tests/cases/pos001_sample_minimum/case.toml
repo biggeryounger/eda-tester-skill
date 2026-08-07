@@ -1,0 +1,9 @@
+id = "pos001_sample_minimum"
+feature_ids = ["F-003", "F-004", "F-005", "F-006"]
+command = "sample_command"
+polarity = "positive"
+runtime = "static"
+script = "run.tcl"
+expected = "accept"
+description = "Framework fixture: accept a minimum valid invocation."
+

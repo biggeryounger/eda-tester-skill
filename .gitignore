@@ -1,0 +1,5 @@
+# The parent repository ignores all JSON files. Keep the feature manifest versioned.
+!function.json
+
+__pycache__/
+*.py[cod]

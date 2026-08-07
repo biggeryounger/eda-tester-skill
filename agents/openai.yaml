@@ -1,0 +1,5 @@
+interface:
+  display_name: "EDA 测试用例生成器"
+  short_description: "从 EDA 命令说明分解测试场景并生成可验证的 TCL 用例"
+  default_prompt: "使用 $eda-tester-skill 根据这份 EDA 命令说明生成可追溯的测试用例和 TCL 脚本。"
+

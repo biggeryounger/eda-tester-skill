@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "project": "eda-tester-skill",
+  "description": "从 EDA 命令说明或需求生成可追溯的测试场景与 TCL 用例。",
+  "status_values": ["not_started", "active", "blocked", "passing"],
+  "validation_commands": [
+    {"id": "project", "argv": ["python3", "scripts/validate.py", "project"]},
+    {"id": "unit-validator", "argv": ["python3", "-m", "unittest", "tests.unit.test_validator", "-v"]},
+    {"id": "unit-nagelfar", "argv": ["python3", "-m", "unittest", "tests.unit.test_nagelfar_adapter", "-v"]},
+    {"id": "unit-all", "argv": ["python3", "-m", "unittest", "discover", "-s", "tests/unit", "-v"]}
+  ],
+  "features": [
+    {
+      "id": "F-001",
+      "name": "命令说明解析",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "从 Syntax、Parameters、Examples 或自然语言需求提取命令语义。",
+      "acceptance_criteria": ["识别命令名和工具上下文", "提取参数类型、必选性、默认值和约束", "不完整信息被记录为假设或缺口"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-002",
+      "name": "测试场景分解",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "按正向、负向、边界、交互和状态依赖分解测试场景。",
+      "acceptance_criteria": ["每个必选参数都有缺失反例", "每个可选参数都有独立正例或不适用说明", "范围、枚举、互斥和依赖约束均有覆盖"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-003",
+      "name": "TCL 用例生成",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "生成结构化、可读且可执行的 TCL 测试脚本。",
+      "acceptance_criteria": ["脚本包含 TEST_ACTION 和 EXPECT 标记", "setup、action、assertion 边界清晰", "正确处理 Tcl quoting 与特殊字符"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required"],
+      "validation_commands": ["project"]
+    },
+    {
+      "id": "F-004",
+      "name": "用例命名与组织",
+      "priority": "P0",
+      "status": "passing",
+      "description": "统一生成正负用例目录及元数据。",
+      "acceptance_criteria": ["目录符合 pos/neg + 三位序号 + 场景名规范", "case.toml ID 与目录一致", "正负极性与期望结果一致"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required", "tests/unit/test_validator.py"],
+      "validation_commands": ["project", "unit-validator"]
+    },
+    {
+      "id": "F-005",
+      "name": "需求可追溯性",
+      "priority": "P0",
+      "status": "passing",
+      "description": "建立功能、源需求、测试场景和脚本之间的映射。",
+      "acceptance_criteria": ["每个用例至少引用一个 feature ID", "引用的 feature ID 在 function.json 中存在", "可按 feature 汇总覆盖用例"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required", "tests/unit/test_validator.py"],
+      "validation_commands": ["project", "unit-validator"]
+    },
+    {
+      "id": "F-006",
+      "name": "两层验证编排",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "按 Layer 1、Layer 2A、Layer 2B 的门禁顺序执行确定性验证。",
+      "acceptance_criteria": ["上游失败时下游标记为 SKIPPED", "三项检查分别报告状态", "只有三项均为 PASS 时整体通过"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-007",
+      "name": "Innovus 运行适配",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "在隔离环境执行 Innovus 用例并收集结构化结果。",
+      "acceptance_criteria": ["记录工具版本、退出码和日志路径", "区分命令失败与环境/许可证失败", "支持超时和测试后清理"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-008",
+      "name": "结果断言",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "验证命令接受/拒绝、错误类别和设计状态变化。",
+      "acceptance_criteria": ["正例检查后置条件", "负例检查预期错误类别", "禁止仅凭进程退出码判定全部结果"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-009",
+      "name": "覆盖率报告",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "按命令、参数、场景类别和 feature 输出覆盖摘要。",
+      "acceptance_criteria": ["列出未覆盖特性和参数", "区分静态通过与 EDA 实机通过", "报告结果可稳定复现"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-010",
+      "name": "多工具扩展",
+      "priority": "P2",
+      "status": "not_started",
+      "description": "扩展 Optimus、iTools/Innovus 和 PrimeTime 的工具差异配置。",
+      "acceptance_criteria": ["工具专属语法和日志标记隔离", "共享场景模型不复制核心逻辑", "未知工具给出明确诊断"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-011",
+      "name": "安全策略",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "识别高风险命令并要求隔离、清理或人工确认。",
+      "acceptance_criteria": ["删除、覆盖和大范围修改操作被标记", "生成脚本不使用用户目录或不受控绝对路径", "破坏性用例提供明确清理策略"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-012",
+      "name": "回归语料库",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "维护典型命令说明输入及其期望覆盖契约。",
+      "acceptance_criteria": ["至少覆盖简单、多参数和状态依赖命令", "语料去敏且可提交", "输出变化可被自动检测和审阅"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-013",
+      "name": "测试计划规范验证",
+      "priority": "P0",
+      "status": "active",
+      "description": "根据版本化测试计划规范执行 Layer 1 检查。",
+      "acceptance_criteria": ["检查 cmd 表 A-J 列结构", "检查核心字段完整性和 pos/neg 三位序号场景命名", "每条 PLAN 规则具有自动化正反样例"],
+      "test_cases": ["tests/unit/test_validator.py"],
+      "validation_commands": ["unit-validator"]
+    },
+    {
+      "id": "F-014",
+      "name": "TCL 第三方语法验证",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "使用 Nagelfar 和 EDA 命令语法数据库执行 Layer 2A 检查。",
+      "acceptance_criteria": ["固定检查器版本", "支持 Innovus 命令 syntax database", "工具不可用时返回 TOOL_UNAVAILABLE"],
+      "test_cases": ["tests/unit/test_nagelfar_adapter.py", "tests/fixtures/nagelfar/valid_add_net.tcl", "tests/fixtures/nagelfar/invalid_add_net_option.tcl"],
+      "validation_commands": ["unit-nagelfar"]
+    },
+    {
+      "id": "F-015",
+      "name": "TCL 脚本规范验证",
+      "priority": "P0",
+      "status": "blocked",
+      "description": "根据版本化 TCL 脚本规范执行 Layer 2B 检查。",
+      "acceptance_criteria": ["语法通过后才执行", "规则具有稳定 ID和自动化正反样例", "规范未配置时返回 NOT_CONFIGURED"],
+      "test_cases": [],
+      "validation_commands": []
+    }
+  ]
+}
