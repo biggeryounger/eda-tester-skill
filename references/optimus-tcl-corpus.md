@@ -1,6 +1,6 @@
 # Optimus TCL 生成语料
 
-版本：`1.0`
+版本：`1.3`
 
 本语料来自用户提供的 Optimus 全流程 TCL 和 MMMC TCL。它用于生成 Optimus 测试脚本的流程背景知识，不是命令语法手册，也不能替代目标项目的 PDK、library、设计约束和工具版本配置。
 
@@ -9,9 +9,9 @@
 - 只在目标工具为 **Optimus** 时加载本语料。
 - 复用流程阶段、命令顺序、对象依赖、输出节点和检查点位置。
 - 不复制来源中的 PDK 路径、library 文件名、cell 名、设计名、时钟名、金属层、process node、绝对数值或内部目录。
-- 所有设计相关值从用户提供的 `design.tcl`、测试需求或脱敏配置中取得；缺失时使用语义占位符并记录缺口，不生成看似可执行的虚构值。
+- `assets/defaults/optimus/design.tcl` 是初始化结构模板，并附带一套可显式选择的仓库示例 profile。生成时用用户目标设计的 LEF、Verilog/netlist、DEF、top 等字段填充模板；不得因字段缺失而静默采用 SMIC28/riscv 示例路径。只有用户明确选择仓库示例 profile 时才使用其中示例值，否则缺少必要设计输入必须记录缺口并停止生成 TCL。
 - 单个命令的选项、枚举、默认值和约束必须来自对应 Optimus 命令说明；本流程中出现某个写法，只能证明该组合是一个参考用法，不能证明它覆盖全部语法。
-- 生成的用例仍需遵守测试策略、目录结构、`nith.run` 和 `pv_check_*` 规范。
+- 生成的用例仍需遵守测试策略、独立 TCL 交付和 `pv_check_*` 规范。
 
 ## 1. 全流程阶段模型
 
@@ -37,8 +37,8 @@
 
 ```tcl
 source $env(PV_ROOT)/scripts/pv.tcl
-source ./tcl/design.tcl
 
+# DESIGN_INIT_BEGIN
 set_options global.infra.max_thread_count $max_threads
 set_options setup.lef_file $lef_files
 set_options setup.verilog $netlist_file
@@ -47,11 +47,14 @@ set_options setup.power_net $power_net
 set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl
 set_options setup.top_cell $top_cell
 setup_design
+# DESIGN_INIT_END
 ```
+
+NITH 从与 `nith.run` 同级的用例统计目录执行 `run_N.tcl`，因此相对路径必须以用例目录为基准：可选设计文件写成 `./tcl/design.tcl`，Optimus MMMC 写成 `./tcl/optimus/mmmc.tcl`。模板默认 Optimus 版本为 `21.1`，power/ground net 为 `VDD`/`VSS`，MMMC 路径为 `./tcl/optimus/mmmc.tcl`。`assets/defaults/optimus/design.tcl` 中的 SMIC28 LEF、`riscv_core/floorplan.v.gz`、`floorplan.def.gz` 和 top `riscv_core` 是仓库示例 profile，不是所有用户的缺省输入。`assets/defaults/optimus/mmmc.tcl` 展示 `$tech_dir`、`$design_dir` 的连接方式及四视图对象模型；实际生成必须使用与用户设计匹配的 library、RC、SDC 和路径。
 
 生成约束：
 
-- `$max_threads`、`$lef_files`、`$netlist_file`、`$ground_net`、`$power_net`、`$top_cell` 必须来自用例配置。
+- `$max_threads` 和目标设计输入必须来自用例配置；模板只提供字段结构。仅版本、power/ground net、局部 MMMC 路径等非设计文件字段可采用登记默认值。
 - `setup.mmmc_file` 指向用例内普通文件，不得使用软连接。
 - 来源流程使用 `$env(PV_ROOT)/scripts/pv.tcl`；若实际环境配置了其他 PV 入口，必须以用户确认的路径为准并记录差异。
 
@@ -254,3 +257,30 @@ set_analysis_view_status -view $hold_view \
 - 某设计的时钟、不确定度、目标 slack、密度或约束。
 
 这些信息必须来自目标版本命令说明和用户提供的脱敏设计配置。
+
+## 5. 用户确认的多 run 检查点模式
+
+用户提供并确认了一套 Optimus 成功调用案例，包含两个连续 run 和 Optimus 方言 MMMC。该案例补充以下运行语义：
+
+- `run_1.tcl` 可以完成 case initialization、测试动作、生成数据库或文件，并设置本步 checkpoint。
+- `run_2.tcl` 可以读取前一步数据库，继续生成输出并验证跨 run 状态。
+- `pv_check_golden <actual> -golden <expected> -filter <expression>` 比较两个文件，`-filter` 排除指定行。
+- `pv_check_log {<command>} -name <name> -filter <expression> -match <expression>` 捕获命令屏幕输出；`-filter` 排除匹配行，指定 `-match` 时只比较匹配行。
+- 每个 run 在 `exit` 前必须调用 `pv_rpt_checkpoints`，汇总该 run 的所有 checkpoint；每个 run 必须显式 `exit`。
+
+为避免工作目录中的旧文件使 golden 检查误通过，同一 run 生成并比较文件时采用以下稳定顺序：
+
+```tcl
+file delete -force ./out/result.lef
+pv_check_log {write_lef ./out/result.lef} \
+    -name check_write_lef \
+    -filter {date|^#} \
+    -match {ID-0001|ID-0002}
+pv_check_golden ./out/result.lef \
+    -golden golden/$PV_TOOL.result.lef \
+    -filter {^#}
+pv_rpt_checkpoints
+exit
+```
+
+案例中的具体 cell、layer、library 和设计路径属于目标 PDK/设计数据，不提升为通用语料。通用生成只复用多 run 状态传递、checkpoint 参数语义和收尾顺序。

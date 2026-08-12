@@ -246,6 +246,28 @@ def load_nagelfar_adapter() -> Any:
     return module
 
 
+def load_test_plan_validator() -> Any:
+    module_path = Path(__file__).with_name("test_plan_validator.py")
+    spec = importlib.util.spec_from_file_location("eda_test_plan_validator", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load test-plan validator: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_tcl_convention_validator() -> Any:
+    module_path = Path(__file__).with_name("tcl_convention_validator.py")
+    spec = importlib.util.spec_from_file_location("eda_tcl_convention_validator", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load TCL convention validator: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def project_report(root: Path, cases_dir: Path | None = None) -> dict[str, object]:
     errors = validate_project(root, cases_dir)
     diagnostics = [
@@ -274,29 +296,117 @@ def project_report(root: Path, cases_dir: Path | None = None) -> dict[str, objec
 
 
 def tcl_report(
-    scripts: list[Path],
+    case_dirs: list[Path],
     syntax_db: Path | None = None,
     executable: str | None = None,
     timeout: float = 30.0,
 ) -> dict[str, object]:
     adapter = load_nagelfar_adapter()
+    convention_validator = load_tcl_convention_validator()
     checks: list[dict[str, object]] = []
     diagnostics: list[dict[str, object]] = []
-    for script in scripts:
+    for case_dir in case_dirs:
         database = syntax_db or adapter.DEFAULT_SYNTAX_DB
-        result = adapter.run_nagelfar(script, database, executable, timeout)
-        check = result.to_dict()
-        check["id"] = "L2A"
-        check["input"] = str(script.resolve())
-        checks.append(check)
-        diagnostics.extend(check["diagnostics"])
+        tcl_files = sorted(p for p in case_dir.rglob("*.tcl") if p.is_file()) if case_dir.is_dir() else []
+        layer_a_pass = True
+        layer_a_unavailable = False
+        for tcl in tcl_files:
+            result = adapter.run_nagelfar(tcl, database, executable, timeout)
+            check = result.to_dict()
+            check["id"] = "L2A"
+            check["input"] = str(tcl.resolve())
+            checks.append(check)
+            diagnostics.extend(check["diagnostics"])
+            if check["status"] != "PASS":
+                layer_a_pass = False
+                if check["status"] == "TOOL_UNAVAILABLE":
+                    layer_a_unavailable = True
+        if layer_a_pass:
+            convention = convention_validator.convention_report(case_dir)
+        else:
+            reason = "Layer 2A tool unavailable" if layer_a_unavailable else "Layer 2A did not pass for one or more .tcl files"
+            convention = {
+                "id": "L2B",
+                "status": "SKIPPED",
+                "input": str(case_dir.resolve()),
+                "diagnostics": [],
+                "reason": reason,
+            }
+        checks.append(convention)
+        diagnostics.extend(convention["diagnostics"])
     statuses = {str(check["status"]) for check in checks}
     if statuses == {"PASS"}:
         status = "PASS"
     elif "FAIL" in statuses:
         status = "FAIL"
-    else:
+    elif "TOOL_UNAVAILABLE" in statuses:
         status = "TOOL_UNAVAILABLE"
+    else:
+        status = "FAIL"
+    return {"status": status, "checks": checks, "diagnostics": diagnostics}
+
+
+def aggregate_layer(checks: list[dict[str, object]], layer_id: str) -> dict[str, object]:
+    selected = [item for item in checks if item.get("id") == layer_id]
+    statuses = {str(item.get("status")) for item in selected}
+    if not selected:
+        status = "FAIL"
+    elif "FAIL" in statuses:
+        status = "FAIL"
+    elif "TOOL_UNAVAILABLE" in statuses:
+        status = "TOOL_UNAVAILABLE"
+    elif "SKIPPED" in statuses:
+        status = "SKIPPED"
+    elif statuses == {"PASS"}:
+        status = "PASS"
+    else:
+        status = "FAIL"
+    diagnostics = [
+        diagnostic
+        for item in selected
+        for diagnostic in item.get("diagnostics", [])
+        if isinstance(diagnostic, dict)
+    ]
+    return {"id": layer_id, "status": status, "checks": selected, "diagnostics": diagnostics}
+
+
+def skipped_layer(layer_id: str, reason: str) -> dict[str, object]:
+    return {"id": layer_id, "status": "SKIPPED", "checks": [], "diagnostics": [], "reason": reason}
+
+
+def delivery_report(
+    workbook: Path,
+    case_dirs: list[Path],
+    requirements: Path | None = None,
+    syntax_db: Path | None = None,
+    executable: str | None = None,
+    timeout: float = 30.0,
+) -> dict[str, object]:
+    plan = load_test_plan_validator().plan_report(workbook.resolve(), requirements.resolve() if requirements else None)
+    layer_1 = {
+        "id": "L1",
+        "status": plan["status"],
+        "checks": plan.get("checks", []),
+        "diagnostics": plan.get("diagnostics", []),
+    }
+    if layer_1["status"] != "PASS":
+        checks = [
+            layer_1,
+            skipped_layer("L2A", "Layer 1 did not pass"),
+            skipped_layer("L2B", "Layer 1 did not pass"),
+        ]
+    else:
+        tcl = tcl_report(case_dirs, syntax_db, executable, timeout)
+        layer_2a = aggregate_layer(tcl["checks"], "L2A")
+        layer_2b = aggregate_layer(tcl["checks"], "L2B")
+        checks = [layer_1, layer_2a, layer_2b]
+    diagnostics = [
+        diagnostic
+        for item in checks
+        for diagnostic in item.get("diagnostics", [])
+        if isinstance(diagnostic, dict)
+    ]
+    status = "PASS" if all(item["status"] == "PASS" for item in checks) else "FAIL"
     return {"status": status, "checks": checks, "diagnostics": diagnostics}
 
 
@@ -418,12 +528,26 @@ def build_parser() -> argparse.ArgumentParser:
     project_parser.add_argument("--cases", type=Path, help="override the generated cases directory")
     project_parser.add_argument("--format", choices=("text", "json"), default="text")
 
-    tcl_parser = subparsers.add_parser("tcl", help="run Layer 2A Nagelfar validation")
-    tcl_parser.add_argument("scripts", nargs="+", type=Path)
+    tcl_parser = subparsers.add_parser("tcl", help="run Layer 2A Nagelfar + Layer 2B convention validation on TCL case directories")
+    tcl_parser.add_argument("cases", nargs="+", type=Path, help="one or more TCL case directories (each containing nith.run + tcl/ tree)")
     tcl_parser.add_argument("--syntax-db", type=Path)
     tcl_parser.add_argument("--nagelfar", help="path to Nagelfar executable or nagelfar.tcl")
     tcl_parser.add_argument("--timeout", type=float, default=30.0)
     tcl_parser.add_argument("--format", choices=("text", "json"), default="json")
+
+    plan_parser = subparsers.add_parser("plan", help="run Layer 1 test-plan validation")
+    plan_parser.add_argument("workbook", type=Path)
+    plan_parser.add_argument("--requirements", type=Path, help="JSON mapping commands to required test-point strings")
+    plan_parser.add_argument("--format", choices=("text", "json"), default="json")
+
+    delivery_parser = subparsers.add_parser("delivery", help="run the Layer 1 -> Layer 2A -> Layer 2B delivery gate")
+    delivery_parser.add_argument("workbook", type=Path)
+    delivery_parser.add_argument("cases", nargs="+", type=Path, help="one or more TCL case directories")
+    delivery_parser.add_argument("--requirements", type=Path)
+    delivery_parser.add_argument("--syntax-db", type=Path)
+    delivery_parser.add_argument("--nagelfar", help="path to Nagelfar executable or nagelfar.tcl")
+    delivery_parser.add_argument("--timeout", type=float, default=30.0)
+    delivery_parser.add_argument("--format", choices=("text", "json"), default="json")
 
     feature_parser = subparsers.add_parser("feature", help="run commands assigned to one feature")
     feature_parser.add_argument("feature_id")
@@ -442,7 +566,18 @@ def main(argv: list[str] | None = None) -> int:
         cases = args.cases.resolve() if args.cases else None
         report = project_report(args.root.resolve(), cases)
     elif args.command == "tcl":
-        report = tcl_report(args.scripts, args.syntax_db, args.nagelfar, args.timeout)
+        report = tcl_report(args.cases, args.syntax_db, args.nagelfar, args.timeout)
+    elif args.command == "plan":
+        report = load_test_plan_validator().plan_report(args.workbook.resolve(), args.requirements.resolve() if args.requirements else None)
+    elif args.command == "delivery":
+        report = delivery_report(
+            args.workbook,
+            args.cases,
+            args.requirements,
+            args.syntax_db,
+            args.nagelfar,
+            args.timeout,
+        )
     else:
         report = feature_report(args.root.resolve(), args.feature_id, args.timeout)
     if args.format == "json":

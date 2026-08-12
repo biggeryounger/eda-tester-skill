@@ -1,10 +1,18 @@
 # Innovus 命令语料库查询
 
-版本：`1.0`
+版本：`1.1`
 
 查询站点：<http://49.1.1.123:5175/>
 
 站点当前提供名为 `INNOVUS191` 的 NotebookLM Bridge。测试对象是 **iTools / Innovus** 命令时，使用该站点补充命令背景知识；其他工具不使用此来源。
+
+## 默认 MMMC
+
+- 用户未提供 iTools / Innovus MMMC 时，使用 `assets/defaults/itools/mmmc.tcl`。
+- 默认文件依赖设计配置预先定义 `$tech_dir` 和 `$design_dir`。
+- 文件采用 iTools / Innovus 方言：`create_library_set`、`create_delay_corner`、`create_constraint_mode`、`create_analysis_view` 和 `set_analysis_view`。
+- 不得用 Optimus 的 `create_lib_set`、`create_analysis_corner`、`create_analysis_mode` 或 `set_analysis_view_status` 替换这些命令。
+- 默认配置包含四个 40c/125c slow/fast library set、四个 RC/delay corner、max/min constraint mode，以及两组 setup、两组 hold view。
 
 ## 查询时机
 

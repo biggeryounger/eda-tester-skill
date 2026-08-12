@@ -76,9 +76,38 @@ def resolve_command(explicit: str | None) -> list[str] | None:
         return None
     resolved = str(path.resolve()) if path.is_file() else candidate
     if resolved.endswith(".tcl"):
-        tclsh = shutil.which("tclsh")
+        tclsh = resolve_tclsh()
         return [tclsh, resolved] if tclsh else None
     return [resolved]
+
+
+def resolve_tclsh() -> str | None:
+    candidates = [
+        os.environ.get("TCLSH"),
+        "/opt/homebrew/bin/tclsh",
+        "/usr/local/bin/tclsh",
+        shutil.which("tclsh"),
+    ]
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            completed = subprocess.run(
+                [candidate],
+                input="puts [info patchlevel]\n",
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            version = completed.stdout.strip().split(".")
+            if completed.returncode == 0 and len(version) >= 2 and tuple(map(int, version[:2])) >= (8, 6):
+                return str(Path(candidate).resolve())
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            continue
+    return None
 
 
 def detect_version(command: Sequence[str], timeout: float) -> tuple[str | None, str]:

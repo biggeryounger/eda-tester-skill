@@ -6,7 +6,19 @@
   "validation_commands": [
     {"id": "project", "argv": ["python3", "scripts/validate.py", "project"]},
     {"id": "unit-validator", "argv": ["python3", "-m", "unittest", "tests.unit.test_validator", "-v"]},
+    {"id": "unit-test-plan", "argv": ["python3", "-m", "unittest", "tests.unit.test_test_plan_validator", "-v"]},
     {"id": "unit-nagelfar", "argv": ["python3", "-m", "unittest", "tests.unit.test_nagelfar_adapter", "-v"]},
+    {"id": "integration-nagelfar", "argv": ["python3", "scripts/verify_nagelfar_install.py"]},
+    {"id": "unit-skill-installer", "argv": ["python3", "-m", "unittest", "tests.unit.test_skill_installer", "-v"]},
+    {"id": "unit-tcl-conventions", "argv": ["python3", "-m", "unittest", "tests.unit.test_tcl_convention_validator", "-v"]},
+    {"id": "unit-test-plan-generator", "argv": ["python3", "-m", "unittest", "tests.unit.test_test_plan_generator", "-v"]},
+    {"id": "unit-scenario-strategy", "argv": ["python3", "-m", "unittest", "tests.unit.test_scenario_strategy_contract", "-v"]},
+    {"id": "unit-optimus-defaults", "argv": ["python3", "-m", "unittest", "tests.unit.test_optimus_defaults", "-v"]},
+    {"id": "unit-itools-defaults", "argv": ["python3", "-m", "unittest", "tests.unit.test_itools_defaults", "-v"]},
+    {"id": "unit-command-spec-parser", "argv": ["python3", "-m", "unittest", "tests.unit.test_command_spec_parser", "-v"]},
+    {"id": "unit-tool-help-dumper", "argv": ["python3", "-m", "unittest", "tests.unit.test_tool_help_dumper", "-v"]},
+    {"id": "unit-delivery-gate", "argv": ["python3", "-m", "unittest", "tests.unit.test_delivery_gate", "-v"]},
+    {"id": "unit-regression-corpus", "argv": ["python3", "-m", "unittest", "tests.unit.test_regression_corpus", "-v"]},
     {"id": "unit-all", "argv": ["python3", "-m", "unittest", "discover", "-s", "tests/unit", "-v"]}
   ],
   "features": [
@@ -24,11 +36,11 @@
       "id": "F-002",
       "name": "测试场景分解",
       "priority": "P0",
-      "status": "not_started",
-      "description": "在用户可多选 Smoke case、正向覆盖和负向覆盖策略后，按所选策略分解测试场景。",
-      "acceptance_criteria": ["输出测试设计前询问用户选择策略且支持多选", "Smoke case 覆盖全部选项和枚举值", "正向覆盖从业务场景设计合法用例", "负向覆盖边界值、异常值和选项冲突", "多策略场景取并集、去重并保留策略标签"],
-      "test_cases": [],
-      "validation_commands": []
+      "status": "passing",
+      "description": "在用户可多选策略后分解测试场景，并优先将兼容选项和测试点合并到较少用例中。",
+      "acceptance_criteria": ["输出测试设计前询问用户选择策略且支持多选", "Smoke case 覆盖全部选项和枚举值", "正向覆盖从业务场景设计合法用例", "负向覆盖边界值、异常值和选项冲突", "兼容测试点尽量合并且拆分条件明确", "多测试点在描述、步骤和预期中逐项对应", "多策略场景取并集、去重并保留策略标签", "生成 TCL 前展示 Excel 测试计划和完整用例设计并取得用户明确确认"],
+      "test_cases": ["tests/unit/test_scenario_strategy_contract.py"],
+      "validation_commands": ["unit-scenario-strategy"]
     },
     {
       "id": "F-003",
@@ -64,11 +76,11 @@
       "id": "F-006",
       "name": "两层验证编排",
       "priority": "P0",
-      "status": "not_started",
+      "status": "passing",
       "description": "按 Layer 1、Layer 2A、Layer 2B 的门禁顺序执行确定性验证。",
       "acceptance_criteria": ["上游失败时下游标记为 SKIPPED", "三项检查分别报告状态", "只有三项均为 PASS 时整体通过"],
-      "test_cases": [],
-      "validation_commands": []
+      "test_cases": ["tests/unit/test_delivery_gate.py"],
+      "validation_commands": ["unit-delivery-gate"]
     },
     {
       "id": "F-007",
@@ -124,41 +136,101 @@
       "id": "F-012",
       "name": "回归语料库",
       "priority": "P1",
-      "status": "not_started",
+      "status": "passing",
       "description": "维护典型命令说明输入及其期望覆盖契约。",
       "acceptance_criteria": ["至少覆盖简单、多参数和状态依赖命令", "语料去敏且可提交", "输出变化可被自动检测和审阅"],
-      "test_cases": [],
-      "validation_commands": []
+      "test_cases": ["tests/unit/test_regression_corpus.py"],
+      "validation_commands": ["unit-regression-corpus"]
     },
     {
       "id": "F-013",
       "name": "测试计划规范验证",
       "priority": "P0",
-      "status": "active",
+      "status": "passing",
       "description": "根据版本化测试计划规范执行 Layer 1 检查。",
       "acceptance_criteria": ["检查 cmd 表 A-J 列结构", "检查核心字段完整性和 pos/neg 三位序号场景命名", "每条 PLAN 规则具有自动化正反样例"],
-      "test_cases": ["tests/unit/test_validator.py"],
-      "validation_commands": ["unit-validator"]
+      "test_cases": ["tests/unit/test_test_plan_validator.py"],
+      "validation_commands": ["unit-test-plan"]
     },
     {
       "id": "F-014",
       "name": "TCL 第三方语法验证",
       "priority": "P0",
-      "status": "not_started",
+      "status": "passing",
       "description": "使用 Nagelfar 和 EDA 命令语法数据库执行 Layer 2A 检查。",
       "acceptance_criteria": ["固定检查器版本", "支持 Innovus 命令 syntax database", "工具不可用时返回 TOOL_UNAVAILABLE"],
-      "test_cases": ["tests/unit/test_nagelfar_adapter.py", "tests/fixtures/nagelfar/valid_add_net.tcl", "tests/fixtures/nagelfar/invalid_add_net_option.tcl"],
-      "validation_commands": ["unit-nagelfar"]
+      "test_cases": ["tests/unit/test_nagelfar_adapter.py", "tests/fixtures/nagelfar/valid_add_net.tcl", "tests/fixtures/nagelfar/invalid_add_net_option.tcl", "scripts/verify_nagelfar_install.py"],
+      "validation_commands": ["unit-nagelfar", "integration-nagelfar"]
     },
     {
       "id": "F-015",
       "name": "TCL 脚本规范验证",
       "priority": "P0",
-      "status": "not_started",
-      "description": "根据版本化 TCL 脚本规范执行 Layer 2B 检查。",
-      "acceptance_criteria": ["语法通过后才执行", "确定性检查符号链接、目录结构、nith.run 和 pv_check 检查点规则", "规则具有稳定 ID 和自动化正反样例", "规范未配置时返回 NOT_CONFIGURED"],
-      "test_cases": [],
-      "validation_commands": []
+      "status": "passing",
+      "description": "根据版本化 TCL 脚本规范对用例名子目录(nith.run + tcl/<tool>/{run_1.tcl...,mmmc.tcl}，design.tcl 可选)执行 Layer 2B 检查。",
+      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run 和按被测工具生成的 tcl/<tool>/ 子目录，design.tcl 可选", "tcl/<tool>/ 含连续编号的 run_1.tcl..run_N.tcl 和 mmmc.tcl", "每个 run_N.tcl 自带 TEST_ACTION/EXPECT 标记和 DESIGN_INIT 激活命令", "nith.run 逐字保留固定 NITH 初始化块,case-setup 按序引用各 run_<N>.tcl 并调用 nith_run/nith_done", "design.tcl 非标准件；存在时检查其设计输入声明，不存在时不失败", "run_N.tcl 按与 nith.run 同级的用例统计目录解析相对路径，树内引用使用 ./tcl/...", "保留可移植路径、PV 入口、pv_check_* 检查点和环境变量白名单规则", "支持 pv_check_log 的 filter/match 语义和 golden/ 相对路径", "同一 run 生成的 golden 实际文件按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "规则具有稳定 ID 和自动化正反样例"],
+      "test_cases": ["tests/unit/test_tcl_convention_validator.py"],
+      "validation_commands": ["unit-tcl-conventions"]
+    },
+    {
+      "id": "F-016",
+      "name": "Skill 安装器",
+      "priority": "P1",
+      "status": "passing",
+      "description": "安全安装 eda-tester-skill 到 Codex、OpenCode、Hermes、WorkBuddy 或 Trae，排除开发面向文件，并可选安装固定版本 Nagelfar 依赖。",
+      "acceptance_criteria": ["支持 Codex、OpenCode、Hermes、WorkBuddy 和 Trae 的默认 Skills 目录", "支持软链接和独立复制安装", "安装前检查 Skill 源结构且不覆盖现有目标", "支持 dry-run 和自定义安装目录", "可安装并校验 Nagelfar 1.3.5", "软链接与复制安装均不复制 PROCESS.MD、AGENTS.md、function.json、tests/、generated/、outputs/ 和 .gitignore 等开发面向文件", "保留 SKILL.md、agents/、assets/、references/ 和 scripts/ 等运行时文件"],
+      "test_cases": ["tests/unit/test_skill_installer.py"],
+      "validation_commands": ["unit-skill-installer"]
+    },
+    {
+      "id": "F-017",
+      "name": "非空测试计划生成",
+      "priority": "P0",
+      "status": "passing",
+      "description": "从结构化场景复制模板并生成包含真实用例行的 Excel 测试计划。",
+      "acceptance_criteria": ["从指定模板复制生成并保留 A-J 结构和格式", "用例描述不包含开头的 [feature...] 标签", "输出使用有上限的合理列宽、自动换行和内容自适应行高", "模板不包含备注区第 2 行 I 列和第 3 行 K 列的两张无关图片", "清除模板历史业务数据", "空场景输入明确失败且不输出工作簿", "生成后重新打开并通过 Layer 1"],
+      "test_cases": ["tests/unit/test_test_plan_generator.py"],
+      "validation_commands": ["unit-test-plan-generator"]
+    },
+    {
+      "id": "F-018",
+      "name": "Optimus 设计初始化模板",
+      "priority": "P0",
+      "status": "passing",
+      "description": "使用仓库内 design.tcl 与 mmmc.tcl 作为 Optimus 初始化结构模板，并由用户目标设计输入填充。",
+      "acceptance_criteria": ["提供 design.tcl 和 mmmc.tcl 初始化模板", "MMMC 模板完整展示四组 library/RC/analysis corner 和四个 setup/hold view", "LEF、Verilog netlist 和 top cell 缺失时报告缺口，不静默采用仓库示例路径", "只有用户明确选择仓库示例 profile 时才使用 SMIC28/riscv 示例值", "用户提供值逐字段优先", "模板和示例路径使用 PV_ROOT 锚定形式且不包含用户本地绝对路径"],
+      "test_cases": ["tests/unit/test_optimus_defaults.py"],
+      "validation_commands": ["unit-optimus-defaults"]
+    },
+    {
+      "id": "F-019",
+      "name": "iTools 默认 MMMC",
+      "priority": "P0",
+      "status": "passing",
+      "description": "为 iTools / Innovus 提供与 Optimus 命令方言隔离的默认四视图 MMMC TCL。",
+      "acceptance_criteria": ["提供独立的 iTools 默认 mmmc.tcl", "定义四个 library set、RC corner、delay corner 和 analysis view", "定义 max/min constraint mode", "setup 和 hold view 列表与截图一致", "不混用 Optimus MMMC 命令方言"],
+      "test_cases": ["tests/unit/test_itools_defaults.py"],
+      "validation_commands": ["unit-itools-defaults"]
+    },
+    {
+      "id": "F-020",
+      "name": "命令说明结构化解析",
+      "priority": "P0",
+      "status": "passing",
+      "description": "从包含一个或多个 EDA 命令及 option 说明的 TXT 中确定性提取可供语法检查使用的版本化结构数据。",
+      "acceptance_criteria": ["支持一个 TXT 中的多个命令块及中英文常见标题", "提取命令名、工具、版本、Syntax 和来源行号", "提取 option 必选性、参数数量、基本类型、枚举值和可重复性", "提取 option 的互斥、依赖和至少一个组合关系", "提取不同 Optimus 版本的 option 增删差异", "无法确定的属性输出 unknown 和可追踪缺口，不猜测事实", "缺少命令名、关系引用未知 option 等错误导致非零退出且不写交付 JSON", "具有自动化通过和失败样例"],
+      "test_cases": ["tests/unit/test_command_spec_parser.py"],
+      "validation_commands": ["unit-command-spec-parser"]
+    },
+    {
+      "id": "F-021",
+      "name": "工具命令 Help 批量采集",
+      "priority": "P0",
+      "status": "passing",
+      "description": "在 Optimus 等 Tcl EDA 工具会话中枚举命令并逐个打印 -help，生成可保存为 TXT 的命令说明输入。",
+      "acceptance_criteria": ["支持按 glob 模式枚举当前工具会话中的命令", "支持传入显式命令列表以限制采集范围", "逐个调用 command -help 并打印稳定的命令边界标记", "单个命令不支持 -help 时记录失败并继续采集", "打印总数、成功数和失败数汇总", "具有不依赖 EDA 许可证的确定性 Tcl 自动化测试"],
+      "test_cases": ["tests/unit/test_tool_help_dumper.py"],
+      "validation_commands": ["unit-tool-help-dumper"]
     }
   ]
 }

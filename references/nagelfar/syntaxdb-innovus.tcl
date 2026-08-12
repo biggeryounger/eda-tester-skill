@@ -25,3 +25,11 @@ set ::syntax(read_physical) {x+}
 set ::syntax(read_netlist) {x+}
 set ::syntax(init_design) {x*}
 set ::syntax(exit) {x?}
+
+# Project checkpoint commands used by standalone generated tests.
+set ::syntax(pv_check_log) {x p*}
+set ::option(pv_check_log) {-name -filter -log_files}
+set ::syntax(pv_check_golden) {x p*}
+set ::option(pv_check_golden) {-golden -filter}
+set ::syntax(pv_check_qor) {x p*}
+set ::option(pv_check_qor) {-name -golden -tolerance -rel_tolerance -dir}

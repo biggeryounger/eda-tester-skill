@@ -59,6 +59,20 @@ python3 scripts/validate.py tcl path/to/run.tcl
 python3 scripts/validate.py tcl path/to/case_1.tcl path/to/case_2.tcl
 ```
 
+运行 Excel Layer 1 测试计划检查；需求清单用于确定性检查 PLAN-013：
+
+```sh
+python3 scripts/validate.py plan path/to/测试计划.xlsx
+python3 scripts/validate.py plan path/to/测试计划.xlsx --requirements path/to/requirements.json
+```
+
+运行同一交付批次的统一门禁；按 Layer 1 → Layer 2A → Layer 2B 执行，支持一个或多个 TCL 用例目录：
+
+```sh
+python3 scripts/validate.py delivery path/to/测试计划.xlsx path/to/pos001_case path/to/pos002_case
+python3 scripts/validate.py delivery path/to/测试计划.xlsx path/to/pos001_case --requirements path/to/requirements.json
+```
+
 Nagelfar 不在 `PATH` 中时，通过环境变量或命令参数指定 `nagelfar.tcl`：
 
 ```sh
@@ -84,27 +98,46 @@ python3 scripts/validate.py feature F-014
 python3 /Users/e2uninova-m4/.codex/skills/.system/skill-creator/scripts/quick_validate.py .
 ```
 
-统一验证接口只在全部检查为 `PASS` 时返回退出码 `0`；`FAIL` 或 `TOOL_UNAVAILABLE` 返回非零退出码。当前不得使用单一命令宣称完整两层门禁通过，因为 Excel Layer 1 检查器和正式 Layer 2B 规范仍未完成。
+统一验证接口只在全部检查为 `PASS` 时返回退出码 `0`；`FAIL` 或 `TOOL_UNAVAILABLE` 返回非零退出码。`delivery` 子命令按 Layer 1 → Layer 2A → Layer 2B 顺序执行，上游未通过时下游为 `SKIPPED`；`tcl` 子命令仍可用于单独调试 Layer 2A/2B。
 
 ## Skill 安装与启动
 
 安装前先确保 Skill 结构检查通过，并确认目标目录中不存在同名 Skill。
 
-本地开发时推荐使用软链接安装，使项目修改可以立即反映到已安装 Skill：
+使用安装脚本完成结构预检和安全安装；默认目标为 Codex，默认使用软链接，使项目修改可以立即反映到已安装 Skill。软链接与复制安装均只复制运行时文件（`SKILL.md`、`agents/`、`assets/`、`references/`、`scripts/`），不复制 `PROCESS.MD`、`AGENTS.md`、`function.json`、`tests/`、`generated/`、`outputs/` 和 `.gitignore` 等开发面向文件；软链接模式按运行时条目逐项链接，而非整目录单一软链接。
 
 ```sh
-mkdir -p ~/.codex/skills
-ln -s /Users/e2uninova-m4/Desktop/test_project/eda-tester-skill ~/.codex/skills/eda-tester-skill
+python3 scripts/install_skill.py
 ```
 
-需要安装独立副本时使用复制方式：
+使用 `--agent` 安装到其他受支持 Agent 的用户级 Skills 目录。为兼容不稳定的软链接扫描行为，非 Codex Agent 默认使用独立复制：
 
 ```sh
-mkdir -p ~/.codex/skills
-cp -R /Users/e2uninova-m4/Desktop/test_project/eda-tester-skill ~/.codex/skills/eda-tester-skill
+python3 scripts/install_skill.py --agent opencode
+python3 scripts/install_skill.py --agent hermes
+python3 scripts/install_skill.py --agent workbuddy
+python3 scripts/install_skill.py --agent trae
 ```
 
-安装完成后重启 Codex，或重新创建一个任务，使 Codex 重新扫描 Skills。使用以下方式显式启动：
+默认目录分别为：Codex `~/.codex/skills`、OpenCode `~/.config/opencode/skills`、Hermes `~/.hermes/skills`、WorkBuddy `~/.workbuddy/skills`、Trae `~/.trae/skills`。可分别通过 `CODEX_HOME`、`OPENCODE_CONFIG_DIR`、`HERMES_HOME`、`WORKBUDDY_HOME`、`TRAE_HOME` 调整 Agent 根目录。
+
+同时安装并校验固定版本 Nagelfar 1.3.5：
+
+```sh
+python3 scripts/install_skill.py --install-nagelfar
+```
+
+需要安装独立副本、预览操作或覆盖所选 Agent 的 Skills 目录时：
+
+```sh
+python3 scripts/install_skill.py --mode copy
+python3 scripts/install_skill.py --dry-run
+python3 scripts/install_skill.py --agent trae --skills-dir /path/to/trae/skills
+```
+
+安装器不覆盖已有同名目标；如需重装，先人工确认并移走原目标。可显式传入 `--mode link` 或 `--mode copy` 覆盖默认安装方式。Nagelfar 下载包执行固定 SHA-256 校验，亦可通过 `--nagelfar-archive` 使用离线安装包。
+
+安装完成后重启对应 Agent，使其重新扫描 Skills；Codex 也可以重新创建一个任务。使用以下方式显式启动 Codex：
 
 ```text
 $eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用例。
@@ -114,10 +147,10 @@ $eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用
 
 若 Skill 没有被识别，依次检查：
 
-1. 安装路径是否为 `~/.codex/skills/eda-tester-skill/`。
+1. 安装路径是否为所选 Agent 的默认目录（或 `--skills-dir` 指定目录）下的 `eda-tester-skill/`。
 2. 该目录下是否直接存在 `SKILL.md`，而不是多嵌套了一层目录。
 3. `SKILL.md` 的名称是否为 `eda-tester-skill`，结构检查是否通过。
-4. 安装后是否已经重启 Codex或创建新任务。
+4. 安装后是否已经重启对应 Agent；Codex 也可创建新任务。
 
 本项目属于父仓库中的独立子项目，不使用父目录作为统一构建入口。
 

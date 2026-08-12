@@ -13,7 +13,7 @@ Layer 2：TCL 脚本检查
          └── 2B：TCL 脚本规范检查
 ```
 
-测试计划规范已根据用户提供的模板和 `check_design_data` 手写用例形成 draft 规则；TCL 脚本规范已根据用例目录、`nith.run` 和三类 `pv_check_*` 检查点资料形成 `1.0-draft`，确定性检查器尚待实现。
+测试计划规范已根据用户提供的模板和 `check_design_data` 手写用例形成规则；TCL 脚本规范适用于用例目录树（`nith.run` + `tcl/design.tcl` + `tcl/<tool>/{run_1.tcl…run_N.tcl, mmmc.tcl}`）和三类 `pv_check_*` 检查点，Layer 1、Layer 2A、Layer 2B 均已有确定性检查器。
 
 ## 2. Layer 1：测试计划规范检查
 
@@ -49,7 +49,7 @@ Layer 2 仅在 Layer 1 通过后执行，避免为不合格的测试计划验证
 
 #### 输入
 
-- 生成的 `.tcl` 文件。
+- 生成的用例目录及其 `tcl/` 树中的所有 `.tcl` 文件（`design.tcl`、`mmmc.tcl`、`run_1.tcl … run_N.tcl`）。
 - Tcl 版本配置。
 - EDA 工具专属命令语法数据库。
 
@@ -73,7 +73,7 @@ Layer 2 仅在 Layer 1 通过后执行，避免为不合格的测试计划验证
 
 #### 输入
 
-- 通过 2A 的 `.tcl` 文件。
+- 通过 2A 的用例目录。
 - [TCL 脚本规范](specs/tcl-script-rules.md)。
 - 对应测试计划条目及用例元数据。
 
@@ -93,7 +93,7 @@ Layer 2 仅在 Layer 1 通过后执行，避免为不合格的测试计划验证
 
 ### 当前状态
 
-版本化规则已配置，覆盖禁止符号链接、标准目录结构、`nith.run` 调度、检查点存在性及三类 `pv_check_*` 参数约束。确定性检查器和逐条正反样例尚未实现，因此 Layer 2B 当前不得报告 `PASS`。
+版本化规则覆盖目录树结构（`nith.run`、`design.tcl`、`mmmc.tcl`、连续编号 `run_N.tcl`）、可移植路径、PV 入口、检查点存在性及三类 `pv_check_*` 参数约束。确定性检查器和逐条正反样例已经实现。
 
 ## 4. 统一结果模型
 
@@ -145,11 +145,12 @@ Layer 2 仅在 Layer 1 通过后执行，避免为不合格的测试计划验证
 ```sh
 python3 scripts/validate.py
 python3 scripts/validate.py project --format json
-python3 scripts/validate.py tcl path/to/run.tcl
+python3 scripts/validate.py tcl path/to/case_dir
+python3 scripts/validate.py delivery path/to/test-plan.xlsx path/to/case_dir
 python3 -m unittest discover -s tests/unit -v
 ```
 
-当前验证器只完成清单、用例元数据和部分 Layer 2B 预检。Nagelfar 1.3.5 的 Layer 2A 适配器及 Innovus/iTools syntax database 已配置；Layer 1 的 `.xlsx` 规则执行器和正式 Layer 2B 规范完成前，项目不能宣称完整的两层验证已经通过。
+当前验证器已实现 Excel Layer 1、Nagelfar 1.3.5 Layer 2A、目录树 TCL Layer 2B，以及针对同一批 Excel 和一个或多个 TCL 用例目录的 `delivery` 统一门禁。统一结果固定汇总为 L1、L2A、L2B 三项；只有三项全部为 `PASS` 才返回成功。
 
 ## 8. 完成标准
 
