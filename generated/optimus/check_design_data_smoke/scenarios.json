@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "number": 1,
+      "被测命令": "check_design_data",
+      "用例路径": "pos001_file",
+      "用例描述": "[strategy:smoke] 测试点1：覆盖必选参数 -file <String>，以仅含必选参数的最小合法调用，验证 check_design_data 能在指定报告路径生成完整的设计数据检查报告。",
+      "用例步骤": "1. 读入 Optimus 默认设计（PV_ROOT 锚定的 LEF、floorplan 网表与 MMMC），执行 setup_design 激活设计。2. 创建输出目录并清理旧报告，调用 check_design_data -file <报告相对路径>。3. 收集生成的报告文件，检查其存在且非空。",
+      "用例预期": "预期1：check_design_data 接受仅含 -file 的最小合法调用，无报错完成。预期2：指定相对路径生成非空的设计数据检查报告文件，内容完整可查询。",
+      "责任人": "",
+      "状态": "",
+      "备注": "Smoke 最小合法用例；-file 为必选参数。依赖 PV_ROOT 提供 SMIC28 设计数据与 PV 入口。",
+      "Ticket": ""
+    },
+    {
+      "number": 2,
+      "被测命令": "check_design_data",
+      "用例路径": "pos002_file_netlist",
+      "用例描述": "[strategy:smoke] 测试点1：在必选 -file 基础上叠加可选开关 -netlist，验证 check_design_data 仅检查 netlist 相关 items 并生成对应范围的报告。",
+      "用例步骤": "1. 读入 Optimus 默认设计并执行 setup_design 激活。2. 创建独立输出目录并清理旧报告，调用 check_design_data -file <报告路径> -netlist。3. 收集报告文件，检查其存在且非空。",
+      "用例预期": "预期1：check_design_data 接受 -file 与 -netlist 的合法组合，无报错完成。预期2：生成非空的 netlist 范围设计数据检查报告文件，内容完整可查询。",
+      "责任人": "",
+      "状态": "",
+      "备注": "Smoke 覆盖可选开关 -netlist，与 pos001 共享同一设计初始化；-netlist 限定仅检查 netlist 相关 items。",
+      "Ticket": ""
+    }
+  ]
+}

@@ -145,11 +145,20 @@
 - 进一步确认 `assets/defaults/optimus/design.tcl` 是初始化结构模板，而不是复制件或通用设计缺省值。F-018 更名为“Optimus 设计初始化模板”：用户目标设计的 `.v`/netlist、`.lef` 和 top 缺失时确定性报告缺口；只有用户明确选择仓库示例 profile，才使用 SMIC28/riscv 示例路径。解析器与 6 项测试已同步，F-018 功能级验证 PASS。
 - 修复 F-015 的 NITH 工作目录路径契约：`run_N.tcl` 虽位于 `tcl/<tool>/`，实际执行工作目录是与 `nith.run` 同级的用例统计目录，因此可选设计配置必须引用 `./tcl/design.tcl`，MMMC 必须引用 `./tcl/<tool>/mmmc.tcl`；工具选项中的相对文件路径遵循同一基准。
 - TCL 规范升级为 `2.3`，Layer 2B 新增旧路径反例：`../design.tcl` 和 `./mmmc.tcl` 均由 `TCL-RUNNER-002` 确定性拒绝；正确用例根路径通过。Optimus 模板默认 `mmmc_path` 同步改为 `./tcl/optimus/mmmc.tcl`。
+- 调整 F-018 Optimus 版本契约：目标版本改为可选元数据，不再是测试设计、Excel 或 TCL 生成的必要条件。未提供版本时继续生成版本无关覆盖；仅在具体测试点确实依赖版本且现有命令资料无法确定时记录局部缺口，不阻断其他用例。
+- `21.1` 仍可作为 Optimus 初始化模板的元数据默认值，但不得视为用户已确认版本或据此推导版本专属语法；新增缺省版本正向契约测试，F-018 验证为 7/7 PASS。
+- 修正 Optimus 示例路径拼写：`Itools21.1_lfp_util0.65` 改为 `Itools21.1_Ifp_util0.65`，解析器示例 profile、`design.tcl` 模板及测试同步更新。
+- Optimus 初始化职责收敛到每个 `run_N.tcl` 的 `DESIGN_INIT`：source PV、可选 source `./tcl/design.tcl`、设置 design/tech 相关 setup options、以 `setup.mmmc_file` 指定 MMMC、执行 `setup_design`，再通过 `read_def` 读入 DEF。
+- Optimus `mmmc.tcl` 不再被 source；`design.tcl` 与 `mmmc.tcl` 不得重复执行 PV source、`set_options`、`setup_design` 或 `read_def`。TCL 规范升级至 `2.4`，新增缺少 MMMC option、source MMMC、DEF 顺序错误和 helper 重复初始化的确定性失败样例；F-015 验证为 35/35 PASS。
+- 将 `tcl/design.tcl` 恢复为每个用例必须包含的标准件，TCL 规范升级至 `2.5`；缺少该文件由 `TCL-STRUCT-001` 确定性拒绝，Optimus 与 iTools / Innovus 的 run 初始化段都必须从用例统计目录 source `./tcl/design.tcl`。
+- 新增 `TCL-DESIGN-002`：当 `design.tcl` 已声明 LEF、Verilog/netlist、top、power/ground net 或 DEF 输入变量时，`run_N.tcl` 必须在对应 `set_options`/`read_def` 中直接复用，禁止同名重复 `set` 或改用字面值；新增正反样例后 F-015 验证为 37/37 PASS。
 
 ## 当前验证基线
 
 2026-08-12 本次检查结果：
 
+- F-015 标准 design.tcl 与输入变量复用规则：PASS（37/37）。
+- Codex Skill 结构检查：PASS；完整 Python 单元测试除 3 项已知旧 fixture 缺失失败外，其余 111/114 PASS。
 - F-015 功能级验证：PASS（34/34，含用例统计目录路径正反检查）。
 - Codex Skill 结构检查：PASS。
 - Git 待发布快照 Python 单元测试：110/110 PASS。

@@ -1,6 +1,6 @@
 # TCL 用例脚本规范
 
-版本：`2.3`
+版本：`2.5`
 
 状态：`CONFIGURED`
 
@@ -12,7 +12,7 @@
 <posNNN_用例名>/            # 或 negNNN_，目录名即用例名
 ├── nith.run                # Python 调度器，逐字保留 NITH 固定初始化块
 └── tcl/
-    ├── design.tcl          # 可选；不是标准件，存在时声明设计输入
+    ├── design.tcl          # 标准件；声明 run 使用的设计输入变量
     └── <tool>/             # optimus 或 itools，按被测工具生成，只存在一个
         ├── run_1.tcl       # 可多步：run_1.tcl … run_N.tcl，从 1 连续编号
         └── mmmc.tcl        # 该工具方言的 MMMC 定义
@@ -36,8 +36,8 @@
 
 - 目录下必须存在：`nith.run`（普通文件）、`tcl/`（目录）、恰好一个 `tcl/<tool>/`（目录）。
 - `tcl/<tool>/` 内必须存在：`run_1.tcl`，并可包含 `run_2.tcl … run_N.tcl`（从 1 连续，不跳号），以及 `mmmc.tcl`。
-- `tcl/design.tcl` 是可选辅助文件，不是标准件；不存在时不构成失败。
-- 正例：不含 `design.tcl` 的上述完整树；反例：`run_1.tcl` 跳到 `run_2.tcl`、缺 `mmmc.tcl`。
+- `tcl/design.tcl` 是每个用例必须包含的标准件；不存在时失败。
+- 正例：包含 `design.tcl`、连续 run 和 `mmmc.tcl` 的上述完整树；反例：缺 `design.tcl`、`run_1.tcl` 跳到 `run_2.tcl`、缺 `mmmc.tcl`。
 
 ### TCL-STRUCT-002：按被测工具生成
 
@@ -60,22 +60,29 @@
 ### TCL-RUNNER-002：树内组织
 
 - NITH 启动 `run_<N>.tcl` 时，工具工作目录是与 `nith.run` 同级的用例统计目录，不是 `run_<N>.tcl` 所在目录。所有相对路径均以该用例目录为基准。
-- `run_<N>.tcl` 的 setup 只能来自本树：在 `DESIGN_INIT` 段内使用 `source ./tcl/design.tcl` 与 `source ./tcl/<tool>/mmmc.tcl`；工具选项中的文件引用也遵循同一基准，例如 Optimus `set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl`。
+- `run_<N>.tcl` 的 setup 只能来自本树。Optimus 在 `DESIGN_INIT` 段内 source `./tcl/design.tcl`，但不得 source `mmmc.tcl`；MMMC 只能通过 `set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl` 设置。
 - 禁止 `source` 树外的 `case_setup.tcl`、绝对路径 setup 或其他外部 setup 脚本。
-- 正例：`source ./tcl/design.tcl`、`source ./tcl/optimus/mmmc.tcl`；反例：`source ../design.tcl`、`source ./mmmc.tcl`、`source ./tcl/case_setup.tcl`、`source /abs/setup.tcl`。
+- 正例：`source ./tcl/design.tcl`、`set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl`；反例：`source ../design.tcl`、`source ./tcl/optimus/mmmc.tcl`、`source ./mmmc.tcl`、`source ./tcl/case_setup.tcl`、`source /abs/setup.tcl`。
 
-### TCL-DESIGN-001：可选 design.tcl 声明输入
+### TCL-DESIGN-001：标准 design.tcl 声明输入
 
-- `tcl/design.tcl` 不是标准件，可以省略；仅当该文件存在时执行本规则。
+- `tcl/design.tcl` 是标准件，必须声明有意义的设计输入变量。
 - 存在时必须用 `set` 声明至少一种设计输入类别：top（`init_top`/`init_top_name`/`init_top_cell` 等）、网表（`verilog`/`netlist`）、`lef`、库或约束（`lib`/`timing`/`sdc`）。
 - 路径用 `$env(PV_ROOT)` 锚定或相对表达；检测按类别关键字，兼容不同变量命名。
 - 正例：`set init_top_name riscv_core`、`set lef_files ./design/a.lef`；反例：design.tcl 为空或只含注释。
 
+### TCL-DESIGN-002：run 复用 design.tcl 输入变量
+
+- `run_<N>.tcl` 必须 source `./tcl/design.tcl`。
+- 当 `design.tcl` 已声明 LEF、Verilog/netlist、top、power net、ground net 或 DEF 输入变量时，run 中对应的 `set_options` 或 `read_def` 必须直接引用该变量。
+- run 不得再次 `set` 同名变量，也不得以字面路径或字面名称绕过已存在的变量。
+- 正例：`set_options setup.lef_file $lef_files`、`read_def $def`；反例：run 中再次 `set lef_files ...`、`set_options setup.lef_file ./design/a.lef`、`read_def ./design/a.def`。
+
 ### TCL-RUN-001：run 脚本加载顺序
 
-- 每个 `run_<N>.tcl` 的 `DESIGN_INIT` 段内必须先 `source ./tcl/<tool>/mmmc.tcl`，随后才调用工具激活命令。
-- 如果用例选择使用可选 `./tcl/design.tcl`，必须在 MMMC 之前加载；也可以直接在初始化段声明设计输入，不使用 `design.tcl`。
-- 正例：直接设置输入后 source mmmc 再 `setup_design`；反例：未加载 mmmc、或激活之后才 source mmmc。
+- Optimus `run_<N>.tcl` 的 `DESIGN_INIT` 段依次完成：source PV、source `./tcl/design.tcl`、以其中变量设置 design/tech 相关 `setup.*` option、设置 `setup.mmmc_file`、执行 `setup_design`、最后以 `read_def` 读入 DEF。
+- Optimus 禁止 source `mmmc.tcl`，禁止用 `set_options` 设置 DEF，禁止在 `setup_design` 之前执行 `read_def`。
+- `design.tcl` 和 `mmmc.tcl` 不得重复 source PV、执行 `set_options`、`setup_design` 或 `read_def`；这些初始化动作只属于 run init 块。
 
 ### TCL-CHECKPOINT-001：包含检查点
 
@@ -128,7 +135,7 @@
 
 - 每个 `run_<N>.tcl` 必须可直接读入目标 EDA 工具，不假定调用者已预先读入设计。
 - 恰好使用一组 `# DESIGN_INIT_BEGIN`、`# DESIGN_INIT_END` 标记初始化段，初始化段必须在 `# TEST_ACTION` 之前完成。
-- 初始化段可以直接声明设计输入，也可以选择加载可选的 `./tcl/design.tcl`；必须加载 `source ./tcl/<tool>/mmmc.tcl`，并随后调用目标工具实际的设计激活命令：Optimus `setup_design`，iTools / Innovus `init_design`/`read_db`/`restoreDesign`，PrimeTime `open_block`/`link_design`。仅变量赋值、注释或 PV 加载不算完成初始化。
+- 初始化段必须加载标准件 `./tcl/design.tcl` 并复用其中的输入变量，不得在 run 中重复声明对应输入。Optimus 必须通过 `setup.mmmc_file` 指定 MMMC，执行 `setup_design` 后再 `read_def`；iTools / Innovus 仍使用其工具适配的 `init_design`/`read_db`/`restoreDesign` 流程。仅变量赋值、注释或 PV 加载不算完成初始化。
 - 多步用例中后续步读取前一步产物时，`read_db`/`restoreDesign` 即可作为该步激活命令。
 - 如果缺少完成初始化所需的信息，停止生成 TCL 并向用户列出缺口；不得交付只能在预加载设计会话中运行的半成品。
 

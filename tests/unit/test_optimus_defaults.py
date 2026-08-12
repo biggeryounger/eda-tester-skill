@@ -18,6 +18,18 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertIsNone(resolved["values"]["top_cell"])
         self.assertEqual(["lef_path", "netlist_path", "top_cell"], resolved["missing_required"])
 
+    def test_optimus_version_is_optional_and_never_blocks_generation(self) -> None:
+        resolved = resolve_template(
+            {
+                "lef_path": "./design/top.lef",
+                "netlist_path": "./design/top.v",
+                "top_cell": "top",
+                "optimus_version": " ",
+            }
+        )
+        self.assertEqual([], resolved["missing_required"])
+        self.assertNotIn("optimus_version", resolved["missing_required"])
+
     def test_example_profile_requires_explicit_selection(self) -> None:
         resolved = resolve_template({}, use_example_profile=True)
         self.assertEqual([], resolved["missing_required"])
@@ -29,7 +41,7 @@ class OptimusDefaultsTests(unittest.TestCase):
             EXAMPLE_PROFILE["lef_path"],
         )
         self.assertEqual(
-            "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_lfp_util0.65/riscv_core/floorplan.v.gz",
+            "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_Ifp_util0.65/riscv_core/floorplan.v.gz",
             EXAMPLE_PROFILE["netlist_path"],
         )
         self.assertEqual("riscv_core", EXAMPLE_PROFILE["top_cell"])
@@ -60,7 +72,7 @@ class OptimusDefaultsTests(unittest.TestCase):
         design = (defaults_dir / "design.tcl").read_text(encoding="utf-8")
         mmmc = (defaults_dir / "mmmc.tcl").read_text(encoding="utf-8")
         for value in (
-            "Itools21.1_lfp_util0.65/riscv_core",
+            "Itools21.1_Ifp_util0.65/riscv_core",
             "smic28_library",
             "set init_top_cell riscv_core",
             "sec28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
@@ -93,12 +105,16 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertNotIn("/Users/", design + mmmc)
         self.assertNotIn("/home/", design + mmmc)
         self.assertNotIn("set_options", design)
+        self.assertNotIn("source ", design)
+        self.assertNotIn("Itools21.1_lfp_", design)
 
     def test_skill_declares_template_and_explicit_example_semantics(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("assets/defaults/optimus/design.tcl", skill)
         self.assertIn("template", skill.lower())
         self.assertIn("explicitly selects the repository example profile", skill)
+        self.assertIn("Optimus target version is optional", skill)
+        self.assertIn("must not block", skill)
 
 
 if __name__ == "__main__":

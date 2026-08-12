@@ -7,6 +7,7 @@
 ## 使用原则
 
 - 只在目标工具为 **Optimus** 时加载本语料。
+- Optimus 目标版本是可选元数据，不是测试计划或 TCL 生成的必要条件。未提供版本时继续使用用户给出的命令说明设计版本无关用例；只有某项语法或行为明确依赖版本且现有资料无法确定时，才把该测试点记录为缺口，不得停止整个生成流程。
 - 复用流程阶段、命令顺序、对象依赖、输出节点和检查点位置。
 - 不复制来源中的 PDK 路径、library 文件名、cell 名、设计名、时钟名、金属层、process node、绝对数值或内部目录。
 - `assets/defaults/optimus/design.tcl` 是初始化结构模板，并附带一套可显式选择的仓库示例 profile。生成时用用户目标设计的 LEF、Verilog/netlist、DEF、top 等字段填充模板；不得因字段缺失而静默采用 SMIC28/riscv 示例路径。只有用户明确选择仓库示例 profile 时才使用其中示例值，否则缺少必要设计输入必须记录缺口并停止生成 TCL。
@@ -36,9 +37,9 @@
 ### 1.1 环境与设计配置
 
 ```tcl
-source $env(PV_ROOT)/scripts/pv.tcl
-
 # DESIGN_INIT_BEGIN
+source $env(PV_ROOT)/scripts/pv.tcl
+source ./tcl/design.tcl
 set_options global.infra.max_thread_count $max_threads
 set_options setup.lef_file $lef_files
 set_options setup.verilog $netlist_file
@@ -47,15 +48,18 @@ set_options setup.power_net $power_net
 set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl
 set_options setup.top_cell $top_cell
 setup_design
+read_def $def
 # DESIGN_INIT_END
 ```
 
-NITH 从与 `nith.run` 同级的用例统计目录执行 `run_N.tcl`，因此相对路径必须以用例目录为基准：可选设计文件写成 `./tcl/design.tcl`，Optimus MMMC 写成 `./tcl/optimus/mmmc.tcl`。模板默认 Optimus 版本为 `21.1`，power/ground net 为 `VDD`/`VSS`，MMMC 路径为 `./tcl/optimus/mmmc.tcl`。`assets/defaults/optimus/design.tcl` 中的 SMIC28 LEF、`riscv_core/floorplan.v.gz`、`floorplan.def.gz` 和 top `riscv_core` 是仓库示例 profile，不是所有用户的缺省输入。`assets/defaults/optimus/mmmc.tcl` 展示 `$tech_dir`、`$design_dir` 的连接方式及四视图对象模型；实际生成必须使用与用户设计匹配的 library、RC、SDC 和路径。
+NITH 从与 `nith.run` 同级的用例统计目录执行 `run_N.tcl`，因此相对路径必须以用例目录为基准：标准设计文件写成 `./tcl/design.tcl`，Optimus MMMC 写成 `./tcl/optimus/mmmc.tcl`。run 必须复用 `design.tcl` 中已经声明的 LEF、Verilog/netlist、top、power/ground net 和 DEF 变量，不得重复声明或改用字面值。模板中的 Optimus `21.1` 仅是可选元数据默认值，缺少目标版本不得阻止生成，也不得把该默认值当作用户已确认版本；power/ground net 为 `VDD`/`VSS`，MMMC 路径为 `./tcl/optimus/mmmc.tcl`。`assets/defaults/optimus/design.tcl` 中的 SMIC28 LEF、`riscv_core/floorplan.v.gz`、`floorplan.def.gz` 和 top `riscv_core` 是仓库示例 profile，不是所有用户的缺省输入。`assets/defaults/optimus/mmmc.tcl` 展示 `$tech_dir`、`$design_dir` 的连接方式及四视图对象模型；实际生成必须使用与用户设计匹配的 library、RC、SDC 和路径。
 
 生成约束：
 
 - `$max_threads` 和目标设计输入必须来自用例配置；模板只提供字段结构。仅版本、power/ground net、局部 MMMC 路径等非设计文件字段可采用登记默认值。
-- `setup.mmmc_file` 指向用例内普通文件，不得使用软连接。
+- PV 入口、`design.tcl` 加载、design/tech 路径和全部 `set_options` 只在 `run_N.tcl` 的 `DESIGN_INIT` 段完成；`design.tcl` 只声明变量，`mmmc.tcl` 只定义 MMMC 对象，不重复执行初始化。
+- `mmmc.tcl` 不通过 `source` 加载；`set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl` 指向用例内普通文件，不得使用软连接。
+- DEF 不通过 `set_options` 配置；必须在 `setup_design` 成功之后执行 `read_def $def`。
 - 来源流程使用 `$env(PV_ROOT)/scripts/pv.tcl`；若实际环境配置了其他 PV 入口，必须以用户确认的路径为准并记录差异。
 
 ### 1.2 Floorplan 与 PG 准备

@@ -55,14 +55,16 @@ set sdc_files ./design/smoke.sdc
 MMMC_TCL = '''create_lib_set -name slowLibSet -timing_lib ./design/smoke.lib
 '''
 
-RUN_TCL = '''source $env(PV_ROOT)/scripts/pv.tcl
+RUN_TCL = '''# DESIGN_INIT_BEGIN
+source $env(PV_ROOT)/scripts/pv.tcl
 set tool $env(PV_TOOL)
-# DESIGN_INIT_BEGIN
-source ./tcl/optimus/mmmc.tcl
-set init_top_name smoke_top
-set verilog_files ./design/smoke.v
-set lef_files ./design/smoke.lef
+source ./tcl/design.tcl
+set_options setup.lef_file $lef_files
+set_options setup.verilog $verilog_files
+set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl
+set_options setup.top_cell $init_top_name
 setup_design
+read_def $def
 # DESIGN_INIT_END
 # EXPECT: PASS
 # TEST_ACTION
@@ -72,7 +74,7 @@ pv_rpt_checkpoints
 exit
 '''
 
-RUN_TCL_STEP2 = RUN_TCL.replace("source ./tcl/optimus/mmmc.tcl\nsetup_design\n", "source ./tcl/optimus/mmmc.tcl\nread_db ./work/smoke.db\n")
+RUN_TCL_STEP2 = RUN_TCL.replace("setup_design\nread_def $def\n", "read_db ./work/smoke.db\n")
 
 
 class TclConventionValidatorTests(unittest.TestCase):
@@ -96,13 +98,15 @@ class TclConventionValidatorTests(unittest.TestCase):
     ) -> Path:
         if runs is None:
             runs = {"run_1.tcl": RUN_TCL}
+        if design is None:
+            design = DESIGN_TCL + "set def ./design/smoke.def\n"
         self._counter += 1
         case = self.root / f"case_{self._counter}" / name
         case.mkdir(parents=True)
         (case / "nith.run").write_text(nith_run, encoding="utf-8")
         tcl = case / "tcl"
         tcl.mkdir()
-        if design is not None:
+        if design:
             (tcl / "design.tcl").write_text(design, encoding="utf-8")
         tool_dir = tcl / tool
         tool_dir.mkdir()
@@ -137,10 +141,10 @@ class TclConventionValidatorTests(unittest.TestCase):
         (case / "nith.run").unlink()
         self.assertIn("TCL-STRUCT-001", self.rules(case))
 
-    def test_struct_001_does_not_require_design_tcl(self) -> None:
-        case = self.build()
+    def test_struct_001_requires_design_tcl_as_standard_file(self) -> None:
+        case = self.build(design="")
         self.assertFalse((case / "tcl" / "design.tcl").exists())
-        self.assertNotIn("TCL-STRUCT-001", self.rules(case))
+        self.assertIn("TCL-STRUCT-001", self.rules(case))
 
     def test_struct_001_rejects_run_number_gap(self) -> None:
         case = self.build(runs={"run_2.tcl": RUN_TCL})
@@ -188,18 +192,12 @@ class TclConventionValidatorTests(unittest.TestCase):
         self.assertIn("TCL-RUNNER-002", self.rules(case))
 
     def test_runner_002_resolves_sources_from_case_working_directory(self) -> None:
-        with_design = RUN_TCL.replace(
-            "source ./tcl/optimus/mmmc.tcl\n",
-            "source ./tcl/design.tcl\nsource ./tcl/optimus/mmmc.tcl\n",
-        )
+        with_design = RUN_TCL
         self.assertNotIn(
             "TCL-RUNNER-002",
             self.rules(self.build(design=DESIGN_TCL, runs={"run_1.tcl": with_design})),
         )
-        replacements = (
-            ("source ./tcl/design.tcl", "source ../design.tcl"),
-            ("source ./tcl/optimus/mmmc.tcl", "source ./mmmc.tcl"),
-        )
+        replacements = (("source ./tcl/design.tcl", "source ../design.tcl"),)
         for current, old_path in replacements:
             with self.subTest(old_path=old_path):
                 invalid = with_design.replace(current, old_path)
@@ -212,14 +210,45 @@ class TclConventionValidatorTests(unittest.TestCase):
         self.assertNotIn("TCL-DESIGN-001", self.rules(self.build()))
         self.assertIn("TCL-DESIGN-001", self.rules(self.build(design="# only a comment\n")))
 
-    def test_run_001_requires_design_then_mmc_then_activation(self) -> None:
-        self.assertNotIn("TCL-RUN-001", self.rules(self.build()))
-        no_mmmc = RUN_TCL.replace("source ./tcl/optimus/mmmc.tcl\n", "")
-        self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": no_mmmc})))
-        reordered = RUN_TCL.replace("source ./tcl/optimus/mmmc.tcl\n", "setup_design\nsource ./tcl/optimus/mmmc.tcl\n").replace(
-            "setup_design\n# DESIGN_INIT_END", "# DESIGN_INIT_END"
+    def test_design_002_rejects_redefinition_of_design_variable_in_run(self) -> None:
+        invalid = RUN_TCL.replace(
+            "set_options setup.lef_file $lef_files\n",
+            "set lef_files ./design/other.lef\nset_options setup.lef_file $lef_files\n",
         )
+        self.assertIn("TCL-DESIGN-002", self.rules(self.build(runs={"run_1.tcl": invalid})))
+
+    def test_design_002_requires_run_inputs_to_reuse_design_variables(self) -> None:
+        replacements = (
+            ("set_options setup.lef_file $lef_files", "set_options setup.lef_file ./design/other.lef"),
+            ("set_options setup.verilog $verilog_files", "set_options setup.verilog ./design/other.v"),
+            ("set_options setup.top_cell $init_top_name", "set_options setup.top_cell other_top"),
+            ("read_def $def", "read_def ./design/other.def"),
+        )
+        for current, replacement in replacements:
+            with self.subTest(replacement=replacement):
+                invalid = RUN_TCL.replace(current, replacement)
+                self.assertIn("TCL-DESIGN-002", self.rules(self.build(runs={"run_1.tcl": invalid})))
+
+    def test_run_001_requires_mmmc_option_then_setup_then_read_def(self) -> None:
+        self.assertNotIn("TCL-RUN-001", self.rules(self.build()))
+        no_mmmc = RUN_TCL.replace("set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl\n", "")
+        self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": no_mmmc})))
+        sourced_mmmc = RUN_TCL.replace(
+            "set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl\n",
+            "source ./tcl/optimus/mmmc.tcl\n",
+        )
+        self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": sourced_mmmc})))
+        reordered = RUN_TCL.replace("setup_design\nread_def $def\n", "read_def $def\nsetup_design\n")
         self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": reordered})))
+
+    def test_run_001_rejects_repeated_init_commands_in_helper_tcl(self) -> None:
+        for helper, content in (
+            ("design", DESIGN_TCL + "set_options setup.top_cell smoke_top\n"),
+            ("mmmc", MMMC_TCL + "source $env(PV_ROOT)/scripts/pv.tcl\n"),
+        ):
+            with self.subTest(helper=helper):
+                kwargs = {helper: content}
+                self.assertIn("TCL-RUN-001", self.rules(self.build(**kwargs)))
 
     def test_checkpoint_001_requires_real_call_in_tree(self) -> None:
         no_check = RUN_TCL.replace(
@@ -230,7 +259,8 @@ class TclConventionValidatorTests(unittest.TestCase):
 
     def test_checkpoint_002_requires_source_before_checkpoint(self) -> None:
         text = (
-            "# DESIGN_INIT_BEGIN\nsource ./tcl/design.tcl\nsource ./tcl/optimus/mmmc.tcl\nsetup_design\n# DESIGN_INIT_END\n"
+            "# DESIGN_INIT_BEGIN\nsource ./tcl/design.tcl\n"
+            "set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl\nsetup_design\nread_def $def\n# DESIGN_INIT_END\n"
             "# EXPECT: PASS\n# TEST_ACTION\npv_check_log {report_qor}\nsource $env(PV_ROOT)/scripts/pv.tcl\n"
         )
         self.assertIn("TCL-CHECKPOINT-002", self.rules(self.build(runs={"run_1.tcl": text})))

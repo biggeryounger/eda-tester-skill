@@ -167,8 +167,8 @@
       "name": "TCL 脚本规范验证",
       "priority": "P0",
       "status": "passing",
-      "description": "根据版本化 TCL 脚本规范对用例名子目录(nith.run + tcl/<tool>/{run_1.tcl...,mmmc.tcl}，design.tcl 可选)执行 Layer 2B 检查。",
-      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run 和按被测工具生成的 tcl/<tool>/ 子目录，design.tcl 可选", "tcl/<tool>/ 含连续编号的 run_1.tcl..run_N.tcl 和 mmmc.tcl", "每个 run_N.tcl 自带 TEST_ACTION/EXPECT 标记和 DESIGN_INIT 激活命令", "nith.run 逐字保留固定 NITH 初始化块,case-setup 按序引用各 run_<N>.tcl 并调用 nith_run/nith_done", "design.tcl 非标准件；存在时检查其设计输入声明，不存在时不失败", "run_N.tcl 按与 nith.run 同级的用例统计目录解析相对路径，树内引用使用 ./tcl/...", "保留可移植路径、PV 入口、pv_check_* 检查点和环境变量白名单规则", "支持 pv_check_log 的 filter/match 语义和 golden/ 相对路径", "同一 run 生成的 golden 实际文件按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "规则具有稳定 ID 和自动化正反样例"],
+      "description": "根据版本化 TCL 脚本规范对用例名子目录(nith.run + tcl/design.tcl + tcl/<tool>/{run_1.tcl...,mmmc.tcl})执行 Layer 2B 检查。",
+      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run、标准件 tcl/design.tcl 和按被测工具生成的 tcl/<tool>/ 子目录", "tcl/<tool>/ 含连续编号的 run_1.tcl..run_N.tcl 和 mmmc.tcl", "每个 run_N.tcl 自带 TEST_ACTION/EXPECT 标记和 DESIGN_INIT 激活命令", "Optimus init 块负责 source PV/design、设置 setup options，并通过 setup.mmmc_file 引用 MMMC，禁止 source mmmc.tcl", "Optimus DEF 在 setup_design 之后通过 read_def 读入，不通过 set_options 配置", "run_N.tcl 必须复用 design.tcl 已声明的输入变量，不得重复声明或用字面值绕过对应变量", "design.tcl 和 mmmc.tcl 不重复执行 PV source、set_options、setup_design 或 read_def", "nith.run 逐字保留固定 NITH 初始化块,case-setup 按序引用各 run_<N>.tcl 并调用 nith_run/nith_done", "run_N.tcl 按与 nith.run 同级的用例统计目录解析相对路径，树内引用使用 ./tcl/...", "保留可移植路径、PV 入口、pv_check_* 检查点和环境变量白名单规则", "支持 pv_check_log 的 filter/match 语义和 golden/ 相对路径", "同一 run 生成的 golden 实际文件按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "规则具有稳定 ID 和自动化正反样例"],
       "test_cases": ["tests/unit/test_tcl_convention_validator.py"],
       "validation_commands": ["unit-tcl-conventions"]
     },
@@ -198,7 +198,7 @@
       "priority": "P0",
       "status": "passing",
       "description": "使用仓库内 design.tcl 与 mmmc.tcl 作为 Optimus 初始化结构模板，并由用户目标设计输入填充。",
-      "acceptance_criteria": ["提供 design.tcl 和 mmmc.tcl 初始化模板", "MMMC 模板完整展示四组 library/RC/analysis corner 和四个 setup/hold view", "LEF、Verilog netlist 和 top cell 缺失时报告缺口，不静默采用仓库示例路径", "只有用户明确选择仓库示例 profile 时才使用 SMIC28/riscv 示例值", "用户提供值逐字段优先", "模板和示例路径使用 PV_ROOT 锚定形式且不包含用户本地绝对路径"],
+      "acceptance_criteria": ["提供 design.tcl 和 mmmc.tcl 初始化模板", "MMMC 模板完整展示四组 library/RC/analysis corner 和四个 setup/hold view", "Optimus 目标版本为可选信息，未提供时不得阻止测试计划或 TCL 生成", "示例设计目录使用 Itools21.1_Ifp_util0.65，禁止误写 lfp", "design.tcl 只声明设计/技术路径和设计输入，不 source 其他 TCL 或执行 set_options", "LEF、Verilog netlist 和 top cell 缺失时报告缺口，不静默采用仓库示例路径", "只有用户明确选择仓库示例 profile 时才使用 SMIC28/riscv 示例值", "用户提供值逐字段优先", "模板和示例路径使用 PV_ROOT 锚定形式且不包含用户本地绝对路径"],
       "test_cases": ["tests/unit/test_optimus_defaults.py"],
       "validation_commands": ["unit-optimus-defaults"]
     },

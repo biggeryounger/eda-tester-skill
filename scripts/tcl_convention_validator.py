@@ -24,14 +24,25 @@ DESIGN_ACTIVATION = re.compile(
 )
 DESIGN_SOURCE = re.compile(r"(?m)^[ \t]*source\s+\S*design\.tcl[ \t]*(?:#.*)?$")
 MMMC_SOURCE = re.compile(r"(?m)^[ \t]*source\s+\S*mmmc\.tcl[ \t]*(?:#.*)?$")
+SETUP_MMMC = re.compile(r"(?m)^[ \t]*set_options\s+setup\.mmmc_file\s+(\S+)[ \t]*(?:#.*)?$")
+SETUP_DESIGN = re.compile(r"(?m)^[ \t]*setup_design(?=\s|$)")
+READ_DEF = re.compile(r"(?m)^[ \t]*read_def(?=\s|$)")
+HELPER_INIT_COMMAND = re.compile(
+    r"(?m)^[ \t]*(?:source\s+\S*pv\.tcl|set_options\b|setup_design\b|read_def\b)"
+)
 EXTERNAL_SETUP = re.compile(r"(?m)^[ \t]*source\s+\S*(?:case_setup\.tcl|nith)")
 MACHINE_PATH = re.compile(r"(?m)(?:/Users/|/home/|[A-Za-z]:\\)")
 PLACEHOLDER = re.compile(r"\b(?:TODO|TBD)\b", re.I)
 DESIGN_CATEGORY = re.compile(
     r"(?m)^[ \t]*set\s+[A-Za-z0-9_]*"
-    r"(?:init_top|top_cell|verilog|netlist|lef|lib|timing|sdc)[A-Za-z0-9_]*\b",
+    r"(?:init_top|top_cell|verilog|netlist|lef|lib|timing|sdc|power_net|ground_net|def)[A-Za-z0-9_]*\b",
     re.I,
 )
+TCL_SET = re.compile(r"(?m)^[ \t]*set\s+([A-Za-z_][A-Za-z0-9_]*)\s+([^\r\n]+?)\s*(?:#.*)?$")
+INPUT_OPTION = re.compile(
+    r"(?m)^[ \t]*set_options\s+setup\.(lef_file|verilog|top_cell|power_net|ground_net)\s+(\S+)"
+)
+READ_DEF_INPUT = re.compile(r"(?m)^[ \t]*read_def\s+(\S+)")
 NITH_INIT_BEGIN = "### NITH initialization, please do not change this section"
 NITH_INIT_END = "### NITH initialization end"
 NITH_INPUT = re.compile(r'nith\.input\[""\]\s*=\s*f?"tcl/\{nith\.PV_TOOL\}/run_([0-9]+)\.tcl"')
@@ -180,6 +191,70 @@ def _contiguous_from_one(indices: list[int]) -> bool:
     return bool(indices) and indices == list(range(1, len(indices) + 1))
 
 
+def _input_category(variable: str) -> str | None:
+    name = variable.lower()
+    if "lef" in name:
+        return "lef_file"
+    if "verilog" in name or "netlist" in name:
+        return "verilog"
+    if "top_cell" in name or "init_top" in name or name in {"top", "top_name"}:
+        return "top_cell"
+    if "power_net" in name:
+        return "power_net"
+    if "ground_net" in name:
+        return "ground_net"
+    if name == "def" or name.startswith("def_") or name.endswith("_def") or "def_file" in name:
+        return "def"
+    return None
+
+
+def _variable_reference(value: str) -> str | None:
+    match = re.fullmatch(r"\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))", value.strip())
+    return (match.group(1) or match.group(2)) if match else None
+
+
+def _validate_design_variable_reuse(
+    design_text: str,
+    run_text: str,
+    run_path: Path,
+    diagnostics: list[TclConventionDiagnostic],
+) -> None:
+    design_variables = {match.group(1) for match in TCL_SET.finditer(design_text)}
+    variables_by_category: dict[str, set[str]] = {}
+    for variable in design_variables:
+        category = _input_category(variable)
+        if category is not None:
+            variables_by_category.setdefault(category, set()).add(variable)
+
+    for match in TCL_SET.finditer(run_text):
+        if match.group(1) in design_variables:
+            _add(
+                diagnostics,
+                "TCL-DESIGN-002",
+                run_path,
+                run_text,
+                match.start(),
+                f"run_N.tcl must reuse ${match.group(1)} from design.tcl instead of redefining it",
+            )
+
+    uses: list[tuple[str, str, int]] = [
+        (match.group(1), match.group(2), match.start()) for match in INPUT_OPTION.finditer(run_text)
+    ]
+    uses.extend(("def", match.group(1), match.start()) for match in READ_DEF_INPUT.finditer(run_text))
+    for category, value, position in uses:
+        candidates = variables_by_category.get(category, set())
+        if candidates and _variable_reference(value) not in candidates:
+            expected = ", ".join(f"${name}" for name in sorted(candidates))
+            _add(
+                diagnostics,
+                "TCL-DESIGN-002",
+                run_path,
+                run_text,
+                position,
+                f"run_N.tcl must use design.tcl variable {expected} for {category}",
+            )
+
+
 def _validate_run_script(
     text: str,
     path: Path,
@@ -197,27 +272,54 @@ def _validate_run_script(
         mmmc_src = MMMC_SOURCE.search(block)
         tool = path.parent.name
         expected_design = re.compile(r"(?m)^[ \t]*source\s+(?:\{)?\./tcl/design\.tcl(?:\})?[ \t]*(?:#.*)?$")
-        expected_mmmc = re.compile(
-            rf"(?m)^[ \t]*source\s+(?:\{{)?\./tcl/{re.escape(tool)}/mmmc\.tcl(?:\}})?[ \t]*(?:#.*)?$"
-        )
         valid_design_src = expected_design.search(block)
-        valid_mmmc_src = expected_mmmc.search(block)
-        if (design_src is not None and valid_design_src is None) or (mmmc_src is not None and valid_mmmc_src is None):
+        if design_src is not None and valid_design_src is None:
             diagnostics.append(TclConventionDiagnostic(
                 "TCL-RUNNER-002",
                 path,
                 None,
-                f"run script executes from the case directory; use ./tcl/design.tcl and ./tcl/{tool}/mmmc.tcl",
+                "run script executes from the case directory; use ./tcl/design.tcl",
             ))
         activation = DESIGN_ACTIVATION.search(block)
-        ordered = (
-            valid_mmmc_src is not None
-            and activation is not None
-            and valid_mmmc_src.start() < activation.start()
-            and (design_src is None or (valid_design_src is not None and valid_design_src.start() < valid_mmmc_src.start()))
-        )
+        if tool == "optimus":
+            pv_source = PV_SOURCE.search(block)
+            mmmc_option = SETUP_MMMC.search(block)
+            setup_design = SETUP_DESIGN.search(block)
+            read_def = READ_DEF.search(block)
+            expected_mmmc_path = f"./tcl/{tool}/mmmc.tcl"
+            ordered = bool(
+                pv_source is not None
+                and mmmc_src is None
+                and mmmc_option is not None
+                and mmmc_option.group(1) == expected_mmmc_path
+                and activation is not None
+                and mmmc_option.start() < activation.start()
+                and valid_design_src is not None
+                and pv_source.start() < valid_design_src.start() < mmmc_option.start()
+                and (
+                    setup_design is None
+                    or (read_def is not None and setup_design.start() < read_def.start())
+                )
+            )
+            message = (
+                "Optimus DESIGN_INIT must source PV/design, set setup.mmmc_file without sourcing MMMC, "
+                "run setup_design, then read_def"
+            )
+        else:
+            expected_mmmc = re.compile(
+                rf"(?m)^[ \t]*source\s+(?:\{{)?\./tcl/{re.escape(tool)}/mmmc\.tcl(?:\}})?[ \t]*(?:#.*)?$"
+            )
+            valid_mmmc_src = expected_mmmc.search(block)
+            ordered = bool(
+                valid_design_src is not None
+                and valid_mmmc_src is not None
+                and activation is not None
+                and valid_design_src.start() < valid_mmmc_src.start()
+                and valid_mmmc_src.start() < activation.start()
+            )
+            message = f"DESIGN_INIT must source ./tcl/design.tcl and ./tcl/{tool}/mmmc.tcl before activation"
         if not ordered:
-            diagnostics.append(TclConventionDiagnostic("TCL-RUN-001", path, None, f"DESIGN_INIT must source ./tcl/{tool}/mmmc.tcl before activation; optional ./tcl/design.tcl must precede mmmc.tcl"))
+            diagnostics.append(TclConventionDiagnostic("TCL-RUN-001", path, None, message))
 
     action_positions = [m.start() for m in re.finditer(r"(?m)^\s*#\s*TEST_ACTION\s*$", text)]
     expects = list(re.finditer(r"(?m)^\s*#\s*EXPECT:\s*(PASS|FAIL)\s*$", text))
@@ -360,6 +462,8 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
     struct_missing = []
     if nith_text is None:
         struct_missing.append("nith.run")
+    if design_text is None:
+        struct_missing.append("tcl/design.tcl")
     mmmc_path = (tool_dir / "mmmc.tcl") if tool_dir else None
     mmmc_text = _read(mmmc_path) if mmmc_path else None
     if mmmc_text is None:
@@ -406,6 +510,15 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
     if design_text is not None and not DESIGN_CATEGORY.search(design_text):
         diagnostics.append(TclConventionDiagnostic("TCL-DESIGN-001", design_path, None, "design.tcl must declare top/netlist/lef/lib/sdc input paths"))
 
+    for helper_path, helper_text in ((design_path, design_text), (mmmc_path, mmmc_text)):
+        if helper_text is not None and HELPER_INIT_COMMAND.search(helper_text):
+            diagnostics.append(TclConventionDiagnostic(
+                "TCL-RUN-001",
+                helper_path,
+                None,
+                "PV source, set_options, setup_design, and read_def belong only in run_N.tcl DESIGN_INIT",
+            ))
+
     if nith_text is not None:
         has_begin = NITH_INIT_BEGIN in nith_text
         has_end = NITH_INIT_END in nith_text
@@ -430,6 +543,8 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
         if text is None:
             continue
         checkpoint_total += len(_commands(text))
+        if design_text is not None:
+            _validate_design_variable_reuse(design_text, text, run_file, diagnostics)
         _validate_run_script(text, run_file, polarity, tcl_files, diagnostics)
     if checkpoint_total == 0:
         diagnostics.append(TclConventionDiagnostic("TCL-CHECKPOINT-001", case_dir, None, "case tree must call pv_check_log, pv_check_golden, or pv_check_qor"))

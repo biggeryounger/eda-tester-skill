@@ -1,0 +1,52 @@
+{
+  "scenarios": [
+    {
+      "number": 1,
+      "被测命令": "write_def",
+      "用例路径": "pos001_required_file",
+      "用例描述": "[strategy:smoke] 测试点 1：在已激活的 Optimus 设计中仅提供必选参数 <file_name>，覆盖 write_def 的最小合法调用。",
+      "用例步骤": "1. 使用 Optimus 21.1 默认设计配置读入并激活 riscv_core 设计。\n2. 创建相对输出目录并确保目标文件不存在。\n3. 执行 write_def ./out/write_def/full_design.def。\n4. 检查输出文件及命令日志。",
+      "用例预期": "1. 命令无错误完成，生成 ./out/write_def/full_design.def。\n2. 输出是非空普通文件，日志中不包含命令失败诊断。",
+      "责任人": "",
+      "状态": "",
+      "备注": "用户未指定版本，按 Optimus 默认配置使用 21.1；截图未给出稳定 golden DEF，Smoke 阶段仅检查文件生成、非空和日志无失败。",
+      "Ticket": ""
+    },
+    {
+      "number": 2,
+      "被测命令": "write_def",
+      "用例路径": "pos002_floorplan",
+      "用例描述": "[strategy:smoke] 测试点 1：显式启用 -floorplan，仅将 floorplan 内容写入指定 DEF 文件。",
+      "用例步骤": "1. 使用 Optimus 21.1 默认设计配置读入并激活 riscv_core 设计。\n2. 创建相对输出目录并确保目标文件不存在。\n3. 执行 write_def -floorplan ./out/write_def/floorplan_only.def。\n4. 检查输出文件及命令日志。",
+      "用例预期": "1. -floorplan 被正常接受，命令无错误完成。\n2. floorplan_only.def 为非空普通文件，输出限定为 floorplan 内容，日志中不包含命令失败诊断。",
+      "责任人": "",
+      "状态": "",
+      "备注": "截图只说明“Only write floorplan content”，未列出可稳定断言的 DEF section 清单；实机 golden 比对规则仍需由目标环境确认。",
+      "Ticket": ""
+    },
+    {
+      "number": 3,
+      "被测命令": "write_def",
+      "用例路径": "pos003_exclude_optional_content",
+      "用例描述": "[strategy:smoke] 测试点 1：启用 -no_early_route_wire，不写 early-route wires。\n测试点 2：启用 -no_logical_stdcell，不写 logical stdcell。\n测试点 3：启用 -no_routing，不写 regular nets。\n测试点 4：启用 -no_scanchain，不写 scan chains。\n测试点 5：启用 -no_special_net，不写 special nets。",
+      "用例步骤": "1. 使用 Optimus 21.1 默认设计配置读入并激活 riscv_core 设计。\n2. 创建相对输出目录并确保目标文件不存在。\n3. 执行 write_def -no_early_route_wire -no_logical_stdcell -no_routing -no_scanchain -no_special_net ./out/write_def/excluded_content.def。\n4. 检查输出文件及命令日志，并对五类被排除内容执行目标环境的 DEF 内容检查。",
+      "用例预期": "1. 五个布尔开关均被正常接受，命令无错误完成。\n2. excluded_content.def 为非空普通文件。\n3. 输出不包含 early-route wires、logical stdcell、regular nets、scan chains 和 special nets，日志中不包含命令失败诊断。",
+      "责任人": "",
+      "状态": "",
+      "备注": "五个开关在截图中均为独立可选 bool，未声明互斥，且共享相同设计状态和正向预期，因此按单用例多测试点规则合并；具体 DEF section/object 识别规则需在实机 golden 中确认。",
+      "Ticket": ""
+    },
+    {
+      "number": 4,
+      "被测命令": "write_def",
+      "用例路径": "pos004_help",
+      "用例描述": "[strategy:smoke] 测试点 1：使用 -help 打印 write_def 命令用法信息。",
+      "用例步骤": "1. 启动 Optimus 21.1 测试会话。\n2. 通过日志检查点执行并捕获 write_def -help 的输出。\n3. 检查帮助输出包含命令名、必选 <file_name> 以及截图列出的可选项。",
+      "用例预期": "1. -help 被正常接受，日志检查点完整记录 write_def 用法信息。\n2. 帮助信息包含 write_def、<file_name>、-floorplan、-no_early_route_wire、-no_logical_stdcell、-no_routing、-no_scanchain 和 -no_special_net。",
+      "责任人": "",
+      "状态": "",
+      "备注": "-help 的行为与 DEF 写出不同，独立成例；依据参数说明将其视为无需 <file_name> 的帮助调用，需在 Optimus 21.1 实机确认该语法例外。",
+      "Ticket": ""
+    }
+  ]
+}

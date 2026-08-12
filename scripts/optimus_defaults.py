@@ -11,7 +11,7 @@ from typing import Mapping, Optional
 EXAMPLE_PROFILE = {
     "optimus_version": "21.1",
     "lef_path": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sec28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef $env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sc28nhkcp_hsc30p140_rvt_ant.lef",
-    "netlist_path": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_lfp_util0.65/riscv_core/floorplan.v.gz",
+    "netlist_path": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_Ifp_util0.65/riscv_core/floorplan.v.gz",
     "top_cell": "riscv_core",
     "power_net": "VDD",
     "ground_net": "VSS",
