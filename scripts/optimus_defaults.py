@@ -5,16 +5,20 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 from typing import Mapping, Optional
 
 
+_CENTRAL_CONFIG = json.loads((Path(__file__).resolve().parents[1] / "assets/design-profiles.json").read_text(encoding="utf-8"))
+_CENTRAL_EXAMPLE = _CENTRAL_CONFIG["profiles"]["repository_example"]
 EXAMPLE_PROFILE = {
     "optimus_version": "21.1",
-    "lef_path": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sec28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef $env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sc28nhkcp_hsc30p140_rvt_ant.lef",
-    "netlist_path": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_Ifp_util0.65/riscv_core/floorplan.v.gz",
-    "top_cell": "riscv_core",
-    "power_net": "VDD",
-    "ground_net": "VSS",
+    "lef_path": " ".join(_CENTRAL_EXAMPLE["lef_files"]),
+    "netlist_path": _CENTRAL_EXAMPLE["netlist_file"],
+    "def_path": _CENTRAL_EXAMPLE["def_file"],
+    "top_cell": _CENTRAL_EXAMPLE["top_cell"],
+    "power_net": _CENTRAL_EXAMPLE["power_net"],
+    "ground_net": _CENTRAL_EXAMPLE["ground_net"],
     "mmmc_path": "./tcl/optimus/mmmc.tcl",
 }
 
@@ -24,7 +28,7 @@ TEMPLATE_DEFAULTS = {
     "ground_net": "VSS",
     "mmmc_path": "./tcl/optimus/mmmc.tcl",
 }
-DESIGN_INPUT_FIELDS = ("lef_path", "netlist_path", "top_cell")
+DESIGN_INPUT_FIELDS = ("lef_path", "netlist_path", "def_path", "top_cell")
 ALL_FIELDS = tuple(EXAMPLE_PROFILE)
 
 

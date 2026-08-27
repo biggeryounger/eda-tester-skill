@@ -19,6 +19,7 @@
     {"id": "unit-tool-help-dumper", "argv": ["python3", "-m", "unittest", "tests.unit.test_tool_help_dumper", "-v"]},
     {"id": "unit-delivery-gate", "argv": ["python3", "-m", "unittest", "tests.unit.test_delivery_gate", "-v"]},
     {"id": "unit-regression-corpus", "argv": ["python3", "-m", "unittest", "tests.unit.test_regression_corpus", "-v"]},
+    {"id": "unit-design-config", "argv": ["python3", "-m", "unittest", "tests.unit.test_design_config", "-v"]},
     {"id": "unit-all", "argv": ["python3", "-m", "unittest", "discover", "-s", "tests/unit", "-v"]}
   ],
   "features": [
@@ -221,6 +222,16 @@
       "acceptance_criteria": ["支持一个 TXT 中的多个命令块及中英文常见标题", "提取命令名、工具、版本、Syntax 和来源行号", "提取 option 必选性、参数数量、基本类型、枚举值和可重复性", "提取 option 的互斥、依赖和至少一个组合关系", "提取不同 Optimus 版本的 option 增删差异", "无法确定的属性输出 unknown 和可追踪缺口，不猜测事实", "缺少命令名、关系引用未知 option 等错误导致非零退出且不写交付 JSON", "具有自动化通过和失败样例"],
       "test_cases": ["tests/unit/test_command_spec_parser.py"],
       "validation_commands": ["unit-command-spec-parser"]
+    },
+    {
+      "id": "F-022",
+      "name": "设计路径集中管理",
+      "priority": "P0",
+      "status": "passing",
+      "description": "以版本化 JSON profile 作为所有 design.tcl 设计路径的唯一配置源，并确定性同步到一个或多个用例。",
+      "acceptance_criteria": ["设计目录、技术目录、LEF、netlist、DEF、top 和电源地网络在单一 profile 中维护", "一次命令可向多个用例同步内容一致的 design.tcl", "拒绝缺失字段、未知字段、用户目录绝对路径和重复输出目标", "生成文件记录 profile 来源且不需要在运行时访问仓库配置", "从同一 JSON 确定性生成带状态和冲突检查列的输入件管理表.xlsx", "仓库示例 profile 继续保持显式选择语义"],
+      "test_cases": ["tests/unit/test_design_config.py"],
+      "validation_commands": ["unit-design-config"]
     },
     {
       "id": "F-021",

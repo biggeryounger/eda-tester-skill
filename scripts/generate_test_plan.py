@@ -39,12 +39,34 @@ MIN_DATA_ROW_HEIGHT = 30
 MAX_DATA_ROW_HEIGHT = 240
 LINE_HEIGHT = 18
 FEATURE_TAG_PREFIX = re.compile(r"^\s*(?:\[feature\b[^\]]*\]\s*)+", re.IGNORECASE)
+ORDERED_ITEM_MARKER = re.compile(r"(?<!\S)(\d+)[.、]\s+")
 
 
 def sanitize_description(value: object) -> object:
     if not isinstance(value, str):
         return value
     return FEATURE_TAG_PREFIX.sub("", value).strip()
+
+
+def normalize_numbered_lines(value: object) -> object:
+    """Put each item in a sequential numbered list on its own Excel line."""
+    if not isinstance(value, str):
+        return value
+    matches = list(ORDERED_ITEM_MARKER.finditer(value))
+    if len(matches) < 2:
+        return value
+    numbers = [int(match.group(1)) for match in matches]
+    if numbers[0] != 1 or numbers != list(range(1, len(numbers) + 1)):
+        return value
+    parts: list[str] = []
+    prefix = value[: matches[0].start()].strip()
+    if prefix:
+        parts.append(prefix)
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(value)
+        item = f"{match.group(1)}. {value[match.end():end].strip()}"
+        parts.append(item.rstrip())
+    return "\n".join(parts)
 
 
 def display_width(value: object) -> int:
@@ -95,6 +117,8 @@ def load_scenarios(path: Path) -> list[dict[str, object]]:
         if not isinstance(scenario, dict):
             raise ValueError(f"scenario {index} must be an object")
         scenario["用例描述"] = sanitize_description(scenario.get("用例描述"))
+        for header in ("用例描述", "用例步骤", "用例预期"):
+            scenario[header] = normalize_numbered_lines(scenario.get(header))
         missing = [header for header in HEADERS[:6] if scenario.get(header) in (None, "")]
         if missing:
             raise ValueError(f"scenario {index} missing core fields: {', '.join(missing)}")

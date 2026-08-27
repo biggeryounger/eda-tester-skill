@@ -16,13 +16,14 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertIsNone(resolved["values"]["lef_path"])
         self.assertIsNone(resolved["values"]["netlist_path"])
         self.assertIsNone(resolved["values"]["top_cell"])
-        self.assertEqual(["lef_path", "netlist_path", "top_cell"], resolved["missing_required"])
+        self.assertEqual(["lef_path", "netlist_path", "def_path", "top_cell"], resolved["missing_required"])
 
     def test_optimus_version_is_optional_and_never_blocks_generation(self) -> None:
         resolved = resolve_template(
             {
                 "lef_path": "./design/top.lef",
                 "netlist_path": "./design/top.v",
+                "def_path": "./design/top.def",
                 "top_cell": "top",
                 "optimus_version": " ",
             }
@@ -36,12 +37,12 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertEqual(EXAMPLE_PROFILE, resolved["values"])
         self.assertEqual("21.1", EXAMPLE_PROFILE["optimus_version"])
         self.assertEqual(
-            "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sec28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef "
-            "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library/sc28nhkcp_hsc30p140_rvt_ant.lef",
+            "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef "
+            "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef",
             EXAMPLE_PROFILE["lef_path"],
         )
         self.assertEqual(
-            "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_Ifp_util0.65/riscv_core/floorplan.v.gz",
+            "$design_dir/floorplan.v.gz",
             EXAMPLE_PROFILE["netlist_path"],
         )
         self.assertEqual("riscv_core", EXAMPLE_PROFILE["top_cell"])
@@ -74,11 +75,11 @@ class OptimusDefaultsTests(unittest.TestCase):
         for value in (
             "Itools21.1_Ifp_util0.65/riscv_core",
             "smic28_library",
-            "set init_top_cell riscv_core",
-            "sec28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
-            "sc28nhkcp_hsc30p140_rvt_ant.lef",
-            "set netlist $design_dir/floorplan.v.gz",
-            "set def $design_dir/floorplan.def.gz",
+            "set init_top_cell \"riscv_core\"",
+            "scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
+            "scc28nhkcp_hsc30p140_rvt_ant.lef",
+            "set netlist_file \"$design_dir/floorplan.v.gz\"",
+            "set def_file \"$design_dir/floorplan.def.gz\"",
         ):
             self.assertIn(value, design)
         self.assertIn("create_analysis_view", mmmc)
@@ -87,7 +88,8 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertEqual(4, mmmc.count("create_analysis_corner "))
         self.assertEqual(2, mmmc.count("create_analysis_mode "))
         self.assertEqual(4, mmmc.count("create_analysis_view "))
-        self.assertEqual(4, mmmc.count("set_analysis_view_status "))
+        self.assertEqual(1, mmmc.count("set_analysis_view "))
+        self.assertNotIn("set_analysis_view_status ", mmmc)
         for value in (
             "slowLibSet_40c",
             "fastLibSet_40c",
@@ -98,8 +100,7 @@ class OptimusDefaultsTests(unittest.TestCase):
             "delay_corner_cbest",
             "delay_corner_cworst",
             "$design_dir/floorplan.sdc",
-            "func_rcworst -active true -setup true -hold false",
-            "func_rcbest -active true -setup false -hold true",
+            "set_analysis_view -hold {func_rcbest func_cbest} -setup {func_rcworst func_cworst}",
         ):
             self.assertIn(value, mmmc)
         self.assertNotIn("/Users/", design + mmmc)

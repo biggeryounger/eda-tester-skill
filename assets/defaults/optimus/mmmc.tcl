@@ -39,7 +39,4 @@ create_analysis_view -name func_cbest -analysis_mode func_min_mode -analysis_cor
 create_analysis_view -name func_cworst -analysis_mode func_max_mode -analysis_corner delay_corner_cworst
 
 # 4 view
-set_analysis_view_status -view func_rcworst -active true -setup true -hold false
-set_analysis_view_status -view func_cworst -active true -setup true -hold false
-set_analysis_view_status -view func_rcbest -active true -setup false -hold true
-set_analysis_view_status -view func_cbest -active true -setup false -hold true
+set_analysis_view -hold {func_rcbest func_cbest} -setup {func_rcworst func_cworst}

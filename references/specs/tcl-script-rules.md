@@ -1,6 +1,6 @@
 # TCL 用例脚本规范
 
-版本：`2.5`
+版本：`2.6`
 
 状态：`CONFIGURED`
 
@@ -78,6 +78,13 @@
 - run 不得再次 `set` 同名变量，也不得以字面路径或字面名称绕过已存在的变量。
 - 正例：`set_options setup.lef_file $lef_files`、`read_def $def`；反例：run 中再次 `set lef_files ...`、`set_options setup.lef_file ./design/a.lef`、`read_def ./design/a.def`。
 
+### TCL-DESIGN-003：设计路径集中管理
+
+- `assets/design-profiles.json` 是设计路径和值的唯一配置源；`assets/输入件管理表.xlsx` 是由它生成的审查视图，不作为第二配置源。
+- 每个 `design.tcl` 必须由 `scripts/design_config.py` 同步生成，并包含 `# Generated from central design profile: <profile>` 来源标记。
+- 修改路径时只修改 JSON profile，再批量同步目标用例；禁止直接手改各用例中的路径。
+- 配置器拒绝缺失字段、未知字段、机器专属绝对路径和同一批次重复输出目标。
+
 ### TCL-RUN-001：run 脚本加载顺序
 
 - Optimus `run_<N>.tcl` 的 `DESIGN_INIT` 段依次完成：source PV、source `./tcl/design.tcl`、以其中变量设置 design/tech 相关 `setup.*` option、设置 `setup.mmmc_file`、执行 `setup_design`、最后以 `read_def` 读入 DEF。
@@ -135,7 +142,7 @@
 
 - 每个 `run_<N>.tcl` 必须可直接读入目标 EDA 工具，不假定调用者已预先读入设计。
 - 恰好使用一组 `# DESIGN_INIT_BEGIN`、`# DESIGN_INIT_END` 标记初始化段，初始化段必须在 `# TEST_ACTION` 之前完成。
-- 初始化段必须加载标准件 `./tcl/design.tcl` 并复用其中的输入变量，不得在 run 中重复声明对应输入。Optimus 必须通过 `setup.mmmc_file` 指定 MMMC，执行 `setup_design` 后再 `read_def`；iTools / Innovus 仍使用其工具适配的 `init_design`/`read_db`/`restoreDesign` 流程。仅变量赋值、注释或 PV 加载不算完成初始化。
+- 初始化段必须加载标准件 `./tcl/design.tcl` 并复用其中的输入变量，不得在 run 中重复声明对应输入。Optimus 必须通过 `setup.mmmc_file` 指定 MMMC，执行 `setup_design` 后再 `read_def`；iTools / Innovus 必须在 `init_design` 前设置 `init_mmmc_file ./tcl/itools/mmmc.tcl`，由 `init_design` 加载 MMMC，禁止直接 `source` iTools MMMC 文件。iTools / Innovus 仍使用其工具适配的 `init_design`/`read_db`/`restoreDesign` 流程。仅变量赋值、注释或 PV 加载不算完成初始化。
 - 多步用例中后续步读取前一步产物时，`read_db`/`restoreDesign` 即可作为该步激活命令。
 - 如果缺少完成初始化所需的信息，停止生成 TCL 并向用户列出缺口；不得交付只能在预加载设计会话中运行的半成品。
 

@@ -45,7 +45,8 @@ NITH_RUN_TWO_STEP = NITH_RUN.replace(
     'nith.input[""] = f"tcl/{nith.PV_TOOL}/run_2.tcl"\nnith_run()\n',
 )
 
-DESIGN_TCL = '''set init_top_name smoke_top
+DESIGN_TCL = '''# Generated from central design profile: smoke
+set init_top_name smoke_top
 set verilog_files ./design/smoke.v
 set lef_files ./design/smoke.lef
 set lib_files ./design/smoke.lib
@@ -75,6 +76,24 @@ exit
 '''
 
 RUN_TCL_STEP2 = RUN_TCL.replace("setup_design\nread_def $def\n", "read_db ./work/smoke.db\n")
+
+ITOOLS_RUN_TCL = '''# DESIGN_INIT_BEGIN
+source $env(PV_ROOT)/scripts/pv.tcl
+source ./tcl/design.tcl
+set init_lef_file $lef_files
+set init_verilog $verilog_files
+set init_top_cell $init_top_name
+set init_mmmc_file ./tcl/itools/mmmc.tcl
+init_design
+read_def $def
+# DESIGN_INIT_END
+# EXPECT: PASS
+# TEST_ACTION
+report_qor
+pv_check_log {report_qor} -name smoke -filter {^Date}
+pv_rpt_checkpoints
+exit
+'''
 
 
 class TclConventionValidatorTests(unittest.TestCase):
@@ -127,6 +146,10 @@ class TclConventionValidatorTests(unittest.TestCase):
             runs={"run_1.tcl": RUN_TCL, "run_2.tcl": RUN_TCL_STEP2},
         )
         self.assertEqual([], self.rules(case))
+
+    def test_design_without_central_profile_marker_fails(self) -> None:
+        case = self.build(design=DESIGN_TCL.replace("# Generated from central design profile: smoke\n", "") + "set def ./design/smoke.def\n")
+        self.assertIn("TCL-DESIGN-003", self.rules(case))
 
     def test_suite_001_rejects_non_directory_input(self) -> None:
         file_path = self.root / "pos002_file.tcl"
@@ -240,6 +263,24 @@ class TclConventionValidatorTests(unittest.TestCase):
         self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": sourced_mmmc})))
         reordered = RUN_TCL.replace("setup_design\nread_def $def\n", "read_def $def\nsetup_design\n")
         self.assertIn("TCL-RUN-001", self.rules(self.build(runs={"run_1.tcl": reordered})))
+
+    def test_run_001_itools_uses_init_mmmc_file_without_source(self) -> None:
+        valid = self.build(tool="itools", runs={"run_1.tcl": ITOOLS_RUN_TCL})
+        self.assertNotIn("TCL-RUN-001", self.rules(valid))
+
+        sourced = ITOOLS_RUN_TCL.replace(
+            "set init_mmmc_file ./tcl/itools/mmmc.tcl\n",
+            "source ./tcl/itools/mmmc.tcl\n",
+        )
+        invalid = self.build(tool="itools", runs={"run_1.tcl": sourced})
+        self.assertIn("TCL-RUN-001", self.rules(invalid))
+
+        wrong_path = ITOOLS_RUN_TCL.replace(
+            "set init_mmmc_file ./tcl/itools/mmmc.tcl",
+            "set init_mmmc_file ./other/mmmc.tcl",
+        )
+        invalid_path = self.build(tool="itools", runs={"run_1.tcl": wrong_path})
+        self.assertIn("TCL-RUN-001", self.rules(invalid_path))
 
     def test_run_001_rejects_repeated_init_commands_in_helper_tcl(self) -> None:
         for helper, content in (

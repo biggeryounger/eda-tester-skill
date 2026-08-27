@@ -1,6 +1,6 @@
 # EDA Tester Skill 项目进度
 
-最后更新：2026-08-12
+最后更新：2026-08-14
 
 项目仓库：<https://github.com/biggeryounger/eda-tester-skill>
 
@@ -13,7 +13,7 @@
 ## 当前状态
 
 - 当前活动功能：无。
-- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-014、F-015、F-016、F-017、F-018、F-019、F-020、F-021。
+- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-014、F-015、F-016、F-017、F-018、F-019、F-020、F-021、F-022。
 - F-014 已使用真实 Nagelfar 1.3.5 完成有效/无效 Innovus TCL 端到端复核，状态为 `passing`。
 - F-015 TCL 脚本规范检查器已升级为目录树模型（`nith.run` + `tcl/design.tcl` + `tcl/<tool>/{run_1.tcl…run_N.tcl, mmmc.tcl}`），状态为 `passing`。
 - F-020 TXT 命令说明结构化解析器已实现并通过功能级验证，状态为 `passing`。
@@ -24,6 +24,7 @@
 
 ## 已完成工作
 
+- 新增 `references/case-knowledge-base-design.md`，完成独立 EDA 用例生成知识库 `1.0-draft` 架构设计；定义命令语义、测试模式、业务场景、故障模式、环境初始化、检查点和历史案例七类知识，以及统一元数据、来源、版本、可信度、脱敏、检索适配、反馈闭环和确定性验证要求。本次仅完成设计，不新增或启动功能点。
 - 建立 Skill 基础结构、界面元数据、模板、规范和测试目录。
 - 建立 `function.json` 功能清单和单一活动功能门禁。
 - 建立正负用例目录、`case.toml` 元数据和基础 TCL 契约检查。
@@ -152,8 +153,28 @@
 - Optimus `mmmc.tcl` 不再被 source；`design.tcl` 与 `mmmc.tcl` 不得重复执行 PV source、`set_options`、`setup_design` 或 `read_def`。TCL 规范升级至 `2.4`，新增缺少 MMMC option、source MMMC、DEF 顺序错误和 helper 重复初始化的确定性失败样例；F-015 验证为 35/35 PASS。
 - 将 `tcl/design.tcl` 恢复为每个用例必须包含的标准件，TCL 规范升级至 `2.5`；缺少该文件由 `TCL-STRUCT-001` 确定性拒绝，Optimus 与 iTools / Innovus 的 run 初始化段都必须从用例统计目录 source `./tcl/design.tcl`。
 - 新增 `TCL-DESIGN-002`：当 `design.tcl` 已声明 LEF、Verilog/netlist、top、power/ground net 或 DEF 输入变量时，`run_N.tcl` 必须在对应 `set_options`/`read_def` 中直接复用，禁止同名重复 `set` 或改用字面值；新增正反样例后 F-015 验证为 37/37 PASS。
+- 新增 F-022 设计路径集中管理：`assets/design-profiles.json` 成为设计目录、技术目录、LEF、netlist、DEF、top、power/ground net 的唯一可编辑配置源，`scripts/design_config.py` 可从指定 profile 一次同步一个或多个用例的 `tcl/design.tcl`。
+- 新增 `assets/输入件管理表.xlsx`，由同一 JSON 确定性生成，包含编号、Profile、输入类别、字段、路径/值、必选性、状态、冲突检查、来源和备注；该表是审查视图，不作为第二配置源。
+- 配置器拒绝 schema/profile 错误、缺失字段、未知字段、空值、用户目录绝对路径、非 `design.tcl` 输出和重复输出目标；生成文件保留 central profile 来源标记且运行时不依赖仓库配置。
+- TCL 规范升级至 `2.6`，新增 `TCL-DESIGN-003`，没有集中 profile 来源标记的 `design.tcl` 由 Layer 2B 确定性拒绝。
+- Optimus 示例默认解析器已改为读取集中 profile，消除旧代码与模板间 LEF 文件名 `sec/sc` 和 `scc/scc` 的冲突；DEF 也纳入必选设计输入。
+- F-022 功能级验证 6/6 PASS；F-015 38/38 PASS；F-018 7/7 PASS，状态均为 `passing`。
 
 ## 当前验证基线
+
+2026-08-23 本次文档设计检查结果：
+
+- EDA 用例生成知识库设计文档已生成，章节和内容非空检查通过，`git diff --check` 通过。
+- Codex Skill 结构检查：PASS。
+- 项目验证仍因 2 个已知旧基础 fixture 缺失而失败，共影响 F-003/F-004/F-005 的 6 条路径登记；与本次文档设计无关，未修改或伪造这些 fixture。
+
+2026-08-14 本次检查结果：
+
+- F-022 设计路径集中管理：PASS（6/6）。
+- F-015 TCL Layer 2B：PASS（38/38，含 `TCL-DESIGN-003` 正反检查）。
+- F-018 Optimus 默认解析：PASS（7/7）。
+- Python 单元测试：118/121 PASS；仅 3 项已知旧 fixture 缺失失败，与会话开始基线一致。
+- `assets/输入件管理表.xlsx` 可重新打开，包含 2 个工作表和 8 条 repository_example 输入记录，无公式及 Excel 错误字符串。
 
 2026-08-12 本次检查结果：
 
@@ -212,11 +233,12 @@ python3 /Users/e2uninova-m4/.codex/skills/.system/skill-creator/scripts/quick_va
 
 ## 下一步
 
-1. 恢复旧基础 fixture，或迁移 F-003/F-004/F-005 的测试登记，重新恢复项目级门禁。
-2. 等待用户确认 `write_def` Smoke 用例设计；确认后生成 4 个目录树 TCL 用例并运行 F-006 统一交付门禁。
-3. 为 F-002 建立策略交互、覆盖矩阵及多策略去重的自动化验收样例。
-4. 为 F-001 实现稳定的 Innovus 语料库查询适配器和响应结构校验。
-5. 按新目录树模型重建 `generated/` 中的 `check_design_data` Smoke 交付物，并使用 F-006 统一门禁验收。
+1. 用户确认用例知识库设计后，再按测试先行规则把知识库实现拆成 `function.json` 功能点；优先实现 Schema、来源模型、脱敏检查和固定查询回归集。
+2. 恢复旧基础 fixture，或迁移 F-003/F-004/F-005 的测试登记，重新恢复项目级门禁。
+3. 用户新增或修改目标设计时，在 `assets/design-profiles.json` 增加/更新 profile，重新生成 `assets/输入件管理表.xlsx`，并批量同步对应 case 的 `design.tcl`。
+4. 等待用户确认 `write_def` Smoke 用例设计；确认后生成 4 个目录树 TCL 用例并运行 F-006 统一交付门禁。
+5. 为 F-002 建立策略交互、覆盖矩阵及多策略去重的自动化验收样例。
+6. 为 F-001 实现稳定的 Innovus 语料库查询适配器和响应结构校验。
 
 ## 每次会话开始时
 

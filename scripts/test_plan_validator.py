@@ -18,6 +18,7 @@ HEADERS = ("number", "被测命令", "用例路径", "用例描述", "用例步�
 CASE_NAME = re.compile(r"^(pos|neg)([0-9]{3})_([a-z0-9][a-z0-9_]*)$")
 COMMAND_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_:.-]*$")
 STEP_NUMBER = re.compile(r"(?m)^\s*1[.、)]")
+ORDERED_ITEM_MARKER = re.compile(r"(?<!\S)(\d+)[.、]\s+")
 OBSERVABLE = re.compile(r"报错|错误|warning|warn|拒绝|报告|文件|对象|数据|golden|iTools|比较|查询|生成|不存在|不变|完整", re.I)
 NEGATIVE = re.compile(r"非法|缺失|冲突|不支持|错误|报错|warning|warn|拒绝|失败|不存在|超出|无效", re.I)
 POSITIVE = re.compile(r"合法|支持|正常|典型|基本|有效|成功|无报错|完整|一致", re.I)
@@ -51,6 +52,16 @@ def _text(value: object) -> str:
 
 def _diag(path: Path, rule: str, message: str, row: int | None = None, severity: str = "error") -> PlanDiagnostic:
     return PlanDiagnostic(rule, severity, path, "cmd" if row is not None else None, row, message)
+
+
+def _has_inline_numbered_items(value: str) -> bool:
+    matches = list(ORDERED_ITEM_MARKER.finditer(value))
+    if len(matches) < 2:
+        return False
+    numbers = [int(match.group(1)) for match in matches]
+    if numbers[0] != 1 or numbers != list(range(1, len(numbers) + 1)):
+        return False
+    return any("\n" not in value[previous.start():current.start()] for previous, current in zip(matches, matches[1:]))
 
 
 def load_requirements(path: Path | None) -> tuple[dict[str, list[str]], list[PlanDiagnostic]]:
@@ -124,6 +135,9 @@ def validate_test_plan(path: Path, requirements_path: Path | None = None) -> lis
             known.add(case_name)
             indices.setdefault((command, match.group(1)), []).append(int(match.group(2)))
         description, steps, expected = values[3], values[4], values[5]
+        for field_name, field_value in (("用例描述", description), ("用例步骤", steps), ("用例预期", expected)):
+            if _has_inline_numbered_items(field_value):
+                diagnostics.append(_diag(path, "PLAN-015", f"{field_name} must put each numbered item on its own line within the cell", row_number))
         if description and (len(description) < 12 or description in {command, f"{command}功能测试", "功能测试"}):
             diagnostics.append(_diag(path, "PLAN-008", "description must identify the scenario and covered behavior", row_number))
         if steps and (not STEP_NUMBER.search(steps) or command.lower() not in steps.lower() or not re.search(r"准备|读入|加载|创建|调用|执行|运行|检查|收集|保存|写出", steps, re.I)):

@@ -25,6 +25,7 @@ DESIGN_ACTIVATION = re.compile(
 DESIGN_SOURCE = re.compile(r"(?m)^[ \t]*source\s+\S*design\.tcl[ \t]*(?:#.*)?$")
 MMMC_SOURCE = re.compile(r"(?m)^[ \t]*source\s+\S*mmmc\.tcl[ \t]*(?:#.*)?$")
 SETUP_MMMC = re.compile(r"(?m)^[ \t]*set_options\s+setup\.mmmc_file\s+(\S+)[ \t]*(?:#.*)?$")
+INIT_MMMC = re.compile(r"(?m)^[ \t]*set\s+init_mmmc_file\s+(\S+)[ \t]*(?:#.*)?$")
 SETUP_DESIGN = re.compile(r"(?m)^[ \t]*setup_design(?=\s|$)")
 READ_DEF = re.compile(r"(?m)^[ \t]*read_def(?=\s|$)")
 HELPER_INIT_COMMAND = re.compile(
@@ -305,19 +306,22 @@ def _validate_run_script(
                 "Optimus DESIGN_INIT must source PV/design, set setup.mmmc_file without sourcing MMMC, "
                 "run setup_design, then read_def"
             )
-        else:
-            expected_mmmc = re.compile(
-                rf"(?m)^[ \t]*source\s+(?:\{{)?\./tcl/{re.escape(tool)}/mmmc\.tcl(?:\}})?[ \t]*(?:#.*)?$"
-            )
-            valid_mmmc_src = expected_mmmc.search(block)
+        elif tool == "itools":
+            init_mmmc = INIT_MMMC.search(block)
+            expected_mmmc_path = "./tcl/itools/mmmc.tcl"
             ordered = bool(
                 valid_design_src is not None
-                and valid_mmmc_src is not None
+                and mmmc_src is None
+                and init_mmmc is not None
+                and init_mmmc.group(1) == expected_mmmc_path
                 and activation is not None
-                and valid_design_src.start() < valid_mmmc_src.start()
-                and valid_mmmc_src.start() < activation.start()
+                and valid_design_src.start() < init_mmmc.start()
+                and init_mmmc.start() < activation.start()
             )
-            message = f"DESIGN_INIT must source ./tcl/design.tcl and ./tcl/{tool}/mmmc.tcl before activation"
+            message = "iTools DESIGN_INIT must source ./tcl/design.tcl, set init_mmmc_file ./tcl/itools/mmmc.tcl without sourcing MMMC, then run init_design"
+        else:
+            ordered = bool(valid_design_src is not None and activation is not None and valid_design_src.start() < activation.start())
+            message = f"DESIGN_INIT must source ./tcl/design.tcl before {tool} activation"
         if not ordered:
             diagnostics.append(TclConventionDiagnostic("TCL-RUN-001", path, None, message))
 
@@ -509,6 +513,13 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
 
     if design_text is not None and not DESIGN_CATEGORY.search(design_text):
         diagnostics.append(TclConventionDiagnostic("TCL-DESIGN-001", design_path, None, "design.tcl must declare top/netlist/lef/lib/sdc input paths"))
+    if design_text is not None and not re.search(
+        r"(?m)^# Generated from central design profile: [a-z][a-z0-9_]*$", design_text
+    ):
+        diagnostics.append(TclConventionDiagnostic(
+            "TCL-DESIGN-003", design_path, None,
+            "design.tcl must be generated from assets/design-profiles.json and record its profile",
+        ))
 
     for helper_path, helper_text in ((design_path, design_text), (mmmc_path, mmmc_text)):
         if helper_text is not None and HELPER_INIT_COMMAND.search(helper_text):
