@@ -1,0 +1,8 @@
+{
+  "tool": "Optimus",
+  "tool_version": "21.1",
+  "strategies": ["Smoke case"],
+  "version_source": "Optimus registered default because the source description does not identify a version",
+  "design_initialization": "assets/defaults/optimus/design.tcl and assets/defaults/optimus/mmmc.tcl",
+  "tcl_generation_approved": false
+}

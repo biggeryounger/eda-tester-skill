@@ -1,0 +1,22 @@
+#!/opt/Anaconda3-5.2.0-Linux-x86_64/bin/python -B
+### NITH initialization, please do not change this section
+import os,sys
+nith_path="/Data/devops/qa/git/testcase-prime/pv/nith"
+nith_path=nith_path if os.path.exists(nith_path) else "/storage/prime_testcase/pv/nith"
+envpath=os.path.abspath(sys.argv[0])
+for i in range(10):
+    envpath=os.path.dirname(envpath)
+    if os.path.isfile(envpath+"/nith/main.py"):
+        nith_path=envpath+"/nith"; break
+sys.path.append(nith_path)
+import globalvar as nith; nith._init()
+from main import *
+### NITH initialization end
+
+# Case setup
+nith.input[""] = f"tcl/{nith.PV_TOOL}/run_1.tcl"
+nith_run()
+
+nith.input[""] = f"tcl/{nith.PV_TOOL}/run_2.tcl"
+nith_run()
+nith_done()

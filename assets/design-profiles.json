@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "profiles": {
+    "io_buffer_fixture_v1": {
+      "design_dir": "./design",
+      "tech_dir": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library",
+      "top_cell": "io_buffer_fixture_v1",
+      "lef_files": [
+        "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
+        "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef"
+      ],
+      "netlist_file": "$design_dir/io_buffer_fixture_v1.v",
+      "def_file": "$design_dir/io_buffer_fixture_v1.def",
+      "power_net": "VDD",
+      "ground_net": "VSS"
+    },
+    "alu_edittrim_shared_fixture": {
+      "design_dir": "../../editTrim/fixture",
+      "tech_dir": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library",
+      "top_cell": "alu",
+      "lef_files": [
+        "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
+        "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef"
+      ],
+      "netlist_file": "$design_dir/edittrim_wire_scenarios_v1.v",
+      "def_file": "$design_dir/edittrim_wire_scenarios_v1.def",
+      "power_net": "VDD",
+      "ground_net": "VSS"
+    },
+    "alu_edittrim_21_12": {
+      "design_dir": "../fixture",
+      "tech_dir": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library",
+      "top_cell": "alu",
+      "lef_files": [
+        "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
+        "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef"
+      ],
+      "netlist_file": "$design_dir/edittrim_wire_scenarios_v1.v",
+      "def_file": "$design_dir/edittrim_wire_scenarios_v1.def",
+      "power_net": "VDD",
+      "ground_net": "VSS"
+    },
+    "repository_example": {
+      "design_dir": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/Itools21.1_Ifp_util0.65/riscv_core",
+      "tech_dir": "$env(PV_ROOT)/svn/openedi/design_data/SMIC28/smic28_library",
+      "top_cell": "riscv_core",
+      "lef_files": [
+        "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
+        "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef"
+      ],
+      "netlist_file": "$design_dir/floorplan.v.gz",
+      "def_file": "$design_dir/floorplan.def.gz",
+      "power_net": "VDD",
+      "ground_net": "VSS"
+    }
+  }
+}

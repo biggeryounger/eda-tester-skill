@@ -1,0 +1,6 @@
+{
+  "check_design_data": [
+    "-file",
+    "-netlist"
+  ]
+}

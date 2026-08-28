@@ -5,6 +5,7 @@ import stat
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 
@@ -70,6 +71,18 @@ class NagelfarAdapterTests(unittest.TestCase):
             self.assertEqual("FAIL", result.status)
             self.assertEqual("NAGELFAR-SYNTAX", result.diagnostics[0].rule_id)
             self.assertEqual(3, result.diagnostics[0].line)
+
+    def test_resolve_tclsh_rejects_85_and_selects_compatible_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            old = Path(temporary_dir) / "tclsh85"
+            old.write_text("#!/bin/sh\necho 8.5.9\n", encoding="utf-8")
+            old.chmod(old.stat().st_mode | stat.S_IXUSR)
+            with mock.patch.dict("os.environ", {"TCLSH": str(old)}):
+                resolved = ADAPTER.resolve_tclsh()
+            self.assertIsNotNone(resolved)
+            completed = __import__("subprocess").run([resolved], input="puts [info patchlevel]\n", capture_output=True, text=True)
+            major_minor = tuple(map(int, completed.stdout.strip().split(".")[:2]))
+            self.assertGreaterEqual(major_minor, (8, 6))
 
 
 if __name__ == "__main__":

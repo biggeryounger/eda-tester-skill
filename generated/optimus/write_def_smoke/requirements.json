@@ -1,0 +1,12 @@
+{
+  "write_def": [
+    "<file_name>",
+    "-help",
+    "-floorplan",
+    "-no_early_route_wire",
+    "-no_logical_stdcell",
+    "-no_routing",
+    "-no_scanchain",
+    "-no_special_net"
+  ]
+}

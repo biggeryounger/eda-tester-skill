@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "number": 1,
+      "被测命令": "check_design_data",
+      "用例路径": "pos001_default",
+      "用例描述": "[strategy:smoke] 测试点 1：在已完成设计读入的 Optimus 环境中，不带可选项调用 check_design_data，覆盖命令默认调用。",
+      "用例步骤": "1. 在已读入可供检查目标设计的 Optimus 会话中开始测试。\n2. 通过 PV_ROOT 加载检查点。\n3. 执行不带选项的 check_design_data。\n4. 收集命令日志检查点。",
+      "用例预期": "1. check_design_data 默认调用被正常接受，日志检查点生成完整记录。",
+      "责任人": "",
+      "状态": "",
+      "备注": "目标 Optimus 版本未提供；实机运行前需确认该版本帮助文本与截图一致。",
+      "Ticket": ""
+    },
+    {
+      "number": 2,
+      "被测命令": "check_design_data",
+      "用例路径": "pos002_file_netlist",
+      "用例描述": "[strategy:smoke] 测试点 1：使用 -file <String> 指定 ./out/check_design_data/check_design_data.rpt，验证检查报告输出件。\n测试点 2：显式启用 -netlist，仅检查 netlist 中定义的 net、instance、cell 等元素。",
+      "用例步骤": "1. 在已读入包含 netlist 目标设计的 Optimus 会话中开始测试。\n2. 通过 PV_ROOT 加载检查点并创建相对输出目录。\n3. 执行 check_design_data -file ./out/check_design_data/check_design_data.rpt -netlist。\n4. 检查指定目录下生成的报告是非空普通文件，并收集日志检查点。",
+      "用例预期": "1. -file 被接受，指定路径生成 check_design_data.rpt，且报告为非空普通文件。\n2. -netlist 被接受，命令正常完成仅针对 netlist 元素的检查。",
+      "责任人": "",
+      "状态": "",
+      "备注": "截图未定义报告格式和稳定内容，因此 Smoke 仅确定性检查输出件存在且非空，不臆造 golden 内容。",
+      "Ticket": ""
+    }
+  ]
+}
