@@ -135,6 +135,7 @@ def generate(source: Path, output: Path, template: Path = DEFAULT_TEMPLATE, requ
     if tuple(sheet.cell(1, column).value for column in range(1, 11)) != HEADERS:
         workbook.close()
         raise ValueError("template A-J headers do not match the required structure")
+    sheet._images = []
     style_cells = [copy.copy(sheet.cell(2, column)._style) for column in range(1, 11)]
     if sheet.max_row > 1:
         sheet.delete_rows(2, sheet.max_row - 1)

@@ -1,6 +1,6 @@
 # EDA Tester Skill 项目进度
 
-最后更新：2026-08-14
+最后更新：2026-09-08
 
 项目仓库：<https://github.com/biggeryounger/eda-tester-skill>
 
@@ -24,6 +24,15 @@
 
 ## 已完成工作
 
+- 2026-09-08 将 `SKILL.md` 按渐进披露原则压缩为三部分：通用重要规则、工作流程、参考文档索引；总字符数 1,982（含空白），详细规则下沉到 references。相关入口契约测试 26/26 通过，Skill 结构检查通过。
+- 2026-09-08 按《EDA用例规则规范去重Checklist》统一规则重构生成门禁：解决单步 `run.tcl` 与旧 `run_1.tcl` 冲突；单步强制无编号，多步才使用连续 `run_1.tcl … run_N.tcl`。
+- Layer 2B 新增/收紧：每个 run 独立 checkpoint、MMMC 声明式限制、CMD 禁止 DEF golden、完整占位符集合、`nith_run()` 数量匹配及 `nith_done()` 恰好一次。
+- 新增 `references/manual-review-rules.md`，把无法由静态程序证明的覆盖语义、场景合并、版本依据、可观察预期、BUILD 来源、真实结果和归档压缩为 12 项强制人工审查；Skill 要求设计阶段和交付门禁后各执行一次。
+- `SKILL.md` 去除重复/冲突的 run 规则，并明确任何后续生成结果都必须通过 Layer 1 → Layer 2A → Layer 2B，静态 PASS 与人工语义/实机结果分开报告。
+- 新增规则专项测试通过 44/44；相关策略与规则测试 48/48 通过；Skill 结构检查通过。完整单元测试 127 项中 124 项通过，另 3 项仍是既有缺失 fixture 问题。
+
+- 清除测试计划模板中剩余的 7 张工作表图片；`generate_test_plan.py` 在写入用例前也会清除模板携带的全部图片，避免更换模板后再次混入无关图。F-017 回归测试要求模板及生成结果的图片数均为 0。
+- 2026-08-29 图片清理验证：`tests.unit.test_test_plan_generator` 4 项全部通过，Skill 结构检查通过；完整单元测试共 122 项，其中 119 项通过，3 项因仓库既有的 `tests/cases/pos001_sample_minimum` 与 `neg001_sample_missing_required` 缺失而失败，项目门禁同因失败，与本次图片改动无关。
 - 新增 `references/case-knowledge-base-design.md`，完成独立 EDA 用例生成知识库 `1.0-draft` 架构设计；定义命令语义、测试模式、业务场景、故障模式、环境初始化、检查点和历史案例七类知识，以及统一元数据、来源、版本、可信度、脱敏、检索适配、反馈闭环和确定性验证要求。本次仅完成设计，不新增或启动功能点。
 - 建立 Skill 基础结构、界面元数据、模板、规范和测试目录。
 - 建立 `function.json` 功能清单和单一活动功能门禁。
@@ -161,6 +170,13 @@
 - F-022 功能级验证 6/6 PASS；F-015 38/38 PASS；F-018 7/7 PASS，状态均为 `passing`。
 
 ## 当前验证基线
+
+2026-09-09 GitHub 推送前复核：
+
+- 当前分支与上游基线无领先/落后；待提交内容为规则去重、确定性验证器、对应正反测试、Skill 渐进披露文档和无图片 Excel 模板。
+- Python 单元测试 124/127 PASS；3 项失败仍仅由已记录的两个旧基础 fixture 缺失引起。
+- 项目验证仅报告同一组 6 条缺失 fixture 路径；Codex Skill 结构检查 PASS，`git diff --check` PASS。
+- 两处 `.DS_Store` 本地元数据变化不纳入提交。
 
 2026-08-23 本次文档设计检查结果：
 

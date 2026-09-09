@@ -5,7 +5,6 @@ import subprocess
 import sys
 import tempfile
 import unittest
-import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
@@ -17,24 +16,11 @@ GENERATOR = ROOT / "scripts" / "generate_test_plan.py"
 
 
 class TestPlanGeneratorTests(unittest.TestCase):
-    def test_template_excludes_the_two_unwanted_note_images_only(self) -> None:
+    def test_template_and_generated_workbook_contain_no_images(self) -> None:
         template = ROOT / "assets" / "templates" / "测试用例设计表.xlsx"
         with zipfile.ZipFile(template) as archive:
-            drawing = ET.fromstring(archive.read("xl/drawings/drawing1.xml"))
-        ns = {"xdr": "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"}
-        anchors = []
-        for anchor in drawing.findall("xdr:twoCellAnchor", ns):
-            origin = anchor.find("xdr:from", ns)
-            anchors.append(
-                (
-                    int(origin.find("xdr:row", ns).text),
-                    int(origin.find("xdr:col", ns).text),
-                )
-            )
-        self.assertEqual(7, len(anchors))
-        self.assertNotIn((1, 8), anchors)
-        self.assertNotIn((2, 10), anchors)
-        self.assertIn((5, 10), anchors)
+            self.assertFalse(any(name.startswith("xl/media/") for name in archive.namelist()))
+            self.assertFalse(any(name.startswith("xl/drawings/") for name in archive.namelist()))
 
     def test_skill_delivery_contract_excludes_case_tree_and_requires_generator(self) -> None:
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -67,6 +53,7 @@ class TestPlanGeneratorTests(unittest.TestCase):
             self.assertEqual(0, completed.returncode, completed.stderr)
             workbook = load_workbook(output, data_only=False)
             sheet = workbook["cmd"]
+            self.assertEqual([], sheet._images)
             self.assertEqual(2, sheet.max_row)
             self.assertEqual("add_net", sheet["B2"].value)
             self.assertEqual("pos001_minimum", sheet["C2"].value)

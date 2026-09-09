@@ -1,6 +1,6 @@
 # TCL 用例脚本规范
 
-版本：`2.6`
+版本：`3.0`
 
 状态：`CONFIGURED`
 
@@ -14,11 +14,11 @@
 └── tcl/
     ├── design.tcl          # 标准件；声明 run 使用的设计输入变量
     └── <tool>/             # optimus 或 itools，按被测工具生成，只存在一个
-        ├── run_1.tcl       # 可多步：run_1.tcl … run_N.tcl，从 1 连续编号
+        ├── run.tcl         # 单步用例；不得加编号
         └── mmmc.tcl        # 该工具方言的 MMMC 定义
 ```
 
-多步用例：`run_1.tcl` 可输出中间产物（如 db），`run_2.tcl` 读取该产物继续执行；`run_<N>.tcl` 从 1 起连续编号，不得跳号。
+多步用例改用 `run_1.tcl … run_N.tcl`，从 1 起连续编号且至少两个文件；单步 `run.tcl` 与多步编号形式不得混用。
 
 ## 规则
 
@@ -35,9 +35,9 @@
 ### TCL-STRUCT-001：目录树契约
 
 - 目录下必须存在：`nith.run`（普通文件）、`tcl/`（目录）、恰好一个 `tcl/<tool>/`（目录）。
-- `tcl/<tool>/` 内必须存在：`run_1.tcl`，并可包含 `run_2.tcl … run_N.tcl`（从 1 连续，不跳号），以及 `mmmc.tcl`。
+- `tcl/<tool>/` 内必须存在 `mmmc.tcl`，以及单一 `run.tcl`，或至少两个连续的 `run_1.tcl … run_N.tcl`。
 - `tcl/design.tcl` 是每个用例必须包含的标准件；不存在时失败。
-- 正例：包含 `design.tcl`、连续 run 和 `mmmc.tcl` 的上述完整树；反例：缺 `design.tcl`、`run_1.tcl` 跳到 `run_2.tcl`、缺 `mmmc.tcl`。
+- 正例：单步 `run.tcl`；多步连续 `run_1.tcl`、`run_2.tcl`。反例：单步 `run_1.tcl`、编号跳号、两种形式混用。
 
 ### TCL-STRUCT-002：按被测工具生成
 
@@ -49,7 +49,7 @@
 - `nith.run` 是 Python 脚本，逐字保留从 `### NITH initialization, please do not change this section` 到 `### NITH initialization end` 的固定块（含 shebang）。
 - 固定块之后的 case-setup 段必须按序为每个 `run_<N>.tcl` 写 `nith.input[""] = f"tcl/{nith.PV_TOOL}/run_<N>.tcl"` 并调用 `nith_run()`，最后调用一次 `nith_done()`。
 - 引用的 `run_<N>` 必须与 `tcl/<tool>/` 内实际存在且连续编号的文件一一对应。
-- 正例：单步 `nith.input[""] = f"tcl/{nith.PV_TOOL}/run_1.tcl"; nith_run(); nith_done()`；多步依次追加 `run_2.tcl` 块。
+- 正例：单步引用 `run.tcl`；多步依次引用 `run_1.tcl`、`run_2.tcl`。
 
 ### TCL-RUNNER-001：路径可移植
 
@@ -91,9 +91,9 @@
 - Optimus 禁止 source `mmmc.tcl`，禁止用 `set_options` 设置 DEF，禁止在 `setup_design` 之前执行 `read_def`。
 - `design.tcl` 和 `mmmc.tcl` 不得重复 source PV、执行 `set_options`、`setup_design` 或 `read_def`；这些初始化动作只属于 run init 块。
 
-### TCL-CHECKPOINT-001：包含检查点
+### TCL-CHECKPOINT-001：每个 run 包含检查点
 
-- 整个用例树内至少实际调用一次 `pv_check_log`、`pv_check_golden` 或 `pv_check_qor`；注释和字符串中的文字不计。
+- 每个 run 文件至少实际调用一次 `pv_check_log`、`pv_check_golden` 或 `pv_check_qor`；注释和字符串中的文字不计。
 - 正例：某 `run_<N>.tcl` 内 `pv_check_log {report_qor}`；反例：全树只有被测命令或仅在注释中提到检查点。
 
 ### TCL-CHECKPOINT-002：先加载 PV 入口
@@ -124,6 +124,15 @@
 - 禁止先比较后生成，也禁止在未清理同名旧文件的情况下生成并比较；这样可以避免工作目录残留导致误通过。
 - 如果实际文件由明确的前序 run 生成，当前 run 没有同名 `write_*`，本规则不推断跨 run 数据流，由用例设计和实机运行验证负责。
 
+### TCL-CMD-DEF-001：命令功能用例禁止 DEF golden
+
+- 本 Skill 生成的是 CMD 用例；DEF 只能作为输入或调试输出，不能作为 `pv_check_golden` 的实际文件。
+- 使用结构化数据库查询、确定性报告或其他稳定输出断言。FLOW 的 DEF benchmark 属另一检查 profile，不得套用本规则集。
+
+### TCL-MMMC-001：MMMC 保持声明式
+
+- `mmmc.tcl` 只声明 MMMC 对象及必要变量引用；禁止初始化/流程命令、`glob`、自动发现、`if`/`switch` 和循环控制。
+
 ### TCL-SCRIPT-001：测试动作与期望标记
 
 - 每个 `run_<N>.tcl` 恰好包含一个 `# TEST_ACTION`，其前恰好包含一个 `# EXPECT: PASS` 或 `# EXPECT: FAIL`。
@@ -131,7 +140,7 @@
 
 ### TCL-SCRIPT-002：禁止未完成占位符
 
-- 用例树内所有文件（含 `nith.run`、`design.tcl`、`mmmc.tcl`、`run_<N>.tcl`）的代码及注释不得包含独立词 `TODO` 或 `TBD`。
+- 用例树不得包含 `TODO`、`TBD`、`FIXME`、`XXX`、`your_` 或 `placeholder`。
 
 ### TCL-SCRIPT-003：系统环境变量白名单
 

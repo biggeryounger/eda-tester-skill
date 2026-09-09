@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 CASE_DIR = re.compile(r"^(pos|neg)[0-9]{3}_[a-z0-9][a-z0-9_]*$")
-RUN_FILE = re.compile(r"^run_([0-9]+)\.tcl$")
+INDEXED_RUN_FILE = re.compile(r"^run_([0-9]+)\.tcl$")
 CHECKPOINT = re.compile(r"(?m)^[ \t]*(pv_check_log|pv_check_golden|pv_check_qor)(?=\s|$)")
 PV_SOURCE = re.compile(
     r"(?m)^[ \t]*source\s+(?:\{)?\$(?:::)?env\(PV_ROOT\)/(?:pv/)?scripts/pv\.tcl(?:\})?[ \t]*(?:#.*)?$"
@@ -33,7 +33,7 @@ HELPER_INIT_COMMAND = re.compile(
 )
 EXTERNAL_SETUP = re.compile(r"(?m)^[ \t]*source\s+\S*(?:case_setup\.tcl|nith)")
 MACHINE_PATH = re.compile(r"(?m)(?:/Users/|/home/|[A-Za-z]:\\)")
-PLACEHOLDER = re.compile(r"\b(?:TODO|TBD)\b", re.I)
+PLACEHOLDER = re.compile(r"(?:\b(?:TODO|TBD|FIXME|XXX)\b|\byour_|placeholder)", re.I)
 DESIGN_CATEGORY = re.compile(
     r"(?m)^[ \t]*set\s+[A-Za-z0-9_]*"
     r"(?:init_top|top_cell|verilog|netlist|lef|lib|timing|sdc|power_net|ground_net|def)[A-Za-z0-9_]*\b",
@@ -46,7 +46,7 @@ INPUT_OPTION = re.compile(
 READ_DEF_INPUT = re.compile(r"(?m)^[ \t]*read_def\s+(\S+)")
 NITH_INIT_BEGIN = "### NITH initialization, please do not change this section"
 NITH_INIT_END = "### NITH initialization end"
-NITH_INPUT = re.compile(r'nith\.input\[""\]\s*=\s*f?"tcl/\{nith\.PV_TOOL\}/run_([0-9]+)\.tcl"')
+NITH_INPUT = re.compile(r'nith\.input\[""\]\s*=\s*f?"tcl/\{nith\.PV_TOOL\}/(run(?:_[0-9]+)?\.tcl)"')
 NITH_RUN_CALL = re.compile(r"nith_run\s*\(\s*\)")
 NITH_DONE_CALL = re.compile(r"nith_done\s*\(\s*\)")
 ALLOWED_TOOLS = ("optimus", "itools")
@@ -190,6 +190,16 @@ def _add(diagnostics: list[TclConventionDiagnostic], rule_id: str, path: Path, t
 
 def _contiguous_from_one(indices: list[int]) -> bool:
     return bool(indices) and indices == list(range(1, len(indices) + 1))
+
+
+def _expected_run_names(run_files: list[Path]) -> list[str] | None:
+    names = [path.name for path in run_files]
+    if names == ["run.tcl"]:
+        return names
+    indices = [int(match.group(1)) for name in names if (match := INDEXED_RUN_FILE.fullmatch(name))]
+    if len(indices) == len(names) and len(names) >= 2 and _contiguous_from_one(indices):
+        return names
+    return None
 
 
 def _input_category(variable: str) -> str | None:
@@ -338,6 +348,8 @@ def _validate_run_script(
         diagnostics.append(TclConventionDiagnostic("TCL-SCRIPT-001", path, None, "each run_N.tcl needs exactly one EXPECT marker before exactly one TEST_ACTION marker"))
 
     commands = _commands(text)
+    if not commands:
+        diagnostics.append(TclConventionDiagnostic("TCL-CHECKPOINT-001", path, None, "each run must call pv_check_log, pv_check_golden, or pv_check_qor"))
     if commands:
         source = PV_SOURCE.search(text)
         if source is None or source.start() > commands[0][2]:
@@ -367,6 +379,8 @@ def _validate_run_script(
             golden_ok = not golden or re.match(r"^(?:\./)?golden/", _actual_path(golden)) is not None
             if not words or words[0].startswith("-") or error or not golden_ok or invalid_mode:
                 diagnostics.append(TclConventionDiagnostic("TCL-CHECKPOINT-004", path, line, error or "pv_check_golden arguments or paths are invalid"))
+            if words and re.search(r"\.def(?:\.gz)?$", _actual_path(words[0]), re.I):
+                diagnostics.append(TclConventionDiagnostic("TCL-CMD-DEF-001", path, line, "command-function cases must not use DEF as golden output; assert a structured query/report instead"))
 
             if words and not words[0].startswith("-"):
                 actual = _actual_path(words[0])
@@ -474,15 +488,13 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
         struct_missing.append("tcl/<tool>/mmmc.tcl")
 
     run_files: list[Path] = []
-    run_indices: list[int] = []
     if tool_dir and tool_dir.is_dir():
         for entry in sorted(tool_dir.iterdir(), key=lambda p: p.name):
-            match = RUN_FILE.fullmatch(entry.name)
-            if match and entry.is_file():
+            if entry.is_file() and (entry.name == "run.tcl" or INDEXED_RUN_FILE.fullmatch(entry.name)):
                 run_files.append(entry)
-                run_indices.append(int(match.group(1)))
-    if not run_files or not _contiguous_from_one(run_indices):
-        struct_missing.append("tcl/<tool>/run_1.tcl..run_N.tcl (contiguous from 1)")
+    expected_runs = _expected_run_names(run_files)
+    if expected_runs is None:
+        struct_missing.append("single run.tcl or multi-step run_1.tcl..run_N.tcl (N>=2, contiguous)")
     if struct_missing:
         diagnostics.append(TclConventionDiagnostic("TCL-STRUCT-001", case_dir, None, "case tree incomplete: missing " + ", ".join(struct_missing)))
 
@@ -529,36 +541,36 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
                 None,
                 "PV source, set_options, setup_design, and read_def belong only in run_N.tcl DESIGN_INIT",
             ))
+    if mmmc_text is not None:
+        forbidden = re.search(r"(?m)^\s*(?:glob|for|foreach|while|if|switch|setup_design|init_design|read_def|read_db|restoreDesign)\b", mmmc_text)
+        if forbidden:
+            _add(diagnostics, "TCL-MMMC-001", mmmc_path, mmmc_text, forbidden.start(), "mmmc.tcl must remain declarative; flow commands, glob, discovery, and control loops are forbidden")
 
     if nith_text is not None:
         has_begin = NITH_INIT_BEGIN in nith_text
         has_end = NITH_INIT_END in nith_text
         setup_start = nith_text.find(NITH_INIT_END)
         setup_text = nith_text[setup_start + len(NITH_INIT_END):] if setup_start != -1 else ""
-        referenced = sorted(int(x) for x in NITH_INPUT.findall(setup_text))
+        referenced = NITH_INPUT.findall(setup_text)
         run_calls = len(NITH_RUN_CALL.findall(setup_text))
-        has_done = bool(NITH_DONE_CALL.search(setup_text))
+        done_calls = len(NITH_DONE_CALL.findall(setup_text))
         nith_ok = (
             has_begin and has_end
-            and _contiguous_from_one(referenced)
-            and referenced == run_indices
-            and run_calls >= len(referenced) >= 1
-            and has_done
+            and expected_runs is not None
+            and referenced == expected_runs
+            and run_calls == len(referenced) >= 1
+            and done_calls == 1
         )
         if not nith_ok:
-            diagnostics.append(TclConventionDiagnostic("TCL-NITH-001", nith_path, None, "nith.run must preserve the NITH init block and reference each run_<N>.tcl in order with nith_run/nith_done"))
+            diagnostics.append(TclConventionDiagnostic("TCL-NITH-001", nith_path, None, "nith.run must preserve the NITH init block and reference run.tcl, or each multi-step run_<N>.tcl, in order with nith_run/nith_done"))
 
-    checkpoint_total = 0
     for run_file in run_files:
         text = _read(run_file)
         if text is None:
             continue
-        checkpoint_total += len(_commands(text))
         if design_text is not None:
             _validate_design_variable_reuse(design_text, text, run_file, diagnostics)
         _validate_run_script(text, run_file, polarity, tcl_files, diagnostics)
-    if checkpoint_total == 0:
-        diagnostics.append(TclConventionDiagnostic("TCL-CHECKPOINT-001", case_dir, None, "case tree must call pv_check_log, pv_check_golden, or pv_check_qor"))
 
     return diagnostics
 

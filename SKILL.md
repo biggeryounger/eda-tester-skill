@@ -1,68 +1,37 @@
 ---
 name: eda-tester-skill
-description: Generate traceable EDA command test designs as a populated Excel test plan and standalone validated TCL scripts from command manuals, syntax descriptions, or natural-language requirements. Use for decomposing Innovus/iTools, Optimus, or PrimeTime command behavior into positive, negative, boundary, interaction, and environment-dependent cases, or validating generated Excel and TCL artifacts.
+description: Generate traceable EDA Excel plans and validated TCL cases for Optimus or iTools / Innovus.
 ---
 
-# EDA Test Case Generation
+# EDA Test
 
-## Workflow
+## 通用重要规则
 
-1. Identify the exact tool and command name. Record the target tool version when the user or source provides it. Preserve the product names **Optimus**、**iTools / Innovus**、**PrimeTime**. Optimus target version is optional and its absence must not block test design, Excel generation, or TCL generation. If a test point depends on version-specific syntax or behavior that the available command material does not resolve, continue with version-neutral coverage and record only that affected conclusion as a gap.
-2. Select tool-specific background knowledge:
-   - For iTools / Innovus, query the `INNOVUS191` corpus at `http://49.1.1.123:5175/` according to `references/innovus-command-corpus.md`. Send only the command name and generic documentation questions; never send design data, logs, internal paths, or other sensitive content. Treat corpus failure or version mismatch as a recorded gap, not permission to invent facts. When the user does not supply an iTools / Innovus MMMC file, use `assets/defaults/itools/mmmc.tcl`; load the design configuration first so `$tech_dir` and `$design_dir` exist. Do not substitute the Optimus MMMC dialect.
-   - For Optimus, read `references/optimus-tcl-corpus.md` to obtain the full-flow phase model and MMMC object relationships. Reuse its structure, not its example PDK/design values. Prefer target-version documentation when a version is supplied; otherwise use the user-provided command material without making the missing version a generation prerequisite.
-3. Read all user-provided command descriptions completely and reconcile them with the selected corpus using documented source boundaries. Preserve exact tool and command names. If the user needs to collect help from an active Tcl-based EDA tool, read `references/command-spec-format.md`, have the tool source `scripts/dump_tool_help.tcl`, and use `eda_dump_all_help` or `eda_dump_command_help`. When the input is a TXT command list, run `python3 scripts/parse_command_spec.py <commands.txt> <commands.json>`. Do not use output containing an error diagnostic. Preserve every `SPEC-GAP` as an unresolved gap instead of inferring the missing fact.
-4. Extract syntax, parameters, types, requiredness, defaults, constraints, interactions, expected messages, environment prerequisites, source provenance, and unresolved gaps from the validated structured command data when available. Also collect the complete target-tool design initialization recipe: design inputs, top, libraries, physical data, MMMC/constraints, and the command that makes the design active. Maintain every design path/value in one profile in `assets/design-profiles.json`; treat `assets/输入件管理表.xlsx` only as its generated review view. Generate all case-local `design.tcl` files with `scripts/design_config.py`, never by copying or hand-editing paths. The repository example profile is allowed only when the user explicitly selects it. Otherwise, missing required design inputs are gaps that stop TCL generation.
-5. Before producing any test design, ask the user to select one or more strategies from `Smoke case`, `正向覆盖`, and `负向覆盖`. Use the exact interaction and coverage rules in `references/test-strategies.md`. If the current request already contains an explicit selection, restate it and continue without asking again. Do not choose a default for the user.
-6. Map the request to feature IDs in `function.json`. Do not invent an ID when an existing feature applies.
-7. Build the coverage matrix required by the selected strategies. Maximize compatible test-point coverage per case: combine options, enum values, and related checks when they share the same design state and expected-result type. Do not create one case per option. Split only for incompatible options, different prerequisites, different expected-result types, or when combining failures would harm fault isolation. When multiple strategies are selected, take their union, merge compatible or exact duplicate scenarios, and preserve all applicable strategy tags. For every test point, define both its constructed input state and the command's expected effect on that state; do not stop at an abstract success, rejection, or behavior summary.
-8. Serialize the designed rows to a non-empty `scenarios` JSON array and run `python3 scripts/generate_test_plan.py <scenarios.json> <test-plan.xlsx> [--requirements <requirements.json>]`. Do not put `[feature...]` tags in `用例描述`; the generator removes any such leading tag before writing the description. In `用例描述`, `用例步骤`, and `用例预期`, every numbered item (`1.`, `2.`, `3.` …) must occupy its own line within the cell; the generator normalizes sequential inline lists to embedded line breaks. It copies the template, removes historical business rows, writes the cases, applies bounded readable column widths and wrapped text with content-aware row heights, reopens the workbook, and requires Layer 1 to pass. Do not hand off an empty workbook or a workbook that was not reopened and checked.
-9. Present the validated Excel test plan and the complete proposed test design before creating scripts. For every case show its ID, strategy tags, test points, design-initialization prerequisites, steps, expected results, covered requirements, and unresolved gaps or assumptions. Each Excel `用例预期` entry must include: (a) the abstract expected outcome; (b) a concrete description of the objects, attributes, states, connectivity, geometry, files, or constraints constructed as test input; and (c) the observable changes or invariants of that constructed data after the command runs. For a negative case, describe how the invalid input is constructed and which data must remain unchanged after rejection. Ask `确认用例设计可用于生成 TCL 吗？` and wait. Wait for explicit user confirmation; strategy selection or an initial request to generate tests is not design approval. If the user requests changes, revise and regenerate the Excel plan, then present it again. Do not generate any TCL file before confirmation.
-10. Name each case directory `pos<index>_<scenario>/` or `neg<index>_<scenario>/`, using a three-digit, command-local index such as `pos001_base/` or `neg002_missing_netlist/`.
-11. Generate one case directory per Excel row. Each directory contains a `nith.run` Python runner and a `tcl/` tree:
-    - `nith.run` — Python script that preserves the verbatim NITH initialization block (between `### NITH initialization, please do not change this section` and `### NITH initialization end`), then sets up each run step via `nith.input[""] = f"tcl/<tool>/run_<N>.tcl"` followed by `nith_run()`, and finishes with `nith_done()`.
-    - `tcl/design.tcl` — a required standard case file that declares the design input variables used by every run.
-    - `tcl/<tool>/run_1.tcl … run_N.tcl` — NITH executes each run with the case directory (the directory containing `nith.run`) as its working directory. Each run script owns the complete init block and carries its own `# TEST_ACTION` and `# EXPECT` markers. For Optimus, source PV and `./tcl/design.tcl` in this block, reuse its declared input variables in matching `setup.*` options and `read_def`, set `setup.mmmc_file`, call `setup_design`, and then load DEF with `read_def`. For iTools / Innovus, set `init_mmmc_file ./tcl/itools/mmmc.tcl` before `init_design`; do not directly source the MMMC file. Run indices are contiguous from 1 with no gaps.
-    - `tcl/<tool>/mmmc.tcl` — tool-specific MMMC configuration.
-    Generate only the tested tool's `tcl/<tool>/` subdirectory (optimus or itools). Do not generate a PrimeTime tree until its convention rules are finalized.
-12. Make every script directly runnable by the target EDA tool or NITH runner without a preloaded design session. Use deterministic object names and avoid ambient tool state. Do not introduce or use system environment variables other than `PV_ROOT` and `PV_TOOL`. Express all required setup with TCL commands and portable paths supplied for the user's target design. If required design inputs are unavailable, stop generation and request them; do not substitute repository example paths or hand off a partial tree.
-13. Run the unified delivery gate before handing off results: `python3 scripts/validate.py delivery <test-plan.xlsx> <case_dir> [<case_dir> ...]`. When command requirements are available, add `--requirements <requirements.json>` so PLAN-013 is checked deterministically. The gate runs Layer 1 first, then Nagelfar 1.3.5 Layer 2A on every `.tcl`, then deterministic directory-tree Layer 2B. An upstream failure marks all downstream layers `SKIPPED`; only three `PASS` results make the delivery pass. Use the separate `plan` and `tcl` subcommands only while debugging a failed layer, never as the final delivery decision.
-14. Keep syntax findings separate from convention findings. Do not use Agent judgment as a substitute for either checker.
+- 不猜测语法、MMMC、日志或结果，未知项记为 `SPEC-GAP`。Optimus target version is optional and must not block。
+- 用户选择 `Smoke case`、`正向覆盖`、`负向覆盖`，多选取并集。Maximize compatible test-point coverage per case. Do not create one case per option；仅因互斥、前置或预期不同而拆分。
+- 计划可追溯且预期可观察；负例写明非法构造、拒绝和不变状态。
+- 每个 case 只有一个工具目录。单步用 `run.tcl`；多步才用连续 `run_1.tcl … run_N.tcl`。输入集中在 `design.tcl`，MMMC 声明式且方言隔离。
+- 每个 run 完成初始化，恰好一个 `# EXPECT`、`# TEST_ACTION` 和 checkpoint，以 `pv_rpt_checkpoints`、`exit` 收尾。仅允许 `PV_ROOT`、`PV_TOOL`；禁止绝对路径和伪造结果。
+- 交付须通过静态门禁；静态、人工和实机结果分别报告。
 
-## TCL generation rules
+## 工作流程
 
-- Each `run_N.tcl` must put the command under test on a line containing `# TEST_ACTION` and carry its own `# EXPECT: PASS` or `# EXPECT: FAIL` before the action.
-- Resolve every relative path in `run_N.tcl` from the case directory containing `nith.run`, not from the physical location of `run_N.tcl`. Use `./tcl/design.tcl` for the standard design file and `./tcl/<tool>/mmmc.tcl` as the MMMC file path.
-- For Optimus, keep all initialization execution in the `run_N.tcl` init block: source the approved PV entry, source `./tcl/design.tcl`, reuse its declared input variables, set design options, set `setup.mmmc_file ./tcl/optimus/mmmc.tcl`, call `setup_design`, then call `read_def` with the DEF variable from `design.tcl`. Never source Optimus `mmmc.tcl` and never configure DEF through `set_options`.
-- For iTools / Innovus, assign `set init_mmmc_file ./tcl/itools/mmmc.tcl` before `init_design`. The tool loads the MMMC file through `init_design`; never execute `source ./tcl/itools/mmmc.tcl` directly.
-- Keep `design.tcl` declarative: it may set `design_dir`, `tech_dir`, LEF/netlist/top/DEF variables, but must not source PV/MMMC or execute `set_options`, `setup_design`, or `read_def`. Keep `mmmc.tcl` limited to MMMC definitions that consume variables established by the run/design setup; do not repeat initialization commands there.
-- Treat `design.tcl` as a required standard file in every case. When an input variable is declared there, `run_N.tcl` must reference that variable for the corresponding LEF, Verilog/netlist, top, power net, ground net, or DEF input; it must not redefine the variable or replace it with a literal value.
-- Treat `assets/design-profiles.json` as the only editable source for design paths. Regenerate `assets/输入件管理表.xlsx` for review and batch-sync all target `design.tcl` files with `scripts/design_config.py --profile <name> [--management-workbook assets/输入件管理表.xlsx] <case>/tcl/design.tcl ...`. A generated `design.tcl` must retain its central-profile source marker.
-- `nith.run` must preserve the verbatim NITH initialization block (`### NITH initialization, please do not change this section` … `### NITH initialization end`). The case-setup section references each `run_<N>.tcl` in order via `nith.input[""] = f"tcl/<tool>/run_<N>.tcl"` and `nith_run()`, then calls `nith_done()`.
-- Run file indices are contiguous: `run_1.tcl … run_N.tcl` with no gaps. A single-step case has only `run_1.tcl`.
-- Load the target environment's PV entry through `PV_ROOT` before checkpoint use. Select `$env(PV_ROOT)/scripts/pv.tcl` or `$env(PV_ROOT)/pv/scripts/pv.tcl` only when the target tool or supplied reference identifies that layout; never introduce `PV_ENTRY` or another alias. Each run script must use at least one suitable checkpoint: `pv_check_log` for log content, `pv_check_golden` for generated files, or `pv_check_qor` for supported timing/QoR metrics.
-- For `pv_check_log`, use `-filter` to exclude matching screen-output lines and `-match` when only matching lines should be compared; either option must have a non-empty value. For `pv_check_golden`, keep golden files below `golden/` or `./golden/`. When the actual file is generated by a same-run `write_*` command, delete the old actual file first, generate it, and only then compare it so stale output cannot pass the case.
-- End every `run_N.tcl` with `pv_rpt_checkpoints` followed by `exit`; no executable command may follow `exit`.
-- Only read, inspect, or set the `PV_ROOT` and `PV_TOOL` system environment variables. Reject all other `env(...)` and `::env(...)` names, including setup aliases and host variables such as `HOME`.
-- The verbatim NITH initialization block in `nith.run` is fixed and exempt from all portability and convention checks. Do not embed machine-specific paths in the case-setup section or any TCL file.
-- Reject placeholders (`TBD`, `TODO`, `FIXME`, `XXX`, `your_`, `placeholder`) anywhere except inside comments within the NITH initialization block.
-- `assets/defaults/optimus/design.tcl` is a template plus an opt-in repository example profile. Replace its LEF, netlist/Verilog, DEF, top, and related paths with the user's design values. Never silently treat the bundled SMIC28/riscv values as the user's inputs. Use them only when the user explicitly selects the repository example profile. Optimus target version is optional and must not block generation; `21.1` may remain a template metadata default when no version is supplied, but do not treat it as confirmed target-version syntax. Power net `VDD`, ground net `VSS`, and the local MMMC path may remain template defaults unless the user overrides them.
-- The iTools / Innovus default MMMC uses `create_library_set`, `create_delay_corner`, `create_constraint_mode`, `create_analysis_view`, and `set_analysis_view`. Keep this dialect isolated from Optimus, even though the object names and four-view intent are parallel.
-- Fail explicitly for locally checkable unmet preconditions.
-- Do not fake tool output. Separate static validation from actual EDA execution.
-- Quote or brace values containing whitespace or Tcl metacharacters.
+1. 读取输入；不足时按知识库回退规则查询 EDA MCP，仍无证据则记录缺口。TXT 用 `scripts/parse_command_spec.py`。
+2. 确认策略，建立需求—场景矩阵，执行人工审查。
+3. Serialize the designed rows 为非空 scenarios，运行 `scripts/generate_test_plan.py`。Do not hand off an empty workbook；生成后执行 Layer 1。
+4. 展示 Excel 和设计。Wait for explicit user confirmation. Do not generate any TCL file before confirmation.
+5. Generate one case directory per Excel row。用 `scripts/design_config.py` 生成 `design.tcl`。iTools 可用 `assets/defaults/itools/mmmc.tcl`；Do not substitute the Optimus MMMC dialect。`assets/defaults/optimus/design.tcl` 仅为 template；只有用户 explicitly selects the repository example profile 才用示例值。
+6. 运行 `python3 scripts/validate.py delivery <plan.xlsx> <case_dir>... [--requirements <requirements.json>]`。Layer 1、Nagelfar Layer 2A、Layer 2B 必须全部 PASS。
+7. 人工审查；有缺口或失败则停止。
 
-## Deliverables
+## 参考文档索引
 
-Return the populated `.xlsx` test plan and one case directory per Excel row. Each case directory contains `nith.run`, the standard file `tcl/design.tcl`, and `tcl/<tool>/{run_1.tcl … run_N.tcl, mmmc.tcl}`. Keep scenario JSON, requirements JSON, syntax databases, and validation logs as internal working artifacts unless the user explicitly requests them.
-
-## References
-
-- Read [references/command-spec-format.md](references/command-spec-format.md) before parsing a TXT command list into structured command semantics.
-- Read [references/innovus-command-corpus.md](references/innovus-command-corpus.md) before querying command information for iTools / Innovus.
-- Read [references/optimus-tcl-corpus.md](references/optimus-tcl-corpus.md) before generating Optimus full-flow or MMMC TCL.
-- Read [references/test-strategies.md](references/test-strategies.md) before asking for a strategy selection or designing coverage.
-- Read [references/test-plan.md](references/test-plan.md) when planning coverage, release gates, or runtime validation.
-- Read [references/specs/test-plan-rules.md](references/specs/test-plan-rules.md) before validating a generated test plan.
-- Read [references/specs/tcl-script-rules.md](references/specs/tcl-script-rules.md) before validating generated TCL conventions.
-- Read `function.json` when selecting scope or reporting feature completion.
+- 选择策略或确认设计前：`references/test-strategies.md`
+- 验证设计或检查 Excel 时：`references/test-plan.md`、`references/specs/test-plan-rules.md`
+- 生成或检查 case/TCL 时：`references/specs/tcl-script-rules.md`
+- 设计场景及静态门禁完成后：`references/manual-review-rules.md`
+- 解析 TXT 命令说明前：`references/command-spec-format.md`
+- 材料不足时：`references/eda-knowledge-fallback.md`
+- 查询或生成 iTools / Innovus 用例时：`references/innovus-command-corpus.md`
+- 生成 Optimus full-flow 或 MMMC 时：`references/optimus-tcl-corpus.md`
+- 选择功能范围或报告状态时：`function.json`

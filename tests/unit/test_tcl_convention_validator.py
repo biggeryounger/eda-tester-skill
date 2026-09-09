@@ -33,14 +33,14 @@ from main import *
 ### NITH initialization end
 
 # Case setup
-nith.input[""] = f"tcl/{nith.PV_TOOL}/run_1.tcl"
+nith.input[""] = f"tcl/{nith.PV_TOOL}/run.tcl"
 nith_run()
 
 nith_done()
 '''
 
 NITH_RUN_TWO_STEP = NITH_RUN.replace(
-    'nith.input[""] = f"tcl/{nith.PV_TOOL}/run_1.tcl"\nnith_run()\n',
+    'nith.input[""] = f"tcl/{nith.PV_TOOL}/run.tcl"\nnith_run()\n',
     'nith.input[""] = f"tcl/{nith.PV_TOOL}/run_1.tcl"\nnith_run()\n'
     'nith.input[""] = f"tcl/{nith.PV_TOOL}/run_2.tcl"\nnith_run()\n',
 )
@@ -116,7 +116,7 @@ class TclConventionValidatorTests(unittest.TestCase):
         runs: dict[str, str] | None = None,
     ) -> Path:
         if runs is None:
-            runs = {"run_1.tcl": RUN_TCL}
+            runs = {"run.tcl": RUN_TCL}
         if design is None:
             design = DESIGN_TCL + "set def ./design/smoke.def\n"
         self._counter += 1
@@ -146,6 +146,28 @@ class TclConventionValidatorTests(unittest.TestCase):
             runs={"run_1.tcl": RUN_TCL, "run_2.tcl": RUN_TCL_STEP2},
         )
         self.assertEqual([], self.rules(case))
+
+    def test_single_step_must_use_unindexed_run_name(self) -> None:
+        case = self.build(
+            nith_run=NITH_RUN.replace("run.tcl", "run_1.tcl"),
+            runs={"run_1.tcl": RUN_TCL},
+        )
+        self.assertIn("TCL-STRUCT-001", self.rules(case))
+
+    def test_every_run_requires_its_own_checkpoint(self) -> None:
+        second = RUN_TCL_STEP2.replace("pv_check_log {report_qor} -name smoke -filter {^Date} -match {WNS|TNS}\n", "")
+        case = self.build(nith_run=NITH_RUN_TWO_STEP, runs={"run_1.tcl": RUN_TCL, "run_2.tcl": second})
+        self.assertIn("TCL-CHECKPOINT-001", self.rules(case))
+
+    def test_mmmc_must_be_declarative(self) -> None:
+        self.assertIn("TCL-MMMC-001", self.rules(self.build(mmmc=MMMC_TCL + "foreach x $libs { puts $x }\n")))
+
+    def test_command_case_rejects_def_golden(self) -> None:
+        text = RUN_TCL.replace(
+            "pv_check_log {report_qor} -name smoke -filter {^Date} -match {WNS|TNS}",
+            "pv_check_golden ./out/design.def -golden ./golden/design.def",
+        )
+        self.assertIn("TCL-CMD-DEF-001", self.rules(self.build(runs={"run.tcl": text})))
 
     def test_design_without_central_profile_marker_fails(self) -> None:
         case = self.build(design=DESIGN_TCL.replace("# Generated from central design profile: smoke\n", "") + "set def ./design/smoke.def\n")
@@ -192,11 +214,15 @@ class TclConventionValidatorTests(unittest.TestCase):
         self.assertIn("TCL-NITH-001", self.rules(case))
 
     def test_nith_001_setup_must_match_run_files(self) -> None:
-        case = self.build(nith_run=NITH_RUN.replace("run_1.tcl", "run_2.tcl"))
+        case = self.build(nith_run=NITH_RUN.replace("run.tcl", "run_2.tcl"))
         self.assertIn("TCL-NITH-001", self.rules(case))
 
     def test_nith_001_requires_nith_done(self) -> None:
         case = self.build(nith_run=NITH_RUN.replace("nith_done()", ""))
+        self.assertIn("TCL-NITH-001", self.rules(case))
+
+    def test_nith_001_rejects_duplicate_nith_done(self) -> None:
+        case = self.build(nith_run=NITH_RUN.replace("nith_done()", "nith_done()\nnith_done()"))
         self.assertIn("TCL-NITH-001", self.rules(case))
 
     def test_runner_001_rejects_machine_path_in_run_tcl(self) -> None:

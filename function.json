@@ -168,8 +168,8 @@
       "name": "TCL 脚本规范验证",
       "priority": "P0",
       "status": "passing",
-      "description": "根据版本化 TCL 脚本规范对用例名子目录(nith.run + tcl/design.tcl + tcl/<tool>/{run_1.tcl...,mmmc.tcl})执行 Layer 2B 检查。",
-      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run、标准件 tcl/design.tcl 和按被测工具生成的 tcl/<tool>/ 子目录", "tcl/<tool>/ 含连续编号的 run_1.tcl..run_N.tcl 和 mmmc.tcl", "每个 run_N.tcl 自带 TEST_ACTION/EXPECT 标记和 DESIGN_INIT 激活命令", "Optimus init 块负责 source PV/design、设置 setup options，并通过 setup.mmmc_file 引用 MMMC，禁止 source mmmc.tcl", "Optimus DEF 在 setup_design 之后通过 read_def 读入，不通过 set_options 配置", "run_N.tcl 必须复用 design.tcl 已声明的输入变量，不得重复声明或用字面值绕过对应变量", "design.tcl 和 mmmc.tcl 不重复执行 PV source、set_options、setup_design 或 read_def", "nith.run 逐字保留固定 NITH 初始化块,case-setup 按序引用各 run_<N>.tcl 并调用 nith_run/nith_done", "run_N.tcl 按与 nith.run 同级的用例统计目录解析相对路径，树内引用使用 ./tcl/...", "保留可移植路径、PV 入口、pv_check_* 检查点和环境变量白名单规则", "支持 pv_check_log 的 filter/match 语义和 golden/ 相对路径", "同一 run 生成的 golden 实际文件按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "规则具有稳定 ID 和自动化正反样例"],
+      "description": "根据版本化 TCL 脚本规范对用例目录执行 Layer 2B 检查；单步使用 run.tcl，真正多步才使用连续 run_1.tcl..run_N.tcl。",
+      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run、标准件 tcl/design.tcl 和唯一目标工具目录", "单步只允许 run.tcl；多步只允许至少两个连续的 run_1.tcl..run_N.tcl，两种形式不混用", "每个 run 自带 TEST_ACTION/EXPECT、DESIGN_INIT 和至少一个 checkpoint", "Optimus init 块负责 source PV/design、设置 setup options，并通过 setup.mmmc_file 引用 MMMC，禁止 source mmmc.tcl", "Optimus DEF 在 setup_design 之后通过 read_def 读入，不通过 set_options 配置", "run 必须复用 design.tcl 已声明的输入变量，不得重复声明或用字面值绕过对应变量", "mmmc.tcl 保持声明式，禁止流程命令、glob、自动发现和循环控制", "nith.run 逐字保留固定初始化块并精确调度全部 run，最后只调用一次 nith_done", "保留可移植路径、PV 入口和环境变量白名单规则", "CMD 用例禁止 DEF golden；同一 run 输出按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "禁止全部已登记占位符", "规则具有稳定 ID 和自动化正反样例"],
       "test_cases": ["tests/unit/test_tcl_convention_validator.py"],
       "validation_commands": ["unit-tcl-conventions"]
     },
@@ -189,7 +189,7 @@
       "priority": "P0",
       "status": "passing",
       "description": "从结构化场景复制模板并生成包含真实用例行的 Excel 测试计划。",
-      "acceptance_criteria": ["从指定模板复制生成并保留 A-J 结构和格式", "用例描述不包含开头的 [feature...] 标签", "输出使用有上限的合理列宽、自动换行和内容自适应行高", "模板不包含备注区第 2 行 I 列和第 3 行 K 列的两张无关图片", "清除模板历史业务数据", "空场景输入明确失败且不输出工作簿", "生成后重新打开并通过 Layer 1"],
+      "acceptance_criteria": ["从指定模板复制生成并保留 A-J 结构和格式", "用例描述不包含开头的 [feature...] 标签", "输出使用有上限的合理列宽、自动换行和内容自适应行高", "模板和生成结果均不包含任何工作表图片", "清除模板历史业务数据", "空场景输入明确失败且不输出工作簿", "生成后重新打开并通过 Layer 1"],
       "test_cases": ["tests/unit/test_test_plan_generator.py"],
       "validation_commands": ["unit-test-plan-generator"]
     },
