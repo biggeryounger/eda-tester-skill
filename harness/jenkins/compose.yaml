@@ -1,0 +1,17 @@
+services:
+  jenkins:
+    build: .
+    ports:
+      - "${JENKINS_HTTP_PORT:-8081}:8080"
+      - "${JENKINS_AGENT_PORT:-50001}:50000"
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-}
+      GITHUB_PUSH_TOKEN: ${GITHUB_PUSH_TOKEN:-}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./init.groovy.d/create-job.groovy:/var/jenkins_home/init.groovy.d/create-job.groovy:ro
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:

@@ -4,29 +4,19 @@
 
 本项目用于开发一个 EDA 测试用例生成 Skill。Skill 根据 EDA 命令说明或自然语言需求，完成测试场景分解、测试计划生成和 TCL 测试脚本生成。
 
-当前优先支持 Cadence Innovus。项目中涉及工具名称时，保持以下名称不变：**Optimus**、**iTools / Innovus**、**PrimeTime**。
-
-项目验证分为两层：
-
-1. 检查生成的测试计划是否符合项目规范。
-2. 检查 TCL 脚本，包括语法检查和脚本规范检查。
-
-验证必须由确定性程序完成，不使用 Agent 判断代替自动检查。
 
 ## 工作规则
 
-- 每次会话开始时先阅读 `PROCESS.MD` 和 `function.json`，从 `PROCESS.MD` 的“下一步”继续工作。
-- 每次会话结束前更新 `PROCESS.MD`，记录实际完成内容、验证结果、遗留问题和下一步。
-- 修改功能前先阅读 `SKILL.md`、`function.json` 及相关规范文档。
-- 从 `assets/templates/测试用例设计表.xlsx` 复制并生成测试计划，保留模板结构和格式。
-- TCL 语法检查优先使用 Nagelfar 等确定性第三方工具；不得通过直接执行脚本来代替静态语法检查。
-- 新增或修改验证规则时，同时增加通过和失败测试样例。
+- 每次会话开始时先阅读 `harness/PROCESS.MD` 和 `harness/function.json`，从进度文档的“下一步”继续工作。
+- 每次会话结束前更新 `harness/PROCESS.MD`，记录实际完成内容、验证结果、遗留问题和下一步。
+- 修改功能前先阅读 `skill/SKILL.md`、`harness/function.json` 及相关规范文档。
+- 从 `skill/assets/templates/测试用例设计表.xlsx` 复制并生成测试计划，保留模板结构和格式。
 - 不提交 EDA 许可证、PDK、设计数据库、运行日志、Python 缓存或用户本地路径。
-- `function.json` 是项目特性及状态的唯一清单，新增功能时应同步更新。
-- `function.json` 中功能点的 `status` 只能是 `not_started`、`active`、`blocked`、`passing`。
-- 每次只开发一个功能点，`function.json` 中最多只能有一个功能点处于 `active`。
+- `harness/function.json` 是项目特性及状态的唯一清单，新增功能时应同步更新。
+- `harness/function.json` 中功能点的 `status` 只能是 `not_started`、`active`、`blocked`、`passing`。
+- 每次只开发一个功能点，`harness/function.json` 中最多只能有一个功能点处于 `active`。
 - 测试先行：功能从 `not_started` 改为 `active` 前，必须先创建对应测试用例，并在该功能的 `test_cases` 和 `validation_commands` 中登记；不得先实现后补测试。
-- `active` 功能开发期间运行 `python3 scripts/validate.py feature <FEATURE_ID>`；只有登记命令全部通过后才能改为 `passing`。
+- `active` 功能开发期间运行 `python3 skill/scripts/validate.py feature <FEATURE_ID>`；只有登记命令全部通过后才能改为 `passing`。
 - 当前功能点必须完成端到端验证并将状态更新为 `passing`，才能把下一个功能点改为 `active`。
 - 无法继续的功能点标记为 `blocked`；尚未开始的功能点保持 `not_started`。
 
@@ -36,123 +26,84 @@
 
 - Python 3.9+：验证框架和自动化测试。
 - Tcl / Tclsh：TCL 基础环境。
-- Nagelfar 1.3.5：TCL 静态语法检查器。
 - Microsoft Excel `.xlsx`：测试计划格式。
 - Codex Skill：以 `SKILL.md` 作为 Skill 入口。
 
+首次使用优先运行根目录统一入口：
+
+```sh
+./init.sh dev
+```
+
+该命令创建项目独立的 `.venv`、安装 Python 依赖并检查 Tcl 版本，不安装第三方 TCL 静态语法工具。
+
 ## 验证命令
 
-所有验证命令都从本项目根目录运行。
-
-运行项目清单、用例元数据和基础 TCL 契约检查：
+所有入口都从项目根目录通过 `init.sh` 运行；底层命令由脚本统一维护，不在本文重复登记。
 
 ```sh
-python3 scripts/validate.py
-python3 scripts/validate.py project
-python3 scripts/validate.py project --format json
+# 查看全部命令
+./init.sh help
+
+# 安装开发环境、部署 Skill
+./init.sh dev
+./init.sh deploy
+
+# 全量和分层验证
+./init.sh test all
+./init.sh test layer1
+./init.sh test layer2 path/to/测试计划.xlsx path/to/pos001_case
+
+# 指定范围验证
+./init.sh test project
+./init.sh test unit
+./init.sh test skill
+./init.sh test feature F-026
+./init.sh test tcl path/to/pos001_case
+./init.sh test plan path/to/测试计划.xlsx
+./init.sh test delivery path/to/测试计划.xlsx path/to/pos001_case
 ```
 
-运行 Nagelfar Layer 2A 静态语法检查；可一次传入一个或多个 TCL 文件：
+- `test all` 与 Jenkins 使用相同的完整门禁，并生成 HTML、JUnit 和完整日志。
+- `test layer1` 检查项目清单、Skill 结构、Python 依赖和 Tcl 环境。
+- `test layer2` 接收一个测试计划及一个或多个 TCL 用例目录，执行 Excel → TCL 规范检查；Excel 未通过时 TCL 检查为 `SKIPPED`。它是端到端 Layer 2 的内部输出门禁，不单独代表用户功能端到端通过。
+- `test feature` 运行 `harness/function.json` 中指定功能绑定的全部验证命令。
+- `test tcl`、`test plan` 和 `test delivery` 用于调试对应场景。
+- `./init.sh --dry-run ...` 只打印命令，不执行。
 
-```sh
-python3 scripts/validate.py tcl path/to/run.tcl
-python3 scripts/validate.py tcl path/to/case_1.tcl path/to/case_2.tcl
-```
-
-运行 Excel Layer 1 测试计划检查；需求清单用于确定性检查 PLAN-013：
-
-```sh
-python3 scripts/validate.py plan path/to/测试计划.xlsx
-python3 scripts/validate.py plan path/to/测试计划.xlsx --requirements path/to/requirements.json
-```
-
-运行同一交付批次的统一门禁；按 Layer 1 → Layer 2A → Layer 2B 执行，支持一个或多个 TCL 用例目录：
-
-```sh
-python3 scripts/validate.py delivery path/to/测试计划.xlsx path/to/pos001_case path/to/pos002_case
-python3 scripts/validate.py delivery path/to/测试计划.xlsx path/to/pos001_case --requirements path/to/requirements.json
-```
-
-Nagelfar 不在 `PATH` 中时，通过环境变量或命令参数指定 `nagelfar.tcl`：
-
-```sh
-NAGELFAR=/path/to/nagelfar135/nagelfar.tcl python3 scripts/validate.py tcl path/to/run.tcl
-python3 scripts/validate.py tcl --nagelfar /path/to/nagelfar135/nagelfar.tcl path/to/run.tcl
-```
-
-运行全部 Python 单元测试：
-
-```sh
-python3 -m unittest discover -s tests/unit -v
-```
-
-运行 `function.json` 中某个功能绑定的全部验证命令：
-
-```sh
-python3 scripts/validate.py feature F-014
-```
-
-修改 Skill 后运行 Codex Skill 结构检查：
-
-```sh
-python3 /Users/e2uninova-m4/.codex/skills/.system/skill-creator/scripts/quick_validate.py .
-```
-
-统一验证接口只在全部检查为 `PASS` 时返回退出码 `0`；`FAIL` 或 `TOOL_UNAVAILABLE` 返回非零退出码。`delivery` 子命令按 Layer 1 → Layer 2A → Layer 2B 顺序执行，上游未通过时下游为 `SKIPPED`；`tcl` 子命令仍可用于单独调试 Layer 2A/2B。
+所有验证仅在全部检查为 `PASS` 时返回退出码 `0`；`FAIL` 或 `TOOL_UNAVAILABLE` 返回非零退出码。顶层验收仍为两层：Layer 1 验证 Skill 环境、工具与启动，Layer 2 使用版本化测试集验证端到端用户功能与输出。
 
 ## Skill 安装与启动
 
-安装前先确保 Skill 结构检查通过，并确认目标目录中不存在同名 Skill。
-
-使用安装脚本完成结构预检和安全安装；默认目标为 Codex，默认使用软链接，使项目修改可以立即反映到已安装 Skill。软链接与复制安装均只复制运行时文件（`SKILL.md`、`agents/`、`assets/`、`references/`、`scripts/`），不复制 `PROCESS.MD`、`AGENTS.md`、`function.json`、`tests/`、`generated/`、`outputs/` 和 `.gitignore` 等开发面向文件；软链接模式按运行时条目逐项链接，而非整目录单一软链接。
+安装、预检、Agent 选择、安装模式和目标目录统一通过 `init.sh deploy` 管理：
 
 ```sh
-python3 scripts/install_skill.py
+./init.sh deploy
+./init.sh deploy --agent opencode
+./init.sh deploy --mode copy
+./init.sh --dry-run deploy --agent trae --skills-dir /path/to/trae/skills
 ```
 
-使用 `--agent` 安装到其他受支持 Agent 的用户级 Skills 目录。为兼容不稳定的软链接扫描行为，非 Codex Agent 默认使用独立复制：
+具体的运行时白名单、默认模式、支持的 Agent、重装限制、启动示例和故障检查统一查看：
 
 ```sh
-python3 scripts/install_skill.py --agent opencode
-python3 scripts/install_skill.py --agent hermes
-python3 scripts/install_skill.py --agent workbuddy
-python3 scripts/install_skill.py --agent trae
+./init.sh help
 ```
-
-默认目录分别为：Codex `~/.codex/skills`、OpenCode `~/.config/opencode/skills`、Hermes `~/.hermes/skills`、WorkBuddy `~/.workbuddy/skills`、Trae `~/.trae/skills`。可分别通过 `CODEX_HOME`、`OPENCODE_CONFIG_DIR`、`HERMES_HOME`、`WORKBUDDY_HOME`、`TRAE_HOME` 调整 Agent 根目录。
-
-同时安装并校验固定版本 Nagelfar 1.3.5：
-
-```sh
-python3 scripts/install_skill.py --install-nagelfar
-```
-
-需要安装独立副本、预览操作或覆盖所选 Agent 的 Skills 目录时：
-
-```sh
-python3 scripts/install_skill.py --mode copy
-python3 scripts/install_skill.py --dry-run
-python3 scripts/install_skill.py --agent trae --skills-dir /path/to/trae/skills
-```
-
-安装器不覆盖已有同名目标；如需重装，先人工确认并移走原目标。可显式传入 `--mode link` 或 `--mode copy` 覆盖默认安装方式。Nagelfar 下载包执行固定 SHA-256 校验，亦可通过 `--nagelfar-archive` 使用离线安装包。
-
-安装完成后重启对应 Agent，使其重新扫描 Skills；Codex 也可以重新创建一个任务。使用以下方式显式启动 Codex：
-
-```text
-$eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用例。
-```
-
-也可以提出与 `SKILL.md` 描述匹配的自然语言请求，让 Codex 自动选择该 Skill。开发和验收时优先显式写出 `$eda-tester-skill`，避免无法判断是否成功加载。
-
-若 Skill 没有被识别，依次检查：
-
-1. 安装路径是否为所选 Agent 的默认目录（或 `--skills-dir` 指定目录）下的 `eda-tester-skill/`。
-2. 该目录下是否直接存在 `SKILL.md`，而不是多嵌套了一层目录。
-3. `SKILL.md` 的名称是否为 `eda-tester-skill`，结构检查是否通过。
-4. 安装后是否已经重启对应 Agent；Codex 也可创建新任务。
 
 本项目属于父仓库中的独立子项目，不使用父目录作为统一构建入口。
+
+## 用户触发的结束动作
+
+普通任务完成、测试通过或会话结束时，不自动上传代码，也不自动触发 Jenkins。只有用户明确说“上传代码”时，才按以下顺序执行结束动作：
+
+1. 根据本次实际变更更新 `skill/SKILL.md` 及相关 README 文档；没有相关内容变化时明确记录无需修改，不编造文档变更。
+2. 更新 `harness/PROCESS.MD` 和 `harness/function.json`，运行 `./init.sh test all`，确认完整门禁通过。
+3. 检查待上传差异及秘密、日志、本地路径和禁止提交文件；只操作当前 `eda-tester-skill/` GitHub 仓库。
+4. 创建或使用 `codex/` 候选分支，提交并推送候选分支，不直接推送 `main`。
+5. 使用该远端候选分支作为 `CANDIDATE_REF` 触发 Jenkins 的 `eda-tester-skill-approved-merge` 流水线。
+6. 发布测试报告并等待用户审批；只有用户在 Jenkins 中批准后，流水线才允许合入目标分支。
+
+“上传代码”只授权上述结束流程，不授权绕过测试、审批、分支保护或操作父目录及其他仓库。若文档、测试、提交、推送或 Jenkins 任一步失败，停止后续步骤并报告失败原因。
 
 ## 代码仓库
 
@@ -164,13 +115,14 @@ $eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用
 
 ## 项目文档描述
 
-- `SKILL.md`：Skill 的触发说明、生成流程和输出要求。
-- `function.json`：项目计划实现的功能、优先级、状态和验收标准。
-- `PROCESS.MD`：跨会话维护的项目进度、验证基线、遗留问题和下一步。
-- `references/test-plan.md`：两层验证计划、执行顺序和完成标准。
-- `references/specs/test-plan-rules.md`：测试计划 Excel 的详细检查规则。
-- `references/specs/tcl-script-rules.md`：TCL 脚本规范；规则仍待继续补充。
-- `agents/openai.yaml`：Skill 在 Codex 界面中的名称、简介和默认提示词。
+- `skill/SKILL.md`：最终 Skill 的触发说明、生成流程和输出要求。
+- `harness/function.json`：项目功能、优先级、状态和验收标准。
+- `harness/PROCESS.MD`：跨会话维护的项目进度、验证基线、遗留问题和下一步。
+- `harness/references/test-plan.md`：两层项目验收计划、执行顺序和完成标准。
+- `harness/references/e2e-test-set.md`：端到端测试集的输入、预期输出、比较和归档契约。
+- `skill/references/specs/test-plan-rules.md`：测试计划 Excel 的运行时详细规则。
+- `skill/references/specs/tcl-script-rules.md`：TCL 脚本运行时规范。
+- `skill/agents/openai.yaml`：Skill 在 Codex 界面中的名称、简介和默认提示词。
 
 详细业务规则只维护在对应文档中，避免在 `AGENTS.md` 重复定义。
 
@@ -178,23 +130,20 @@ $eda-tester-skill 根据这份 Innovus 命令说明生成测试计划和 TCL 用
 
 ```text
 eda-tester-skill/
-├── AGENTS.md                         # 项目协作说明
-├── SKILL.md                          # Skill 入口
-├── function.json                     # 功能清单
-├── PROCESS.MD                        # 项目进度与会话交接
-├── agents/
-│   └── openai.yaml                   # Skill 界面元数据
-├── assets/
-│   └── templates/
-│       └── 测试用例设计表.xlsx        # 测试计划模板
-├── references/
-│   ├── test-plan.md                  # 验证计划
-│   └── specs/
-│       ├── test-plan-rules.md        # 测试计划规范
-│       └── tcl-script-rules.md       # TCL 脚本规范
-├── scripts/
-│   └── validate.py                   # 基础验证器
-└── tests/
-    ├── cases/                        # 正向和负向验证样例
-    └── unit/                         # Python 单元测试
+├── AGENTS.md                         # 仓库协作入口
+├── skill/                            # 唯一可安装代码产物
+│   ├── SKILL.md                      # Skill 入口
+│   ├── agents/                       # Skill 界面元数据
+│   ├── assets/                       # 运行资产与模板
+│   ├── references/                   # 生成与输出规范
+│   └── scripts/                      # 运行脚本和输出检查器
+└── harness/                          # 项目开环开发与验收环境
+    ├── PROCESS.MD                    # 项目进度与会话交接
+    ├── function.json                 # 功能清单
+    ├── references/                   # 项目验收与设计文档
+    ├── scripts/                      # 安装器和环境自检工具
+    ├── jenkins/                      # 完整测试、人工审批和安全合入流水线
+    ├── tests/                        # 单元、回归和端到端测试集
+    ├── generated/                    # 开发生成结果
+    └── outputs/                      # 开发运行输出
 ```

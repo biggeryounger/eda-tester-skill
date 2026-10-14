@@ -1,0 +1,8 @@
+id = "pos001_sample_minimum"
+feature_ids = ["F-003", "F-004", "F-005"]
+command = "sample_command"
+polarity = "positive"
+runtime = "static"
+script = "run.tcl"
+expected = "accept"
+description = "Minimum valid positive fixture for project metadata validation"

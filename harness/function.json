@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.0",
+  "project": "eda-tester-skill",
+  "description": "从 EDA 命令说明或需求生成可追溯的测试场景与 TCL 用例。",
+  "status_values": ["not_started", "active", "blocked", "passing"],
+  "validation_commands": [
+    {"id": "project", "argv": ["python3", "../skill/scripts/validate.py", "project"]},
+    {"id": "unit-validator", "argv": ["python3", "-m", "unittest", "tests.unit.test_validator", "-v"]},
+    {"id": "unit-test-plan", "argv": ["python3", "-m", "unittest", "tests.unit.test_test_plan_validator", "-v"]},
+    {"id": "unit-skill-installer", "argv": ["python3", "-m", "unittest", "tests.unit.test_skill_installer", "-v"]},
+    {"id": "unit-tcl-conventions", "argv": ["python3", "-m", "unittest", "tests.unit.test_tcl_convention_validator", "-v"]},
+    {"id": "unit-test-plan-generator", "argv": ["python3", "-m", "unittest", "tests.unit.test_test_plan_generator", "-v"]},
+    {"id": "unit-scenario-strategy", "argv": ["python3", "-m", "unittest", "tests.unit.test_scenario_strategy_contract", "-v"]},
+    {"id": "unit-optimus-defaults", "argv": ["python3", "-m", "unittest", "tests.unit.test_optimus_defaults", "-v"]},
+    {"id": "unit-itools-defaults", "argv": ["python3", "-m", "unittest", "tests.unit.test_itools_defaults", "-v"]},
+    {"id": "unit-command-spec-parser", "argv": ["python3", "-m", "unittest", "tests.unit.test_command_spec_parser", "-v"]},
+    {"id": "unit-tool-help-dumper", "argv": ["python3", "-m", "unittest", "tests.unit.test_tool_help_dumper", "-v"]},
+    {"id": "unit-delivery-gate", "argv": ["python3", "-m", "unittest", "tests.unit.test_delivery_gate", "-v"]},
+    {"id": "unit-regression-corpus", "argv": ["python3", "-m", "unittest", "tests.unit.test_regression_corpus", "-v"]},
+    {"id": "unit-design-config", "argv": ["python3", "-m", "unittest", "tests.unit.test_design_config", "-v"]},
+    {"id": "unit-two-layer-validation-contract", "argv": ["python3", "-m", "unittest", "tests.unit.test_two_layer_validation_contract", "-v"]},
+    {"id": "unit-repository-layout", "argv": ["python3", "-m", "unittest", "tests.unit.test_repository_layout", "-v"]},
+    {"id": "unit-jenkins-pipeline", "argv": ["python3", "-m", "unittest", "tests.unit.test_jenkins_pipeline", "tests.unit.test_jenkins_gate", "-v"]},
+    {"id": "unit-init-script", "argv": ["python3", "-m", "unittest", "tests.unit.test_init_script", "-v"]},
+    {"id": "unit-all", "argv": ["python3", "-m", "unittest", "discover", "-s", "tests/unit", "-v"]}
+  ],
+  "features": [
+    {
+      "id": "F-001",
+      "name": "命令说明解析",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "从 Syntax、Parameters、Examples、自然语言需求或 Innovus 专用语料库提取命令语义。",
+      "acceptance_criteria": ["识别命令名、工具上下文和目标版本", "Innovus 命令查询 INNOVUS191 语料库并记录来源", "提取参数类型、必选性、默认值和约束", "版本冲突或不完整信息被记录为假设或缺口", "查询时不发送设计数据、日志或其他敏感内容"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-002",
+      "name": "测试场景分解",
+      "priority": "P0",
+      "status": "passing",
+      "description": "在用户可多选策略后分解测试场景，并优先将兼容选项和测试点合并到较少用例中。",
+      "acceptance_criteria": ["输出测试设计前询问用户选择策略且支持多选", "Smoke case 覆盖全部选项和枚举值", "正向覆盖从业务场景设计合法用例", "负向覆盖边界值、异常值和选项冲突", "兼容测试点尽量合并且拆分条件明确", "多测试点在描述、步骤和预期中逐项对应", "多策略场景取并集、去重并保留策略标签", "生成 TCL 前展示 Excel 测试计划和完整用例设计并取得用户明确确认"],
+      "test_cases": ["tests/unit/test_scenario_strategy_contract.py"],
+      "validation_commands": ["unit-scenario-strategy"]
+    },
+    {
+      "id": "F-003",
+      "name": "TCL 用例生成",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "生成结构化、可读且可执行的 TCL 测试脚本。",
+      "acceptance_criteria": ["脚本包含 TEST_ACTION 和 EXPECT 标记", "setup、action、assertion 边界清晰", "正确处理 Tcl quoting 与特殊字符"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required"],
+      "validation_commands": ["project"]
+    },
+    {
+      "id": "F-004",
+      "name": "用例命名与组织",
+      "priority": "P0",
+      "status": "passing",
+      "description": "统一生成正负用例目录及元数据。",
+      "acceptance_criteria": ["目录符合 pos/neg + 三位序号 + 场景名规范", "case.toml ID 与目录一致", "正负极性与期望结果一致"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required", "tests/unit/test_validator.py"],
+      "validation_commands": ["project", "unit-validator"]
+    },
+    {
+      "id": "F-005",
+      "name": "需求可追溯性",
+      "priority": "P0",
+      "status": "passing",
+      "description": "建立功能、源需求、测试场景和脚本之间的映射。",
+      "acceptance_criteria": ["每个用例至少引用一个 feature ID", "引用的 feature ID 在 function.json 中存在", "可按 feature 汇总覆盖用例"],
+      "test_cases": ["tests/cases/pos001_sample_minimum", "tests/cases/neg001_sample_missing_required", "tests/unit/test_validator.py"],
+      "validation_commands": ["project", "unit-validator"]
+    },
+    {
+      "id": "F-006",
+      "name": "静态输出检查编排",
+      "priority": "P0",
+      "status": "passing",
+      "description": "编排端到端验收第二层内部的 Excel 和 TCL 规范静态输出检查。",
+      "acceptance_criteria": ["Excel 检查失败时 TCL 检查标记为 SKIPPED", "两项内部检查分别报告状态", "只有两项均为 PASS 时静态输出门禁通过"],
+      "test_cases": ["tests/unit/test_delivery_gate.py"],
+      "validation_commands": ["unit-delivery-gate"]
+    },
+    {
+      "id": "F-007",
+      "name": "Innovus 运行适配",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "在隔离环境执行 Innovus 用例并收集结构化结果。",
+      "acceptance_criteria": ["记录工具版本、退出码和日志路径", "区分命令失败与环境/许可证失败", "支持超时和测试后清理"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-008",
+      "name": "结果断言",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "验证命令接受/拒绝、错误类别和设计状态变化。",
+      "acceptance_criteria": ["正例检查后置条件", "负例检查预期错误类别", "禁止仅凭进程退出码判定全部结果"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-009",
+      "name": "覆盖率报告",
+      "priority": "P1",
+      "status": "not_started",
+      "description": "按命令、参数、场景类别和 feature 输出覆盖摘要。",
+      "acceptance_criteria": ["列出未覆盖特性和参数", "区分静态通过与 EDA 实机通过", "报告结果可稳定复现"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-010",
+      "name": "多工具扩展",
+      "priority": "P2",
+      "status": "not_started",
+      "description": "扩展 Optimus、iTools/Innovus 和 PrimeTime 的工具差异配置与工具专属生成语料。",
+      "acceptance_criteria": ["Optimus 使用脱敏的全流程阶段模型和 MMMC 对象关系", "工具专属语法和日志标记隔离", "共享场景模型不复制核心逻辑", "语料不包含 PDK、设计数据库或用户本地路径", "未知工具给出明确诊断"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-011",
+      "name": "安全策略",
+      "priority": "P0",
+      "status": "not_started",
+      "description": "识别高风险命令并要求隔离、清理或人工确认。",
+      "acceptance_criteria": ["删除、覆盖和大范围修改操作被标记", "生成脚本不使用用户目录或不受控绝对路径", "破坏性用例提供明确清理策略"],
+      "test_cases": [],
+      "validation_commands": []
+    },
+    {
+      "id": "F-012",
+      "name": "回归语料库",
+      "priority": "P1",
+      "status": "passing",
+      "description": "维护典型命令说明输入及其期望覆盖契约。",
+      "acceptance_criteria": ["至少覆盖简单、多参数和状态依赖命令", "语料去敏且可提交", "输出变化可被自动检测和审阅"],
+      "test_cases": ["tests/unit/test_regression_corpus.py"],
+      "validation_commands": ["unit-regression-corpus"]
+    },
+    {
+      "id": "F-013",
+      "name": "测试计划规范验证",
+      "priority": "P0",
+      "status": "passing",
+      "description": "根据版本化测试计划规范执行第二层端到端验收中的 Excel 输出检查。",
+      "acceptance_criteria": ["检查 cmd 表 A-J 列结构", "检查核心字段完整性和 pos/neg 三位序号场景命名", "每条 PLAN 规则具有自动化正反样例"],
+      "test_cases": ["tests/unit/test_test_plan_validator.py"],
+      "validation_commands": ["unit-test-plan"]
+    },
+    {
+      "id": "F-015",
+      "name": "TCL 脚本规范验证",
+      "priority": "P0",
+      "status": "passing",
+      "description": "根据版本化 TCL 脚本规范执行第二层端到端验收中的用例目录检查；单步使用 run.tcl，真正多步才使用连续 run_1.tcl..run_N.tcl。",
+      "acceptance_criteria": ["校验对象为用例名子目录,含 nith.run、标准件 tcl/design.tcl 和唯一目标工具目录", "单步只允许 run.tcl；多步只允许至少两个连续的 run_1.tcl..run_N.tcl，两种形式不混用", "每个 run 自带 TEST_ACTION/EXPECT、DESIGN_INIT 和至少一个 checkpoint", "Optimus init 块负责 source PV/design、设置 setup options，并通过 setup.mmmc_file 引用 MMMC，禁止 source mmmc.tcl", "Optimus DEF 在 setup_design 之后通过 read_def 读入，不通过 set_options 配置", "run 必须复用 design.tcl 已声明的输入变量，不得重复声明或用字面值绕过对应变量", "mmmc.tcl 保持声明式，禁止流程命令、glob、自动发现和循环控制", "nith.run 逐字保留固定初始化块并精确调度全部 run，最后只调用一次 nith_done", "保留可移植路径、PV 入口和环境变量白名单规则", "CMD 用例禁止 DEF golden；同一 run 输出按清理、生成、比较顺序执行", "每个 run 以 pv_rpt_checkpoints 和 exit 顺序收尾", "禁止全部已登记占位符", "规则具有稳定 ID 和自动化正反样例"],
+      "test_cases": ["tests/unit/test_tcl_convention_validator.py"],
+      "validation_commands": ["unit-tcl-conventions"]
+    },
+    {
+      "id": "F-016",
+      "name": "Skill 安装器",
+      "priority": "P1",
+      "status": "passing",
+      "description": "安全安装 eda-tester-skill 到 Codex、OpenCode、Hermes、WorkBuddy 或 Trae，并排除开发面向文件。",
+      "acceptance_criteria": ["支持 Codex、OpenCode、Hermes、WorkBuddy 和 Trae 的默认 Skills 目录", "支持软链接和独立复制安装", "安装前检查 Skill 源结构且不覆盖现有目标", "支持 dry-run 和自定义安装目录", "软链接与复制安装均不复制 PROCESS.MD、AGENTS.md、function.json、tests/、generated/、outputs/ 和 .gitignore 等开发面向文件", "references 和 scripts 使用显式运行时白名单，项目验收规范、测试集规范、安装器及环境自检脚本不得进入 Skill 产出", "保留 SKILL.md、agents、运行资产、生成规范和运行脚本"],
+      "test_cases": ["tests/unit/test_skill_installer.py"],
+      "validation_commands": ["unit-skill-installer"]
+    },
+    {
+      "id": "F-017",
+      "name": "非空测试计划生成",
+      "priority": "P0",
+      "status": "passing",
+      "description": "从结构化场景复制模板并生成包含真实用例行的 Excel 测试计划。",
+      "acceptance_criteria": ["从指定模板复制生成并保留 A-J 结构和格式", "用例描述不包含开头的 [feature...] 标签", "输出使用有上限的合理列宽、自动换行和内容自适应行高", "模板和生成结果均不包含任何工作表图片", "清除模板历史业务数据", "空场景输入明确失败且不输出工作簿", "生成后重新打开并通过 Layer 1"],
+      "test_cases": ["tests/unit/test_test_plan_generator.py"],
+      "validation_commands": ["unit-test-plan-generator"]
+    },
+    {
+      "id": "F-018",
+      "name": "Optimus 设计初始化模板",
+      "priority": "P0",
+      "status": "passing",
+      "description": "使用仓库内 design.tcl 与 mmmc.tcl 作为 Optimus 初始化结构模板，并由用户目标设计输入填充。",
+      "acceptance_criteria": ["提供 design.tcl 和 mmmc.tcl 初始化模板", "MMMC 模板完整展示四组 library/RC/analysis corner 和四个 setup/hold view", "Optimus 目标版本为可选信息，未提供时不得阻止测试计划或 TCL 生成", "示例设计目录使用 Itools21.1_Ifp_util0.65，禁止误写 lfp", "design.tcl 只声明设计/技术路径和设计输入，不 source 其他 TCL 或执行 set_options", "LEF、Verilog netlist 和 top cell 缺失时报告缺口，不静默采用仓库示例路径", "只有用户明确选择仓库示例 profile 时才使用 SMIC28/riscv 示例值", "用户提供值逐字段优先", "模板和示例路径使用 PV_ROOT 锚定形式且不包含用户本地绝对路径"],
+      "test_cases": ["tests/unit/test_optimus_defaults.py"],
+      "validation_commands": ["unit-optimus-defaults"]
+    },
+    {
+      "id": "F-019",
+      "name": "iTools 默认 MMMC",
+      "priority": "P0",
+      "status": "passing",
+      "description": "为 iTools / Innovus 提供与 Optimus 命令方言隔离的默认四视图 MMMC TCL。",
+      "acceptance_criteria": ["提供独立的 iTools 默认 mmmc.tcl", "定义四个 library set、RC corner、delay corner 和 analysis view", "定义 max/min constraint mode", "setup 和 hold view 列表与截图一致", "不混用 Optimus MMMC 命令方言"],
+      "test_cases": ["tests/unit/test_itools_defaults.py"],
+      "validation_commands": ["unit-itools-defaults"]
+    },
+    {
+      "id": "F-020",
+      "name": "命令说明结构化解析",
+      "priority": "P0",
+      "status": "passing",
+      "description": "从包含一个或多个 EDA 命令及 option 说明的 TXT 中确定性提取可供语法检查使用的版本化结构数据。",
+      "acceptance_criteria": ["支持一个 TXT 中的多个命令块及中英文常见标题", "提取命令名、工具、版本、Syntax 和来源行号", "提取 option 必选性、参数数量、基本类型、枚举值和可重复性", "提取 option 的互斥、依赖和至少一个组合关系", "提取不同 Optimus 版本的 option 增删差异", "无法确定的属性输出 unknown 和可追踪缺口，不猜测事实", "缺少命令名、关系引用未知 option 等错误导致非零退出且不写交付 JSON", "具有自动化通过和失败样例"],
+      "test_cases": ["tests/unit/test_command_spec_parser.py"],
+      "validation_commands": ["unit-command-spec-parser"]
+    },
+    {
+      "id": "F-022",
+      "name": "设计路径集中管理",
+      "priority": "P0",
+      "status": "passing",
+      "description": "以版本化 JSON profile 作为所有 design.tcl 设计路径的唯一配置源，并确定性同步到一个或多个用例。",
+      "acceptance_criteria": ["设计目录、技术目录、LEF、netlist、DEF、top 和电源地网络在单一 profile 中维护", "一次命令可向多个用例同步内容一致的 design.tcl", "拒绝缺失字段、未知字段、用户目录绝对路径和重复输出目标", "生成文件记录 profile 来源且不需要在运行时访问仓库配置", "从同一 JSON 确定性生成带状态和冲突检查列的输入件管理表.xlsx", "仓库示例 profile 继续保持显式选择语义"],
+      "test_cases": ["tests/unit/test_design_config.py"],
+      "validation_commands": ["unit-design-config"]
+    },
+    {
+      "id": "F-021",
+      "name": "工具命令 Help 批量采集",
+      "priority": "P0",
+      "status": "passing",
+      "description": "在 Optimus 等 Tcl EDA 工具会话中枚举命令并逐个打印 -help，生成可保存为 TXT 的命令说明输入。",
+      "acceptance_criteria": ["支持按 glob 模式枚举当前工具会话中的命令", "支持传入显式命令列表以限制采集范围", "逐个调用 command -help 并打印稳定的命令边界标记", "单个命令不支持 -help 时记录失败并继续采集", "打印总数、成功数和失败数汇总", "具有不依赖 EDA 许可证的确定性 Tcl 自动化测试"],
+      "test_cases": ["tests/unit/test_tool_help_dumper.py"],
+      "validation_commands": ["unit-tool-help-dumper"]
+    },
+    {
+      "id": "F-023",
+      "name": "两层验收标准",
+      "priority": "P0",
+      "status": "passing",
+      "description": "定义 Skill 环境/工具/启动验证与端到端用户功能/输出验证两层顶层标准。",
+      "acceptance_criteria": ["第一层定义 Skill 安装结构、所需工具、依赖和启动入口检查", "第一层未通过时第二层必须跳过", "第二层使用版本化测试集登记用户输入、fixture、预期输出、比较规则和实际输出", "Excel 和 TCL 规范检查明确归属于第二层内部检查", "只有两层均为 PASS 时整体通过"],
+      "test_cases": ["tests/unit/test_two_layer_validation_contract.py"],
+      "validation_commands": ["unit-two-layer-validation-contract"]
+    },
+    {
+      "id": "F-024",
+      "name": "Skill 产物目录隔离",
+      "priority": "P0",
+      "status": "passing",
+      "description": "使用 skill/ 与 harness/ 两棵目录物理隔离可安装 Skill 产物和项目开环开发环境。",
+      "acceptance_criteria": ["skill/ 只包含可安装的 Skill 入口、Agent 元数据、运行资产、运行规范和运行脚本", "harness/ 包含进度、功能清单、测试、验收规范、生成结果和开发工具", "安装器默认仅从 skill/ 安装", "项目验证和功能验证能够从新目录结构运行", "Skill 结构检查直接针对 skill/ 通过"],
+      "test_cases": ["tests/unit/test_repository_layout.py", "tests/unit/test_skill_installer.py"],
+      "validation_commands": ["unit-repository-layout", "unit-skill-installer"]
+    },
+    {
+      "id": "F-025",
+      "name": "Jenkins 人工审批合入门禁",
+      "priority": "P0",
+      "status": "passing",
+      "description": "每个候选提交运行完整用例集，发布测试报告，经人工审批且主分支未变化后才合入 GitHub。",
+      "acceptance_criteria": ["候选提交包含最新远端主分支后才允许测试", "运行项目检查、全部单元测试和 Skill 结构检查", "发布 JUnit、HTML 和完整日志", "测试全部通过后才显示人工审批门禁", "审批绑定精确提交且推送前复核远端主分支未变化", "安装说明要求 GitHub 主分支禁止绕过 Jenkins 直接推送"],
+      "test_cases": ["tests/unit/test_jenkins_pipeline.py", "tests/unit/test_jenkins_gate.py", "jenkins/Jenkinsfile", "jenkins/Dockerfile", "jenkins/init.groovy.d/create-job.groovy"],
+      "validation_commands": ["unit-jenkins-pipeline"]
+    },
+    {
+      "id": "F-026",
+      "name": "统一初始化与测试入口",
+      "priority": "P0",
+      "status": "passing",
+      "description": "通过根目录 init.sh 一键安装开发环境、部署 Skill，并启动全量、分层或指定场景测试。",
+      "acceptance_criteria": ["dev 创建隔离 Python 开发环境并检查 Tcl", "deploy 将运行时 Skill 安装到目标 Agent", "test all 执行 Jenkins 同款完整门禁", "test layer1 和 test layer2 分别提供分层入口", "test feature、tcl、plan 和 delivery 支持指定功能或场景", "--dry-run 可安全预览命令", "帮助文本记录全部入口"],
+      "test_cases": ["tests/unit/test_init_script.py", "../init.sh"],
+      "validation_commands": ["unit-init-script"]
+    }
+  ]
+}

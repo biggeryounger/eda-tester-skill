@@ -1,5 +1,9 @@
 # The parent repository ignores all JSON files. Keep the feature manifest versioned.
-!function.json
+!harness/function.json
 
 __pycache__/
 *.py[cod]
+.DS_Store
+.venv/
+harness/jenkins/.env
+harness/outputs/jenkins/

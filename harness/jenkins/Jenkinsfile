@@ -1,0 +1,133 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'CANDIDATE_REF', defaultValue: '', description: '待测试并合入的远端分支或提交，例如 refs/heads/codex/my-change')
+        string(name: 'TARGET_BRANCH', defaultValue: 'main', description: '审批后合入的目标分支')
+    }
+    options {
+        disableConcurrentBuilds(abortPrevious: false)
+        timeout(time: 60, unit: 'MINUTES')
+        timestamps()
+    }
+    environment {
+        REPOSITORY_URL = 'https://github.com/biggeryounger/eda-tester-skill.git'
+    }
+    stages {
+        stage('Checkout pipeline') {
+            steps { checkout scm }
+        }
+        stage('Prepare candidate') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-eda-tester-skill-push',
+                    usernameVariable: 'GITHUB_PUSH_USER',
+                    passwordVariable: 'GITHUB_PUSH_TOKEN'
+                )]) {
+                    sh '''
+                        set -eu
+                        case "${CANDIDATE_REF}" in
+                            ""|-*|*..*|*[!A-Za-z0-9._/-]*) echo "Invalid or empty CANDIDATE_REF"; exit 2 ;;
+                        esac
+                        case "${TARGET_BRANCH}" in
+                            ""|-*|*..*|*[!A-Za-z0-9._/-]*) echo "Invalid TARGET_BRANCH"; exit 2 ;;
+                        esac
+                        set +x
+                        AUTH_URL="https://${GITHUB_PUSH_USER}:${GITHUB_PUSH_TOKEN}@github.com/biggeryounger/eda-tester-skill.git"
+                        git fetch --no-tags "${AUTH_URL}" "refs/heads/${TARGET_BRANCH}"
+                        REMOTE_BASE_COMMIT="$(git rev-parse FETCH_HEAD)"
+                        git fetch --no-tags "${AUTH_URL}" "${CANDIDATE_REF}"
+                        CANDIDATE_COMMIT="$(git rev-parse FETCH_HEAD)"
+                        set -x
+                        git merge-base --is-ancestor "${REMOTE_BASE_COMMIT}" "${CANDIDATE_COMMIT}" || {
+                            echo "Candidate does not contain latest ${TARGET_BRANCH}; rebase or merge it and retry."
+                            exit 1
+                        }
+                        git checkout --detach "${CANDIDATE_COMMIT}"
+                        printf '%s' "${REMOTE_BASE_COMMIT}" > .jenkins-remote-base
+                        printf '%s' "${CANDIDATE_COMMIT}" > .jenkins-candidate
+                    '''
+                    script {
+                        env.REMOTE_BASE_COMMIT = readFile('.jenkins-remote-base').trim()
+                        env.CANDIDATE_COMMIT = readFile('.jenkins-candidate').trim()
+                        currentBuild.description = "${params.CANDIDATE_REF} @ ${env.CANDIDATE_COMMIT.take(12)}"
+                    }
+                }
+            }
+        }
+        stage('Environment') {
+            steps {
+                sh '''
+                    set -eu
+                    python3 --version
+                    tclsh <<'EOF'
+puts "Tcl [info patchlevel]"
+EOF
+                '''
+            }
+        }
+        stage('Run complete test suite') {
+            steps { sh 'python3 harness/scripts/run_jenkins_gate.py' }
+        }
+        stage('Publish test report') {
+            steps {
+                junit testResults: 'harness/outputs/jenkins/junit.xml'
+                publishHTML target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'harness/outputs/jenkins',
+                    reportFiles: 'index.html',
+                    reportName: 'EDA Tester Skill 完整测试报告'
+                ]
+                archiveArtifacts artifacts: 'harness/outputs/jenkins/**', fingerprint: true
+            }
+        }
+        stage('Review and approve') {
+            steps {
+                input message: "请审阅完整测试报告，确认提交 ${env.CANDIDATE_COMMIT} 可以合入 ${params.TARGET_BRANCH}。", ok: '批准合入', submitterParameter: 'APPROVER'
+            }
+        }
+        stage('Merge approved commit') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-eda-tester-skill-push',
+                    usernameVariable: 'GITHUB_PUSH_USER',
+                    passwordVariable: 'GITHUB_PUSH_TOKEN'
+                )]) {
+                    sh '''
+                        set -eu
+                        test "$(git rev-parse HEAD)" = "${CANDIDATE_COMMIT}" || {
+                            echo "Workspace changed after testing; refusing to merge."
+                            exit 1
+                        }
+                        set +x
+                        AUTH_URL="https://${GITHUB_PUSH_USER}:${GITHUB_PUSH_TOKEN}@github.com/biggeryounger/eda-tester-skill.git"
+                        git fetch --no-tags "${AUTH_URL}" "refs/heads/${TARGET_BRANCH}"
+                        set -x
+                        CURRENT_REMOTE_COMMIT="$(git rev-parse FETCH_HEAD)"
+                        test "${CURRENT_REMOTE_COMMIT}" = "${REMOTE_BASE_COMMIT}" || {
+                            echo "Remote target changed during test or review; run a new build."
+                            exit 1
+                        }
+                        set +x
+                        git push "${AUTH_URL}" "${CANDIDATE_COMMIT}:refs/heads/${TARGET_BRANCH}"
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        unsuccessful {
+            junit allowEmptyResults: true, testResults: 'harness/outputs/jenkins/junit.xml'
+            publishHTML target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'harness/outputs/jenkins',
+                reportFiles: 'index.html',
+                reportName: 'EDA Tester Skill 完整测试报告'
+            ]
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'harness/outputs/jenkins/**', fingerprint: true
+        }
+    }
+}
