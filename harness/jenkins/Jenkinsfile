@@ -13,11 +13,9 @@ pipeline {
         REPOSITORY_URL = 'https://github.com/biggeryounger/eda-tester-skill.git'
     }
     stages {
-        stage('Checkout pipeline') {
-            steps { checkout scm }
-        }
         stage('Prepare candidate') {
             steps {
+                deleteDir()
                 withCredentials([usernamePassword(
                     credentialsId: 'github-eda-tester-skill-push',
                     usernameVariable: 'GITHUB_PUSH_USER',
@@ -31,6 +29,7 @@ pipeline {
                         case "${TARGET_BRANCH}" in
                             ""|-*|*..*|*[!A-Za-z0-9._/-]*) echo "Invalid TARGET_BRANCH"; exit 2 ;;
                         esac
+                        git init
                         set +x
                         AUTH_URL="https://${GITHUB_PUSH_USER}:${GITHUB_PUSH_TOKEN}@github.com/biggeryounger/eda-tester-skill.git"
                         git fetch --no-tags "${AUTH_URL}" "refs/heads/${TARGET_BRANCH}"

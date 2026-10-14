@@ -5,13 +5,10 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import hudson.model.ParametersDefinitionProperty
 import hudson.model.StringParameterDefinition
 import hudson.model.User
-import hudson.plugins.git.BranchSpec
-import hudson.plugins.git.GitSCM
-import hudson.plugins.git.UserRemoteConfig
 import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
 import hudson.security.HudsonPrivateSecurityRealm
 import jenkins.model.Jenkins
-import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
+import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
 def jenkins = Jenkins.get()
@@ -40,13 +37,11 @@ def job = jenkins.getItem(jobName)
 if (job == null) {
     job = jenkins.createProject(WorkflowJob, jobName)
 }
-def scm = new GitSCM(
-    [new UserRemoteConfig('https://github.com/biggeryounger/eda-tester-skill.git', null, null, null)],
-    [new BranchSpec('*/main')], false, [], null, null, []
-)
-def definition = new CpsScmFlowDefinition(scm, 'harness/jenkins/Jenkinsfile')
-definition.lightweight = false
-job.definition = definition
+def pipelineFile = new File('/usr/share/jenkins/ref/Jenkinsfile')
+if (!pipelineFile.isFile()) {
+    throw new IllegalStateException("Jenkinsfile is missing: ${pipelineFile}")
+}
+job.definition = new CpsFlowDefinition(pipelineFile.getText('UTF-8'), true)
 job.description = '测试候选提交的完整用例集，发布报告，等待人工审批后安全合入 main。'
 job.removeProperty(ParametersDefinitionProperty)
 job.addProperty(new ParametersDefinitionProperty(

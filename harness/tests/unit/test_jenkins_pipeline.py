@@ -34,8 +34,14 @@ class JenkinsPipelineTests(unittest.TestCase):
 
     def test_job_accepts_candidate_ref_and_loads_pipeline_from_harness(self) -> None:
         self.assertIn("CANDIDATE_REF", self.job)
-        self.assertIn("harness/jenkins/Jenkinsfile", self.job)
+        self.assertIn("CpsFlowDefinition", self.job)
+        self.assertIn("/usr/share/jenkins/ref/Jenkinsfile", self.job)
         self.assertIn("github-eda-tester-skill-push", self.job)
+
+    def test_pipeline_bootstraps_without_requiring_main_to_contain_jenkinsfile(self) -> None:
+        self.assertNotIn("checkout scm", self.pipeline)
+        self.assertIn("git init", self.pipeline)
+        self.assertIn("Jenkinsfile:/usr/share/jenkins/ref/Jenkinsfile:ro", self.compose)
 
     def test_controller_image_has_test_and_report_dependencies(self) -> None:
         for dependency in ("git", "python3", "python3-openpyxl", "tcl", "junit", "htmlpublisher"):
