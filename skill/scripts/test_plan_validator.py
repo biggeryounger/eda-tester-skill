@@ -1,8 +1,33 @@
 #!/usr/bin/env python3
-"""Deterministic Layer 1 validator for EDA test-plan workbooks."""
+"""Deterministic Layer 1 validator for EDA test-plan workbooks.
+
+脚本检查职责（从语义规范中分离）：
+
+- PLAN-001: require a readable, non-corrupt, non-encrypted .xlsx workbook.
+- PLAN-002: require the cmd worksheet and row-1 headers.
+- PLAN-003: require the exact A-J header schema and no business data after J.
+- PLAN-004: treat any A-F content as a case row and require all A-F fields.
+- PLAN-005: require a positive integer display number.
+- PLAN-006: pre-screen the command field as one lexical command token.
+- PLAN-007: check case-name syntax, uniqueness, polarity numbering, and continuity.
+- PLAN-008: pre-screen empty, trivial, or too-short descriptions only.
+- PLAN-009: pre-screen numbered steps, command mention, and basic action words.
+- PLAN-010: pre-screen trivial expected results and observable-result keywords.
+- PLAN-011: check supported status values and obvious owner placeholders.
+- PLAN-012: pre-screen polarity using positive/negative keywords.
+- PLAN-013: with a requirements JSON, compute textual test-point mappings.
+- PLAN-014: reject partial/history rows, hidden/collapsed rows, and stale filters.
+- PLAN-015: require consecutive numbered items to use in-cell line breaks.
+
+The pre-screens for PLAN-006 through PLAN-013 do not prove EDA semantics. Agent
+review is defined only in references/specs/test-plan-rules.md.
+"""
 
 from __future__ import annotations
 
+import argparse
+import json
+import sys
 import json
 import re
 import zipfile
@@ -187,3 +212,18 @@ def plan_report(path: Path, requirements_path: Path | None = None) -> dict[str, 
         "checks": [{"id": "L1", "status": "FAIL" if errors else "PASS", "input": str(path.resolve()), "diagnostics": diagnostics}],
         "diagnostics": diagnostics,
     }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate one EDA test-plan workbook.")
+    parser.add_argument("workbook", type=Path)
+    parser.add_argument("--requirements", type=Path)
+    args = parser.parse_args()
+    report = plan_report(args.workbook.resolve(), args.requirements.resolve() if args.requirements else None)
+    json.dump(report, sys.stdout, ensure_ascii=False, indent=2)
+    sys.stdout.write("\n")
+    return 0 if report["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

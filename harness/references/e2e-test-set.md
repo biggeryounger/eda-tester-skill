@@ -4,6 +4,8 @@
 
 状态：`CONFIGURED_DRAFT`
 
+模型参与的真实 Codex Skill 用例还必须遵循 [Codex Skill Agent E2E 用例规范与范式](agent-e2e-pattern.md)。本文定义通用测试集数据契约；后者定义真实会话的执行、等待门禁、独立裁决和结果分类。
+
 ## 目的
 
 测试集验证“用户给出输入后，Skill 的完整输出是否符合预期”。它不替代单元测试，也不把 Agent 的主观复核当成通过条件。

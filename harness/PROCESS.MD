@@ -1,10 +1,19 @@
 # EDA Tester Skill 项目进度
 
-最后更新：2026-10-14
+最后更新：2026-10-20
 
 项目仓库：<https://github.com/biggeryounger/eda-tester-skill>
 
 仓库状态：2026-08-07 完成首次 GitHub 推送；后续只跟踪该 GitHub 仓库，不再使用或同步 Gitee。
+
+## 当前交接快照
+
+- 当前功能：无；F-036“Agent E2E 用例规范与范式”已完成并标记为 `passing`。
+- 工作区状态：当前分支包含既有未提交开发改动；本功能只新增项目侧 Agent E2E 规范、规范契约测试和文档路由，不修改 Skill 运行时产物。
+- 最近验证：2026-10-20 删除目标版本可选门禁并补齐兼容覆盖明确文本后，`./init.sh test all` 完整通过：171/171 单元与回归测试 PASS，隔离 Skill 包结构 PASS。
+- 阻塞项：真实 Codex 会话验证仍受本机 codex-cli 0.133.0 与当前模型列表协议不兼容影响；不影响协议自动化测试和本次完整门禁。
+- 下一条命令：检查上传差异并推送 `codex/` 候选分支
+- 涉及文件：`harness/references/agent-e2e-pattern.md`、`harness/references/e2e-test-set.md`、`harness/tests/unit/test_agent_e2e_pattern.py`、`harness/function.json`、`harness/PROCESS.MD`
 
 ## 当前目标
 
@@ -13,7 +22,7 @@
 ## 当前状态
 
 - 当前活动功能：无。
-- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-015、F-016、F-017、F-018、F-019、F-020、F-021、F-022、F-023、F-024、F-025、F-026。
+- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-015、F-016、F-017、F-018、F-019、F-020、F-021、F-022、F-023、F-024、F-025、F-026、F-027、F-028、F-029、F-030、F-031、F-032、F-033、F-034、F-035、F-036。
 - F-015 TCL 脚本规范检查器已升级为目录树模型（`nith.run` + `tcl/design.tcl` + `tcl/<tool>/{run_1.tcl…run_N.tcl, mmmc.tcl}`），状态为 `passing`。
 - F-020 TXT 命令说明结构化解析器已实现并通过功能级验证，状态为 `passing`。
 - F-021 工具命令 Help 批量采集脚本已实现并通过功能级验证，状态为 `passing`。
@@ -21,8 +30,37 @@
 
 功能状态的唯一正式来源是 `function.json`；本文件只记录会话交接信息，不替代功能清单。
 
-## 已完成工作
+## 历史记录
 
+### 已完成工作
+
+- 2026-10-20 新增 F-036“Agent E2E 用例规范与范式”：在 `harness/references/agent-e2e-pattern.md` 固化“确定性控制器 + 真实模型执行 + 确定性最终裁决”的测试模型，明确静态 runner 与 Agent runner 分工、隔离安装、`codex exec --json`/`resume` 多轮协议、WAIT 状态与产物时序、独立验证、断言矩阵、三态结果与退出码、稳定性及证据归档规则，并提供可复制的新增用例清单和当前标准范例。`e2e-test-set.md` 已增加文档路由；规范契约 4/4 PASS、完整 workflow 用例契约 5/5 PASS、项目清单 PASS。
+- 2026-10-18 新增 F-035“Codex Skill Agent E2E 执行层”：在隔离工作区安装当前 `skill/` 副本，通过 `codex exec --json` 显式调用 `$eda-tester-skill`，解析 `thread.started` session ID，再以 `codex exec resume` 依次提交三策略选择和 riscv/SMIC28 确认；强制三轮结构化状态为 `WAIT-STRATEGY`、`WAIT-DESIGN-CONFIRMATION`、`DELIVERED`，确认前禁止 TCL，交付后独立执行 Excel/TCL 检查器。新增 `./init.sh test agent-e2e` 统一入口、协议兼容假 Codex 自动化测试及 `TOOL_UNAVAILABLE` 分类。真实冒烟已调用本机 Codex，但 codex-cli 0.133.0 因不能解析模型列表新增的 `max` reasoning 值在首轮前中止；框架正确记录为 `TOOL_UNAVAILABLE`。
+- 2026-10-18 新增 F-034“完整 Workflow E2E Runner”：为 `optimus_check_design_data_full_workflow` 增加无需人工输入和 EDA 许可证的自动化 `run_case.py`，实际解析命令说明，生成覆盖率、四条场景的模板化 Excel、自包含 Optimus TCL 用例、语义审查记录和执行 trace；实际调用 Excel/TCL 确定性检查器，并分别比较结构化规格、覆盖率、Excel、TCL 和 workflow trace 五类预期输出。runner 拒绝覆盖非空输出目录；双次运行测试验证 JSON、Excel 规范化行和 TCL 树稳定一致。测试先行基线按预期 FAIL，实现后 runner 2/2 PASS、用例契约 5/5 PASS。
+- 2026-10-18 新增 F-033“测试目录收敛”：删除不再需要的 `harness/tests/cases` 和 `harness/tests/fixtures`，清理 F-003/F-004/F-005 的旧路径登记及项目验证器中的 cases 扫描、`--cases` 参数和旧 `case.toml` 校验逻辑；测试目录只保留 `unit`、`regression`、`e2e` 三类有效资产。新增项目硬规则，要求构建 Skill 测试用例必须使用可重复、可稳定运行的自动化脚本，禁止一次性人工操作或不可复现交互结果；契约测试锁定目录和规则。两组测试先行基线均按预期 FAIL，实现后目录结构测试 7/7 PASS、项目验证器测试 5/5 PASS。
+- 2026-10-18 新增 F-032“完整 Workflow 端到端用例”：以去敏的 Optimus `check_design_data` 命令说明文本和显式 Skill 用户提示词作为输入，通过多轮对话分别触发 `WAIT-STRATEGY` 与 `WAIT-DESIGN-CONFIRMATION`，并用版本化 golden trace 按顺序登记从场景一路由、命令解析、策略和场景设计、覆盖率、Excel、Design/Tech 资源映射、TCL 生成、双层检查到交付的 14 个必经步骤。fixture 使用 SHA-256 锁定，结构化规格、覆盖率、Excel、TCL 和 trace 均登记确定性比较方法；测试先行基线按预期 FAIL，实现后 5/5 PASS。
+- 2026-10-18 新增 F-031“当前交接快照”：在 `PROCESS.MD` 顶部建立固定六字段快照，集中记录当前功能、工作区状态、最近验证、阻塞项、下一条命令和涉及文件；累计完成内容与旧验证结果移入独立历史区。新增契约测试锁定快照位置、字段集合和历史边界，测试先行基线按预期 FAIL，实现后 3/3 PASS。
+- 2026-10-15 新增 F-030“用户规则覆盖登记”：在 `harness/references/user-rule-coverage.md` 建立项目侧规则台账，首批登记 17 条既有用户规则；新增自动测试验证稳定编号、规则分类、证据文件和职责层级。静态规则必须同时关联 Skill 检查器与项目单元测试，语义规则必须关联语义规范，workflow 规则必须关联 Skill 入口或注册元数据，项目规则必须关联 `AGENTS.md` 与项目测试。
+- 2026-10-15 F-030 测试先行验证：登记文档缺失时专项测试按预期 FAIL；完成台账后 3/3 PASS。测试同时发现覆盖率输出契约在 `SKILL.md` 中表达不足，现已明确场景覆盖率与被测选项覆盖率均报告分子、分母、百分比和未覆盖项，工具不可用时报 `TOOL_UNAVAILABLE` 且不得以人工判断替代。
+- 2026-10-15 将 SKILL 通用 TCL 约束纳入 `tcl_convention_validator.py` 静态检查：既有规则继续覆盖唯一工具目录、单步/多步命名、design 输入集中、声明式 MMMC、每 run 初始化与标记/checkpoint/收尾、环境变量和路径限制；新增 TCL-MMMC-002 检查工具方言隔离，新增 TCL-SCRIPT-006 拒绝伪造 PV marker 与强制设置 `PV_CHECK_MODE`。
+- 2026-10-15 新增项目硬规则：Skill 产物中的验证脚本、运行资源和文档，与 `harness/` 中的项目开发验证脚本、测试资源和开发文档必须完全物理分离，禁止混合职责和跨目录维护。规则已写入 `AGENTS.md` 并由仓库结构测试自动锁定。
+- 2026-10-15 删除 `skill/scripts/validate.py`：项目清单与功能验证迁到 `harness/scripts/project_validator.py`；Skill 运行时直接执行 `test_plan_validator.py` 和 `tcl_convention_validator.py`，两者新增独立 CLI；`init.sh` 仅在项目侧编排这些专项入口。删除旧混合交付门禁测试并将 F-006 改为验证职责分离与顺序编排。
+- 2026-10-15 拆分验证结果：完整单元测试 150/150 PASS；F-024、F-006、F-027、F-028 专项验证 PASS；Skill 结构、项目清单和差异格式检查 PASS。
+- 2026-10-15 新增 F-029“Design/Tech 资源映射”：用户只确认 design 和 tech，Skill 根据已登记映射自动确定对应的 `design.tcl` 和目标工具方言 `mmmc.tcl`，再自包含归档到每个用例目录；用户无需选择 TCL 文件，也不新增重复等待门禁。
+- 2026-10-15 修改脚本生成输入动作：不再由 workflow 自动生成 `design.tcl` 或选择默认 MMMC；用户必须先明确选择 design 与 tech，再将对应的 `design.tcl` 和目标工具方言 `mmmc.tcl` 分别复制归档到每个用例的 `tcl/design.tcl` 与 `tcl/<tool>/mmmc.tcl`。design/tech 确认并入现有 `WAIT-DESIGN-CONFIRMATION`；已有设计表缺少映射时沿用 `WAIT-PLAN-FIX`，不新增重复等待门禁。
+- 2026-10-15 删除混合职责的 Skill 统一验证脚本：Skill 直接执行 `test_plan_validator.py` 与 `tcl_convention_validator.py`；项目开发只通过 `harness/scripts/project_validator.py` 验证清单和功能。运行时验证脚本、测试资源、文档与项目开发资产完全分离。
+- 2026-10-15 优化“脚本生成与交付门禁”：`SKILL.md` 现在分别执行确定性脚本结构与编程规范检查、EDA 工具脚本静态检查、Agent 语义审查及 Excel → TCL 组合/覆盖率门禁；新增 `WAIT-SCRIPT-DELIVERY-FIX`，明确等待 `FAIL`、`SPEC-GAP` 和 `TOOL_UNAVAILABLE` 的修复条件。
+- 2026-10-15 将 `tcl-script-rules.md` 收敛为纯 Agent 语义审查规范，仅保留设计到脚本追溯、工具方言与初始化、检查点充分性、多步数据流与交付完整性四类 `TCL-SEMANTIC-*` 规则；目录、命名、固定标记、白名单、调用形式和顺序等可脚本化职责移至 `tcl_convention_validator.py` 模块注释。
+- 2026-10-15 验证结果：F-015 45/45 PASS，F-027 4/4 PASS，F-028 5/5 PASS；Skill 结构、项目清单及 `git diff --check` 均通过。
+- 2026-10-14 精确化 `SKILL.md` 的 Excel 门禁：Workflow 明确直接运行 `scripts/test_plan_validator.py` 完成结构检查，再读取 `references/specs/test-plan-rules.md` 完成 Agent 语义审查；两项均通过后才能进入设计确认或 TCL 生成。
+- 2026-10-14 将 `test-plan-rules.md` 收敛为纯 Agent 语义审查规范，仅保留 PLAN-006～013 的 EDA 语义、步骤可执行性、预期充分性、正负一致性和追溯判断；全部结构、格式和关键词预筛职责移至 `test_plan_validator.py` 模块注释，不再在 spec 中重复维护。
+- 2026-10-14 为 Workflow 增加显式等待门禁：`WAIT-STRATEGY` 等待策略选择，`WAIT-DESIGN-CONFIRMATION` 等待用例设计批准，`WAIT-PLAN-FIX` 等待已有设计表问题修正；每个门禁均明确等待内容、继续条件和不能解除等待的含糊输入。
+- 2026-10-14 将两种工作场景正式收敛到 `SKILL.md` 的 `Workflow` 章节：入口先选择且只执行“从命令说明设计新用例”或“从已有用例设计表生成脚本”之一，两条分支最终进入共享的脚本生成与交付门禁。
+- 2026-10-14 新增 F-028“双场景 workflow 路由”：场景一接收被测命令说明，完成用例设计、模板化 Excel、覆盖检查和用户确认后才生成 TCL；场景二接收已有测试用例设计表，校验并解析后直接按表生成 TCL，不重复策略选择或擅自改写设计。已有表格存在缺失、歧义或冲突时停止并列出问题。契约测试按测试先行流程由 FAIL 转为 PASS。
+- 2026-10-14 新增 F-027“Skill workflow 工具契约”：workflow 明确要求 EDA 工具脚本静态检查分别覆盖 Tcl 基础语法、EDA 工具命令及选项使用、TCL 编程规范；覆盖率检查分别报告场景覆盖率和被测选项覆盖率，并输出分子、分母、百分比和未覆盖项。工具或版本语法库不可用时必须报告 `TOOL_UNAVAILABLE`，不得以人工判断替代。契约测试按测试先行流程由 FAIL 转为 PASS。
+- 2026-10-14 优化 Skill 注册元数据：`agents/openai.yaml` 的 `short_description` 按“做什么；何时使用；关键能力”三段组织，明确用户显式调用边界和场景分解、Excel 计划、TCL 生成、静态验证能力；同步精简默认提示词并保留 `allow_implicit_invocation: false`。新增元数据契约测试。
+- 2026-10-14 将“Skill 目录内禁止 README.md”固化为产物结构约束：确认当前 `skill/` 中没有 README，仓库级/开发环境 README 不受影响；新增递归单元测试和快速结构检查，文档继续只放在 `SKILL.md` 或 `references/`。
+- 2026-10-14 重构前确认 Skill 触发边界：`skill/agents/openai.yaml` 已设置 `policy.allow_implicit_invocation: false`，因此该 Skill 只允许用户显式调用；`SKILL.md` 的 `description` 不承担此强制约束。项目验证与 Skill 结构检查均通过。后续重构应先增加该策略的确定性回归测试，防止配置被误删或改为隐式触发。
 - 2026-10-14 将顶层验收改为两层：Layer 1 验证 Skill 环境、工具与启动正常；Layer 2 使用版本化端到端测试集验证真实用户输入及对应输出。
 - Excel 和 TCL 规范静态门禁保留为 Layer 2 的内部输出检查，不再作为独立顶层结果宣称端到端通过。
 - 新增 `references/e2e-test-set.md`，定义 `case.json` 的输入、fixtures、预期输出、比较规则和实际输出字段，以及确定性比较、版本和脱敏要求。
@@ -38,6 +76,7 @@
 - Skill 安装说明也已收敛到 `init.sh help`：包含支持的 Agent、默认 link/copy 模式、运行时白名单、自定义目录、禁止覆盖、重启扫描、显式启动和未识别排查；`AGENTS.md` 仅保留 `init.sh deploy` 示例。
 - 新增用户触发的结束动作契约：仅当用户明确说“上传代码”时，才依次更新 Skill/README 与项目状态、运行全量门禁、推送候选分支、触发 Jenkins，并等待用户审批；普通任务完成不自动上传或触发流水线。
 - 首次“上传代码”触发暴露 Jenkins 自举问题：任务原先从尚未包含新 Jenkinsfile 的 `main` 加载流水线而失败。现改为由 Jenkins 镜像/只读挂载提供受控 Jenkinsfile，流水线启动后再检出精确候选提交，不依赖 `main` 预先包含流水线文件。
+- 2026-10-14 优化 Jenkins HTML 报告：新增“完整门禁 → 检查组 → 自动化测试用例”的结构摘要，以及检查组、用例总数、通过/失败/跳过和总耗时指标；解析 unittest 明细为按检查组组织的可视化表格，所有用例表格默认折叠，完整日志继续独立折叠展示。F-025 专项验证通过。
 
 - 2026-09-08 将 `SKILL.md` 按渐进披露原则压缩为三部分：通用重要规则、工作流程、参考文档索引；总字符数 1,982（含空白），详细规则下沉到 references。相关入口契约测试 26/26 通过，Skill 结构检查通过。
 - 2026-09-08 按《EDA用例规则规范去重Checklist》统一规则重构生成门禁：解决单步 `run.tcl` 与旧 `run_1.tcl` 冲突；单步强制无编号，多步才使用连续 `run_1.tcl … run_N.tcl`。
@@ -53,10 +92,7 @@
 - 建立 `function.json` 功能清单和单一活动功能门禁。
 - 建立正负用例目录、`case.toml` 元数据和基础 TCL 契约检查。
 - 接入 Nagelfar 1.3.5，并建立 Innovus/iTools syntax database。
-- 建立统一验证入口：
-  - `python3 scripts/validate.py project`
-  - `python3 scripts/validate.py tcl <case_dir>`
-  - `python3 scripts/validate.py feature <FEATURE_ID>`
+- 建立项目入口 `./init.sh`，按职责分别调度项目开发验证与 Skill 运行时专项检查。
 - 将顶层验证配置改为 `validation_commands` 命令注册表。
 - 为功能增加 `test_cases` 和 `validation_commands`，建立测试先行门禁。
 - `active` 或 `passing` 功能如果没有登记测试和命令，项目验证会失败。
@@ -95,7 +131,7 @@
 - 根据用户实际交付反馈，将输出契约改为只交付已填充 `.xlsx` 和独立 `.tcl` 文件，不再生成用例目录、`case.toml`、`nith.run`、README 或运行说明。
 - 实现 `scripts/generate_test_plan.py`：清除模板历史业务行、写入非空场景、重新打开计数并强制通过 Layer 1；空场景输入不产生文件。
 - 将 Layer 2B 规范升级为 `1.0 CONFIGURED`，实现 `scripts/tcl_convention_validator.py` 及 TCL-SUITE/RUNNER/CHECKPOINT/SCRIPT 11 条规则的自动化正反样例。
-- `validate.py tcl` 现在按 Layer 2A → Layer 2B 执行；语法失败或工具不可用时 2B 返回 `SKIPPED`。
+- TCL 专项检查按 Layer 2A → Layer 2B 执行；语法失败或工具不可用时 2B 返回 `SKIPPED`。
 - Nagelfar 适配器主动选择 Tcl 8.6+，本机成功绕过 `/usr/bin/tclsh 8.5.9` 并使用 `/opt/homebrew/bin/tclsh 9.0.3`。
 - 独立 `pos001_add_net.tcl` 端到端验证结果：Layer 2A PASS、Layer 2B PASS。
 - F-015 和 F-017 功能级验证通过并更新为 `passing`。
@@ -148,7 +184,7 @@
 - `design.tcl` 按类别关键词（top/verilog/netlist/lef/lib/timing/sdc 等）声明设计输入路径，不依赖固定变量名。
 - 只为被测工具生成 `tcl/<tool>/`（optimus 或 itools），PrimeTime 规则待定。
 - 规范 `references/specs/tcl-script-rules.md` 升级为 v2.0，覆盖目录树结构、角色分发、多步 run、NITH 初始化块、DESIGN_INIT 激活、PV 入口、检查点、环境变量白名单和占位符禁用等约 16 条规则。
-- `scripts/tcl_convention_validator.py` 完全重写为目录树检查器，按角色（suite/nith/struct/design/run/runner/script/checkpoint）分发规则；`scripts/validate.py` 的 `tcl` 子命令接受用例目录，先对树内所有 `.tcl` 文件执行 Layer 2A，全通过后对目录执行 Layer 2B。
+- `scripts/tcl_convention_validator.py` 完全重写为目录树检查器，按角色（suite/nith/struct/design/run/runner/script/checkpoint）分发规则并直接接受用例目录。
 - `tests/unit/test_tcl_convention_validator.py` 完全重写，含 `build()` 辅助函数和 28 项正反样例；`SKILL.md` 工作流步骤 10–14、TCL 生成规则和交付物已同步目录树模型。
 - F-015 目录树模型功能级验证通过并更新为 `passing`（28/28 测试 PASS）。
 - 新增 F-020 命令说明结构化解析：`scripts/parse_command_spec.py` 接受 UTF-8 TXT 命令列表，支持一个文件中的多个命令块、中英文常见标题，以及 Tool/Version 上下文继承。
@@ -184,7 +220,51 @@
 - Optimus 示例默认解析器已改为读取集中 profile，消除旧代码与模板间 LEF 文件名 `sec/sc` 和 `scc/scc` 的冲突；DEF 也纳入必选设计输入。
 - F-022 功能级验证 6/6 PASS；F-015 38/38 PASS；F-018 7/7 PASS，状态均为 `passing`。
 
-## 当前验证基线
+### 验证记录
+
+2026-10-20 上传前完整门禁结果：
+
+- `./init.sh test all`：FAIL（169/172 PASS）。
+- 失败项：`test_skill_requires_user_selected_design_and_tech_inputs`、`test_skill_requires_maximum_compatible_coverage_per_case`、`test_every_rule_has_live_evidence`（USR-017）。
+- 失败原因均为 `skill/SKILL.md` 缺少已登记的显式契约文本；按上传流程立即停止，未创建提交、未推送候选分支、未触发 Jenkins。
+- 按用户要求，随后删除“Optimus 目标版本为可选信息”契约及其 F-018 验收项、USR-017 规则登记和自动化门禁；不再要求 `SKILL.md` 声明该规则。
+- 删除该门禁后完整测试为 170/171 PASS；剩余失败是既有“最大化兼容覆盖”规则缺少反向明确文本，已在 `skill/SKILL.md` 补充“Do not create one case per option”，等待完整门禁复验。
+- 补齐文本后重新执行 `./init.sh test all`：171/171 PASS，隔离 Skill 包结构 PASS，允许继续候选分支上传流程。
+
+2026-10-14 本次 Excel 双检查门禁描述验证：
+
+- F-028 workflow 路由：PASS（5/5）。
+- F-013 测试计划检查：PASS（16/16）。
+- F-002 设计确认门禁：PASS（4/4）。
+- 项目验证和 Codex Skill 结构检查：PASS；`git diff --check`：PASS。
+
+2026-10-14 本次测试计划语义规范收敛结果：
+
+- F-013 功能级验证：PASS（16/16）。
+- `test-plan-rules.md` 仅包含 Agent 语义规则；脚本职责已迁移至 `test_plan_validator.py` 模块注释。
+- 项目验证：PASS。
+- Codex Skill 结构检查：PASS；`git diff --check`：PASS。
+
+2026-10-14 本次测试计划检查职责分类结果：
+
+- F-013 功能级验证：PASS（16/16）。
+- 项目验证：PASS。
+- Codex Skill 结构检查：PASS；`git diff --check`：PASS。
+- 分类仅定义脚本与 Agent 的目标职责；此前识别的 PLAN-007、PLAN-015 及语义预筛实现缺口仍需后续按测试先行规则补齐。
+
+2026-10-14 本次双场景 workflow 路由检查结果：
+
+- F-028 功能级验证：PASS（3/3）。
+- F-002 确认门禁回归：PASS（4/4）；F-027 工具契约回归：PASS（3/3）。
+- 项目验证：PASS。
+- Codex Skill 结构检查：PASS；`git diff --check`：PASS。
+
+2026-10-14 本次 Skill workflow 工具契约检查结果：
+
+- F-027 功能级验证：PASS（3/3）。
+- 项目验证：PASS。
+- Codex Skill 结构检查：PASS；`git diff --check`：PASS。
+- 本次只完成工具调用与结果契约；EDA 命令静态语法引擎和独立覆盖率计算器仍需后续按测试先行规则分别实现。
 
 2026-10-14 本次两层标准调整检查结果：
 
@@ -257,9 +337,9 @@
 复现命令：
 
 ```sh
-python3 skill/scripts/validate.py project
+./init.sh test project
 python3 -m unittest discover -s harness/tests/unit -v
-python3 /Users/e2uninova-m4/.codex/skills/.system/skill-creator/scripts/quick_validate.py skill
+python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" skill
 ```
 
 ## 已知缺口
@@ -278,16 +358,17 @@ python3 /Users/e2uninova-m4/.codex/skills/.system/skill-creator/scripts/quick_va
 
 ## 下一步
 
-1. 按测试先行规则新增 Layer 1 自动环境/工具/启动检查功能点。
-2. 建立 Layer 2 测试集 schema 校验器与端到端运行器；先由用户确认首批输入及预期输出测试集。
-3. 用户确认用例知识库设计后，再按测试先行规则把知识库实现拆成 `function.json` 功能点。
-4. 等待用户确认 `write_def` Smoke 用例设计；确认后生成 4 个目录树 TCL 用例并运行静态输出门禁。
+1. 按测试先行规则实现 EDA 工具脚本静态检查器，依次覆盖 Tcl 基础语法、EDA 工具命令及选项使用和 TCL 编程规范；先确认各目标工具的版本化语法来源。
+2. 静态检查器通过后，再单独实现覆盖率检查器，输出场景覆盖率、被测选项覆盖率和未覆盖项。
+3. 按测试先行规则登记并新增“仅显式用户调用”契约测试，锁定 `policy.allow_implicit_invocation: false`。
+4. 按测试先行规则新增 Layer 1 自动环境/工具/启动检查功能点。
+5. 建立 Layer 2 测试集 schema 校验器与端到端运行器；先由用户确认首批输入及预期输出测试集。
 
 ## 每次会话开始时
 
 1. 阅读 `harness/PROCESS.MD` 和 `harness/function.json`，确认当前活动功能与下一步。
 2. 阅读 `skill/SKILL.md`、`AGENTS.md` 及当前功能涉及的规范文件。
-3. 运行 `python3 skill/scripts/validate.py project`，确认仓库处于一致状态。
+3. 运行 `./init.sh test project`，确认仓库处于一致状态。
 4. 从本文件“下一步”的第一项未完成工作继续。
 
 ## 每次会话结束前

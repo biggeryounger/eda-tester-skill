@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0",
+  "case_id": "optimus_check_design_data_full_workflow",
+  "automation": {
+    "runner": "run_case.py",
+    "command": ["python3", "run_case.py", "--output", "<empty-output-directory>"],
+    "agent_runner": "run_agent_case.py",
+    "agent_command": ["./init.sh", "test", "agent-e2e", "harness/tests/e2e/optimus_check_design_data_full_workflow", "--output", "<empty-output-directory>"],
+    "requires_human_input": false
+  },
+  "feature_ids": ["F-002", "F-013", "F-015", "F-017", "F-020", "F-027", "F-028", "F-029", "F-032"],
+  "input": {
+    "workflow_scenario": "scenario_1_command_spec",
+    "command_spec": "input/command-spec.txt",
+    "user_prompt": "input/user-prompt.txt",
+    "conversation": [
+      {
+        "id": "initial_request",
+        "role": "user",
+        "content_from": "input/user-prompt.txt",
+        "attachments": ["input/command-spec.txt"]
+      },
+      {
+        "id": "wait_strategy",
+        "role": "assistant",
+        "expected_state": "WAIT-STRATEGY",
+        "must_request": ["Smoke case", "正向覆盖", "负向覆盖"]
+      },
+      {
+        "id": "select_strategy",
+        "role": "user",
+        "content": "三种策略都选择，请继续。",
+        "selections": ["Smoke case", "正向覆盖", "负向覆盖"]
+      },
+      {
+        "id": "wait_design_confirmation",
+        "role": "assistant",
+        "expected_state": "WAIT-DESIGN-CONFIRMATION",
+        "must_present": ["测试用例设计表.xlsx", "完整用例设计", "场景覆盖率", "被测选项覆盖率"]
+      },
+      {
+        "id": "confirm_design",
+        "role": "user",
+        "content": "确认当前用例设计可用于生成 TCL。design 选择 riscv，tech 选择 SMIC28，请按此生成。",
+        "approved": true,
+        "design": "riscv",
+        "tech": "SMIC28"
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "path": "input/command-spec.txt",
+      "sha256": "5f93ca414cbd1c8a66bb3224d8df7202787e993db7aa0e0ab328cea7057ad283",
+      "purpose": "被测命令说明文本"
+    },
+    {
+      "path": "input/user-prompt.txt",
+      "sha256": "3c684a929f76549d4d426672887b0332eb91ad4067ec97728d5b73b8e8698755",
+      "purpose": "触发 Skill 场景一的用户提示词"
+    }
+  ],
+  "preconditions": {
+    "agent": "Codex with eda-tester-skill explicitly invoked",
+    "runtime_tools": ["Python 3.9+", "openpyxl", "Tclsh"],
+    "eda_execution": "not_required_for_static_workflow_case",
+    "license": "not_required",
+    "design_tech_mapping": "riscv/SMIC28 resolves uniquely to a sanitized design.tcl and Optimus mmmc.tcl fixture"
+  },
+  "expected_output": {
+    "final_status": "PASS",
+    "items": [
+      {
+        "id": "structured_spec",
+        "path": "structured-command-spec.json",
+        "required": true,
+        "expect": "check_design_data and all documented options, enums and relationships are parsed without errors"
+      },
+      {
+        "id": "coverage_report",
+        "path": "coverage-report.json",
+        "required": true,
+        "expect": "scenario and option coverage each include numerator, denominator, percent and uncovered items"
+      },
+      {
+        "id": "test_plan",
+        "path": "测试用例设计表.xlsx",
+        "required": true,
+        "expect": "non-empty workbook copied from the runtime template and accepted by both plan gates"
+      },
+      {
+        "id": "tcl_cases",
+        "path": "cases/",
+        "required": true,
+        "expect": "one self-contained case directory per Excel row and all static and semantic gates pass"
+      },
+      {
+        "id": "workflow_trace",
+        "path": "workflow-trace.json",
+        "golden": "expected_output/workflow_trace.json",
+        "required": true,
+        "expect": "all required workflow steps occur in declared order with evidence"
+      }
+    ],
+    "diagnostics": {
+      "forbidden": ["FAIL", "unresolved SPEC-GAP", "TOOL_UNAVAILABLE"],
+      "required_wait_states": ["WAIT-STRATEGY", "WAIT-DESIGN-CONFIRMATION"]
+    },
+    "forbidden_artifacts": ["TCL generated before design confirmation", "user-local absolute paths", "licenses", "PDK files", "EDA run logs"]
+  },
+  "comparison": [
+    {"target": "structured_spec", "method": "json_schema_and_command_semantics"},
+    {"target": "coverage_report", "method": "exact_required_fields_and_recomputed_percentages"},
+    {"target": "test_plan", "method": "xlsx_template_structure_then_test_plan_validator"},
+    {"target": "tcl_cases", "method": "directory_tree_then_tcl_convention_validator_then_semantic_rule_results"},
+    {"target": "workflow_trace", "method": "ordered_step_ids_and_required_evidence_against_golden"}
+  ],
+  "actual_output": {
+    "path": "actual_output/",
+    "capture": ["assistant turns", "generated files", "validator results", "semantic review results", "workflow trace"],
+    "retention": "temporary"
+  }
+}

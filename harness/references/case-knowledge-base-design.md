@@ -514,6 +514,6 @@ case-knowledge-base/
 - `references/test-strategies.md` 决定候选场景如何覆盖、合并和拆分。
 - `assets/design-profiles.json` 继续作为目标设计路径和值的唯一来源。
 - `scripts/generate_test_plan.py` 继续负责生成并验证 Excel。
-- `scripts/validate.py delivery` 继续作为最终统一交付门禁。
+- `scripts/test_plan_validator.py` 与 `scripts/tcl_convention_validator.py` 分别承担 Excel 和 TCL 静态检查，不设置混合职责的统一包装脚本。
 
 因此，知识库提高测试设计的完整性和复用能力，但不改变现有交付物格式，也不削弱用户确认和确定性验证要求。

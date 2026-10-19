@@ -1,0 +1,1 @@
+请使用 $eda-tester-skill，根据附件中的 Optimus check_design_data 命令说明设计测试用例，生成模板化 Excel 测试计划，并在我确认设计与技术后生成和验证 TCL 用例。先让我选择测试策略，不要跳过任何 workflow 步骤或等待门禁。

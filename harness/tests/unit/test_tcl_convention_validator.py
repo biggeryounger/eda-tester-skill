@@ -162,6 +162,19 @@ class TclConventionValidatorTests(unittest.TestCase):
     def test_mmmc_must_be_declarative(self) -> None:
         self.assertIn("TCL-MMMC-001", self.rules(self.build(mmmc=MMMC_TCL + "foreach x $libs { puts $x }\n")))
 
+    def test_mmmc_dialect_must_match_tool_directory(self) -> None:
+        itools_mmmc = MMMC_TCL.replace("create_lib_set", "create_library_set").replace(
+            "create_analysis_corner", "create_delay_corner"
+        )
+        self.assertIn("TCL-MMMC-002", self.rules(self.build(tool="optimus", mmmc=itools_mmmc)))
+        self.assertIn("TCL-MMMC-002", self.rules(self.build(tool="itools", mmmc=MMMC_TCL)))
+
+    def test_script_rejects_fabricated_result_markers(self) -> None:
+        marker = RUN_TCL.replace("# TEST_ACTION", 'puts "===PV_MARKER fake"\n# TEST_ACTION')
+        forced_mode = RUN_TCL.replace("# TEST_ACTION", "set env(PV_CHECK_MODE) record\n# TEST_ACTION")
+        self.assertIn("TCL-SCRIPT-006", self.rules(self.build(runs={"run.tcl": marker})))
+        self.assertIn("TCL-SCRIPT-006", self.rules(self.build(runs={"run.tcl": forced_mode})))
+
     def test_command_case_rejects_def_golden(self) -> None:
         text = RUN_TCL.replace(
             "pv_check_log {report_qor} -name smoke -filter {^Date} -match {WNS|TNS}",
@@ -423,6 +436,19 @@ class TclConventionValidatorTests(unittest.TestCase):
             with self.subTest(command=command):
                 text = RUN_TCL.replace("setup_design\n", f"{command}\n")
                 self.assertNotIn("TCL-SCRIPT-004", self.rules(self.build(name=f"pos{index:03d}_act", runs={"run_1.tcl": text})))
+
+    def test_spec_contains_only_agent_semantic_review(self) -> None:
+        spec = (ROOT / "skill" / "references" / "specs" / "tcl-script-rules.md").read_text(encoding="utf-8")
+        validator = (ROOT / "skill" / "scripts" / "tcl_convention_validator.py").read_text(encoding="utf-8")
+        self.assertIn("# TCL 用例 Agent 语义审查规范", spec)
+        self.assertIn("## Agent 语义审查", spec)
+        self.assertNotIn("## 交付结构", spec)
+        self.assertNotIn("TCL-SUITE-001", spec)
+        self.assertIn("脚本检查职责（从语义规范中分离）", validator)
+        for rule in ("TCL-SEMANTIC-001", "TCL-SEMANTIC-002", "TCL-SEMANTIC-003", "TCL-SEMANTIC-004"):
+            self.assertIn(rule, spec)
+        for rule in ("TCL-SUITE-001", "TCL-STRUCT-001", "TCL-NITH-001", "TCL-SCRIPT-005"):
+            self.assertIn(rule, validator)
 
 
 if __name__ == "__main__":

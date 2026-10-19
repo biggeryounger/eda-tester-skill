@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "case_id": "optimus_check_design_data_full_workflow",
+  "steps": [
+    {"id": "ROUTE-SCENARIO-1", "required": true, "evidence": ["selected_workflow=scenario_1_command_spec"]},
+    {"id": "PARSE-COMMAND-SPEC", "required": true, "evidence": ["structured-command-spec.json", "parse_status=PASS"]},
+    {"id": "WAIT-STRATEGY", "required": true, "evidence": ["assistant requests strategy", "user selects smoke, positive, negative"]},
+    {"id": "BUILD-REQUIREMENTS-SCENARIOS", "required": true, "evidence": ["requirements-to-scenarios matrix", "strategy labels retained"]},
+    {"id": "REPORT-COVERAGE", "required": true, "evidence": ["scenario numerator/denominator/percent/uncovered", "option numerator/denominator/percent/uncovered"]},
+    {"id": "GENERATE-TEST-PLAN", "required": true, "evidence": ["测试用例设计表.xlsx copied from runtime template", "at least one effective row"]},
+    {"id": "VALIDATE-TEST-PLAN-STRUCTURE", "required": true, "evidence": ["test_plan_validator.py status=PASS"]},
+    {"id": "REVIEW-TEST-PLAN-SEMANTICS", "required": true, "evidence": ["PLAN-006..PLAN-013 have PASS/FAIL/SPEC-GAP and reasons", "no unresolved FAIL or SPEC-GAP"]},
+    {"id": "WAIT-DESIGN-CONFIRMATION", "required": true, "evidence": ["assistant presents Excel, complete design and coverage", "user approves and selects riscv/SMIC28"]},
+    {"id": "RESOLVE-DESIGN-TECH", "required": true, "evidence": ["unique design.tcl mapping", "Optimus mmmc.tcl mapping", "resources archived per case"]},
+    {"id": "GENERATE-TCL", "required": true, "evidence": ["one case directory per Excel row", "nith.run and Tcl tree generated"]},
+    {"id": "VALIDATE-TCL-STATIC", "required": true, "evidence": ["Tcl syntax status=PASS", "EDA command/options status=PASS", "TCL conventions status=PASS"]},
+    {"id": "REVIEW-TCL-SEMANTICS", "required": true, "evidence": ["all applicable TCL-SEMANTIC rules reviewed", "no unresolved FAIL or SPEC-GAP"]},
+    {"id": "DELIVER", "required": true, "evidence": ["Excel and self-contained TCL cases delivered", "workflow trace captured"]}
+  ]
+}

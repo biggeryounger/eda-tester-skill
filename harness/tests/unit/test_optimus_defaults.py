@@ -19,19 +19,6 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertIsNone(resolved["values"]["top_cell"])
         self.assertEqual(["lef_path", "netlist_path", "def_path", "top_cell"], resolved["missing_required"])
 
-    def test_optimus_version_is_optional_and_never_blocks_generation(self) -> None:
-        resolved = resolve_template(
-            {
-                "lef_path": "./design/top.lef",
-                "netlist_path": "./design/top.v",
-                "def_path": "./design/top.def",
-                "top_cell": "top",
-                "optimus_version": " ",
-            }
-        )
-        self.assertEqual([], resolved["missing_required"])
-        self.assertNotIn("optimus_version", resolved["missing_required"])
-
     def test_example_profile_requires_explicit_selection(self) -> None:
         resolved = resolve_template({}, use_example_profile=True)
         self.assertEqual([], resolved["missing_required"])
@@ -110,13 +97,11 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertNotIn("source ", design)
         self.assertNotIn("Itools21.1_lfp_", design)
 
-    def test_skill_declares_template_and_explicit_example_semantics(self) -> None:
+    def test_skill_requires_user_selected_design_and_tech_inputs(self) -> None:
         skill = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("assets/defaults/optimus/design.tcl", skill)
-        self.assertIn("template", skill.lower())
-        self.assertIn("explicitly selects the repository example profile", skill)
-        self.assertIn("Optimus target version is optional", skill)
-        self.assertIn("must not block", skill)
+        self.assertIn("用户选择的 design 和 tech", skill)
+        self.assertIn("<case_dir>/tcl/design.tcl", skill)
+        self.assertIn("<case_dir>/tcl/<tool>/mmmc.tcl", skill)
 
 
 if __name__ == "__main__":

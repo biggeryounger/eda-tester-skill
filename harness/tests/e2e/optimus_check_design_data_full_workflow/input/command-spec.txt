@@ -1,0 +1,13 @@
+Tool: Optimus
+Version: 21.1
+Command: check_design_data
+Syntax: check_design_data -file <Path> [-mode <quick|full>] [-include_power] [-include_signal]
+Options:
+-file <Path> (required) Write the check report to exactly one path.
+-mode <quick|full> (optional) Select quick or full checking. Exactly one value.
+-include_power (optional) Include power-net checks. Takes no value.
+-include_signal (optional) Include signal-net checks. Takes no value.
+Constraints:
+- -include_power requires -file
+- -include_signal requires -file
+- at least one of -include_power, -include_signal

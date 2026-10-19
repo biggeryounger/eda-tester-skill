@@ -12,11 +12,14 @@
 - 修改功能前先阅读 `skill/SKILL.md`、`harness/function.json` 及相关规范文档。
 - 从 `skill/assets/templates/测试用例设计表.xlsx` 复制并生成测试计划，保留模板结构和格式。
 - 不提交 EDA 许可证、PDK、设计数据库、运行日志、Python 缓存或用户本地路径。
+- Skill 产物与项目开发资产必须完全分离：`skill/` 只存放运行时验证脚本、运行时资源和 Skill 文档；项目开发验证脚本、测试资源及开发文档只能放在 `harness/`。禁止脚本、测试 fixture、规范或入口同时承担 Skill 运行时与项目开发职责，禁止跨目录混合维护。
+- 构建 Skill 测试用例必须使用可重复、可稳定运行的自动化脚本用例；禁止以一次性人工操作或不可复现的交互结果作为测试用例。
+- `skill/` 目录内禁止存在任何 `README.md`；Skill 文档只能维护在 `SKILL.md` 或 `references/` 中。
 - `harness/function.json` 是项目特性及状态的唯一清单，新增功能时应同步更新。
 - `harness/function.json` 中功能点的 `status` 只能是 `not_started`、`active`、`blocked`、`passing`。
 - 每次只开发一个功能点，`harness/function.json` 中最多只能有一个功能点处于 `active`。
 - 测试先行：功能从 `not_started` 改为 `active` 前，必须先创建对应测试用例，并在该功能的 `test_cases` 和 `validation_commands` 中登记；不得先实现后补测试。
-- `active` 功能开发期间运行 `python3 skill/scripts/validate.py feature <FEATURE_ID>`；只有登记命令全部通过后才能改为 `passing`。
+- `active` 功能开发期间运行 `./init.sh test feature <FEATURE_ID>`；只有登记命令全部通过后才能改为 `passing`。
 - 当前功能点必须完成端到端验证并将状态更新为 `passing`，才能把下一个功能点改为 `active`。
 - 无法继续的功能点标记为 `blocked`；尚未开始的功能点保持 `not_started`。
 

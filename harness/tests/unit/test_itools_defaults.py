@@ -43,10 +43,10 @@ class ItoolsDefaultsTests(unittest.TestCase):
         self.assertIn("create_lib_set", optimus)
         self.assertIn("create_analysis_corner", optimus)
 
-    def test_skill_routes_itools_to_its_default_mmmc(self) -> None:
+    def test_skill_routes_selected_mmmc_by_target_tool_dialect(self) -> None:
         skill = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("assets/defaults/itools/mmmc.tcl", skill)
-        self.assertIn("Do not substitute the Optimus MMMC dialect", skill)
+        self.assertIn("目标工具方言", skill)
+        self.assertIn("不得跨工具替换", skill)
 
 
 if __name__ == "__main__":

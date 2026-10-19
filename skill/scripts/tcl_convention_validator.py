@@ -1,10 +1,38 @@
 #!/usr/bin/env python3
-"""Deterministic Layer 2B checks for EDA TCL case directories."""
+"""Deterministic Layer 2B checks for EDA TCL case directories.
+
+本模块是统一的 TCL 脚本静态检查器。Tcl 基础语法、EDA 工具命令及选项使用、TCL 编程规范必须在本检查器中集成并分别报告，不再维护独立的 EDA 静态检查门禁。
+
+脚本检查职责（从语义规范中分离）：
+
+- TCL-SUITE-001、TCL-SUITE-002：输入目录有效性与用例目录命名。
+- TCL-STRUCT-001、TCL-STRUCT-002：交付树、单步/多步 run 形式和目标工具目录。
+- TCL-NITH-001：固定 NITH 初始化块、run 调度和结束调用。
+- TCL-RUNNER-001、TCL-RUNNER-002：路径可移植性与树内 setup 引用。
+- TCL-DESIGN-001、TCL-DESIGN-002、TCL-DESIGN-003：design.tcl 输入声明、
+  变量复用和中心配置来源。
+- TCL-RUN-001：可确定性识别的 Optimus 初始化命令顺序。
+- TCL-CHECKPOINT-001、TCL-CHECKPOINT-002、TCL-CHECKPOINT-003、
+  TCL-CHECKPOINT-004、TCL-CHECKPOINT-005、TCL-CHECKPOINT-006：检查点
+  存在性、参数形态、路径和同一 run 内 golden 产物的清理/生成/比较顺序。
+- TCL-CMD-DEF-001：CMD 用例不以 DEF 作为 golden 比较对象。
+- TCL-MMMC-001、TCL-MMMC-002：MMMC 文件保持声明式且命令方言匹配工具。
+- TCL-SCRIPT-001、TCL-SCRIPT-002、TCL-SCRIPT-003、TCL-SCRIPT-004、
+  TCL-SCRIPT-005、TCL-SCRIPT-006：EXPECT/TEST_ACTION 标记、占位符、环境变量
+  白名单、DESIGN_INIT 结构、pv_rpt_checkpoints/exit 收尾和伪造结果检测。
+
+这些检查只证明可确定性判定的结构和编程约定，不证明命令、初始化、
+MMMC、检查点或多步数据流的 EDA 业务语义正确。Agent 语义审查依据
+references/specs/tcl-script-rules.md 单独执行，脚本 PASS 不得替代该审查。
+"""
 
 from __future__ import annotations
 
+import argparse
+import json
 import math
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,6 +78,13 @@ NITH_INPUT = re.compile(r'nith\.input\[""\]\s*=\s*f?"tcl/\{nith\.PV_TOOL\}/(run(
 NITH_RUN_CALL = re.compile(r"nith_run\s*\(\s*\)")
 NITH_DONE_CALL = re.compile(r"nith_done\s*\(\s*\)")
 ALLOWED_TOOLS = ("optimus", "itools")
+MMMC_DIALECT_FORBIDDEN = {
+    "optimus": re.compile(r"(?m)^\s*(?:create_library_set|create_delay_corner)\b"),
+    "itools": re.compile(r"(?m)^\s*(?:create_lib_set|create_analysis_corner)\b"),
+}
+FABRICATED_RESULT = re.compile(
+    r"(?m)===PV_MARKER|^\s*set\s+(?:::)?env\(PV_CHECK_MODE\)"
+)
 RUN_SUMMARY = re.compile(r"^\s*pv_rpt_checkpoints\s*(?:;\s*)?(?:#.*)?$")
 RUN_EXIT = re.compile(r"^\s*exit\s*(?:;\s*)?(?:#.*)?$")
 
@@ -509,6 +544,9 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
         placeholder = PLACEHOLDER.search(text)
         if placeholder:
             _add(diagnostics, "TCL-SCRIPT-002", path, text, placeholder.start(), "unresolved TODO/TBD placeholder")
+        fabricated = FABRICATED_RESULT.search(text)
+        if fabricated:
+            _add(diagnostics, "TCL-SCRIPT-006", path, text, fabricated.start(), "script must not fabricate PV markers or force PV_CHECK_MODE")
         for env in ENV_VARIABLE.finditer(text):
             if env.group(1).strip() not in ALLOWED_ENV_VARIABLES:
                 _add(diagnostics, "TCL-SCRIPT-003", path, text, env.start(), f"environment variable {env.group(1).strip()} is not allowed; only PV_ROOT and PV_TOOL are permitted")
@@ -545,6 +583,10 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
         forbidden = re.search(r"(?m)^\s*(?:glob|for|foreach|while|if|switch|setup_design|init_design|read_def|read_db|restoreDesign)\b", mmmc_text)
         if forbidden:
             _add(diagnostics, "TCL-MMMC-001", mmmc_path, mmmc_text, forbidden.start(), "mmmc.tcl must remain declarative; flow commands, glob, discovery, and control loops are forbidden")
+        if valid_tool:
+            dialect = MMMC_DIALECT_FORBIDDEN[tool_dir.name].search(mmmc_text)
+            if dialect:
+                _add(diagnostics, "TCL-MMMC-002", mmmc_path, mmmc_text, dialect.start(), f"MMMC command dialect must match {tool_dir.name}")
 
     if nith_text is not None:
         has_begin = NITH_INIT_BEGIN in nith_text
@@ -579,3 +621,20 @@ def convention_report(case_dir: Path) -> dict[str, object]:
     diagnostics = [item.to_dict() for item in validate_tcl_conventions(case_dir)]
     status = "FAIL" if diagnostics else "PASS"
     return {"id": "L2B", "status": status, "input": str(case_dir.resolve()), "diagnostics": diagnostics}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run static checks on one or more TCL case directories.")
+    parser.add_argument("cases", nargs="+", type=Path)
+    args = parser.parse_args()
+    checks = [convention_report(case) for case in args.cases]
+    diagnostics = [item for check in checks for item in check["diagnostics"]]
+    status = "PASS" if checks and all(check["status"] == "PASS" for check in checks) else "FAIL"
+    report = {"status": status, "checks": checks, "diagnostics": diagnostics}
+    json.dump(report, sys.stdout, ensure_ascii=False, indent=2)
+    sys.stdout.write("\n")
+    return 0 if status == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

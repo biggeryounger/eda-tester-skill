@@ -187,6 +187,19 @@ class TestPlanValidatorTests(unittest.TestCase):
         workbook.close()
         self.assertIn("PLAN-014", self.rules(path))
 
+    def test_spec_contains_only_agent_semantic_review(self) -> None:
+        spec = (ROOT / "skill" / "references" / "specs" / "test-plan-rules.md").read_text(encoding="utf-8")
+        validator = (ROOT / "skill" / "scripts" / "test_plan_validator.py").read_text(encoding="utf-8")
+        self.assertIn("## Agent 语义审查", spec)
+        self.assertNotIn("脚本确定性检查", spec)
+        self.assertNotIn("混合检查", spec)
+        self.assertIn("脚本检查职责（从语义规范中分离）", validator)
+        for rule in ("PLAN-006", "PLAN-007", "PLAN-008", "PLAN-009", "PLAN-010", "PLAN-011", "PLAN-012", "PLAN-013"):
+            self.assertIn(rule, spec)
+        for rule in ("PLAN-001", "PLAN-002", "PLAN-003", "PLAN-004", "PLAN-005", "PLAN-014", "PLAN-015"):
+            self.assertNotIn(rule, spec)
+            self.assertIn(rule, validator)
+
 
 if __name__ == "__main__":
     unittest.main()

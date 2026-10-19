@@ -72,8 +72,7 @@ class RegressionCorpusTests(unittest.TestCase):
             validated = subprocess.run(
                 [
                     "python3",
-                    "skill/scripts/validate.py",
-                    "plan",
+                    "skill/scripts/test_plan_validator.py",
                     str(workbook),
                     "--requirements",
                     str(CASE / "requirements.json"),

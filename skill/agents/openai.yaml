@@ -1,6 +1,6 @@
 interface:
   display_name: "EDA 测试用例生成器"
-  short_description: "从 EDA 命令说明分解测试场景并生成可验证的 TCL 用例"
-  default_prompt: "使用 $eda-tester-skill 根据这份 EDA 命令说明生成可追溯的测试用例和 TCL 脚本；开始测试设计前先让我选择可多选的测试策略。"
+  short_description: "生成 EDA 测试计划与 TCL；用户显式调用并要求生成测试用例时使用；支持场景分解、Excel 计划、TCL 生成与静态验证"
+  default_prompt: "使用 $eda-tester-skill 将这份 EDA 命令说明分解为测试场景，生成可追溯的 Excel 计划和验证通过的 TCL 用例；开始前让我选择测试策略。"
 policy:
   allow_implicit_invocation: false

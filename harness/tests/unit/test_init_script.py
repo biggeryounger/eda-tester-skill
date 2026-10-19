@@ -22,7 +22,7 @@ class InitScriptTests(unittest.TestCase):
     def test_help_lists_one_click_workflows(self) -> None:
         result = self.run_script("help")
         self.assertEqual(0, result.returncode, result.stderr)
-        for command in ("dev", "deploy", "test all", "test layer1", "test layer2", "test feature"):
+        for command in ("dev", "deploy", "test all", "test layer1", "test layer2", "test feature", "test agent-e2e"):
             self.assertIn(command, result.stdout)
         for deployment_contract in ("运行时白名单", "不覆盖已有同名 Skill", "重启对应 Agent", "$eda-tester-skill"):
             self.assertIn(deployment_contract, result.stdout)
@@ -34,14 +34,27 @@ class InitScriptTests(unittest.TestCase):
 
     def test_layer_and_scenario_dispatch_are_explicit(self) -> None:
         layer1 = self.run_script("--dry-run", "test", "layer1")
-        self.assertIn("validate.py project", layer1.stdout)
+        self.assertIn("project_validator.py project", layer1.stdout)
         self.assertIn("quick_validate.py", layer1.stdout)
 
         feature = self.run_script("--dry-run", "test", "feature", "F-026")
-        self.assertIn("validate.py feature F-026", feature.stdout)
+        self.assertIn("project_validator.py feature F-026", feature.stdout)
 
         tcl = self.run_script("--dry-run", "test", "tcl", "path/to/pos001_case")
-        self.assertIn("validate.py tcl path/to/pos001_case", tcl.stdout)
+        self.assertIn("tcl_convention_validator.py path/to/pos001_case", tcl.stdout)
+
+        plan = self.run_script("--dry-run", "test", "plan", "path/to/plan.xlsx")
+        self.assertIn("test_plan_validator.py path/to/plan.xlsx", plan.stdout)
+
+        agent_e2e = self.run_script(
+            "--dry-run",
+            "test",
+            "agent-e2e",
+            "harness/tests/e2e/optimus_check_design_data_full_workflow",
+            "--output",
+            "path/to/output",
+        )
+        self.assertIn("run_agent_case.py --output path/to/output", agent_e2e.stdout)
 
     def test_unknown_workflow_fails(self) -> None:
         result = self.run_script("test", "unknown")

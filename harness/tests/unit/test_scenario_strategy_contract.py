@@ -32,7 +32,7 @@ class ScenarioStrategyContractTests(unittest.TestCase):
         strategy = (ROOT / "skill" / "references" / "test-strategies.md").read_text(encoding="utf-8")
         self.assertIn("Wait for explicit user confirmation", skill)
         self.assertIn("Do not generate any TCL file before confirmation", skill)
-        self.assertLess(skill.index("Serialize the designed rows"), skill.index("Wait for explicit user confirmation"))
+        self.assertLess(skill.index("将用例设计整理为至少包含一条有效用例的结构化场景数据"), skill.index("Wait for explicit user confirmation"))
         self.assertLess(skill.index("Wait for explicit user confirmation"), skill.index("Generate one case directory per Excel row"))
         self.assertIn("用例设计确认门禁", strategy)
         self.assertIn("确认用例设计可用于生成 TCL", strategy)

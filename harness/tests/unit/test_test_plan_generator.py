@@ -82,7 +82,7 @@ class TestPlanGeneratorTests(unittest.TestCase):
             self.assertGreaterEqual(sheet.row_dimensions[2].height, 42)
             self.assertLessEqual(sheet.row_dimensions[2].height, 240)
             workbook.close()
-            validation = subprocess.run([sys.executable, "skill/scripts/validate.py", "plan", str(output)], cwd=ROOT, capture_output=True, text=True)
+            validation = subprocess.run([sys.executable, "skill/scripts/test_plan_validator.py", str(output)], cwd=ROOT, capture_output=True, text=True)
             self.assertEqual(0, validation.returncode, validation.stderr)
 
     def test_generator_rejects_empty_scenarios(self) -> None:

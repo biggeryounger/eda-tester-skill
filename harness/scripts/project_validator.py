@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Unified validation entry point for the EDA tester skill."""
+"""Project-development validation for the EDA tester harness."""
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import re
 import subprocess
@@ -14,7 +13,6 @@ from pathlib import Path
 from typing import Any
 
 
-CASE_NAME = re.compile(r"^(pos|neg)([0-9]{3})_([a-z0-9][a-z0-9_]*)$")
 FEATURE_ID = re.compile(r"^F-[0-9]{3}$")
 VALID_PRIORITIES = {"P0", "P1", "P2", "P3"}
 VALID_STATUSES = {"not_started", "active", "blocked", "passing"}
@@ -138,127 +136,13 @@ def validate_manifest(path: Path) -> tuple[set[str], list[ValidationError]]:
     return ids, errors
 
 
-def delimiters_balanced(text: str) -> bool:
-    pairs = {"}": "{", "]": "["}
-    stack: list[str] = []
-    in_quote = False
-    escaped = False
-    for char in text:
-        if escaped:
-            escaped = False
-            continue
-        if char == "\\":
-            escaped = True
-            continue
-        if char == '"':
-            in_quote = not in_quote
-        elif not in_quote and char in "{[":
-            stack.append(char)
-        elif not in_quote and char in "}]":
-            if not stack or stack.pop() != pairs[char]:
-                return False
-    return not in_quote and not stack
-
-
-def validate_case(case_dir: Path, feature_ids: set[str]) -> list[ValidationError]:
-    errors: list[ValidationError] = []
-    metadata_path = case_dir / "case.toml"
-    try:
-        metadata: dict[str, Any] = {}
-        for line_number, raw_line in enumerate(metadata_path.read_text(encoding="utf-8").splitlines(), 1):
-            line = raw_line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "=" not in line:
-                raise ValueError(f"line {line_number} has no '='")
-            key, raw_value = (part.strip() for part in line.split("=", 1))
-            if not re.fullmatch(r"[a-z_][a-z0-9_]*", key):
-                raise ValueError(f"line {line_number} has an invalid key")
-            metadata[key] = json.loads(raw_value)
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
-        return [ValidationError(metadata_path, f"cannot parse TOML: {exc}")]
-
-    match = CASE_NAME.fullmatch(case_dir.name)
-    if not match:
-        errors.append(ValidationError(case_dir, "directory must match posNNN_<scenario> or negNNN_<scenario>"))
-        return errors
-    polarity = "positive" if match.group(1) == "pos" else "negative"
-    expected = "accept" if polarity == "positive" else "reject"
-    required = {"id", "feature_ids", "command", "polarity", "runtime", "script", "expected", "description"}
-    missing = required - metadata.keys()
-    if missing:
-        errors.append(ValidationError(metadata_path, f"missing: {', '.join(sorted(missing))}"))
-    if metadata.get("id") != case_dir.name:
-        errors.append(ValidationError(metadata_path, "id must equal directory name"))
-    if metadata.get("polarity") != polarity:
-        errors.append(ValidationError(metadata_path, f"polarity must be '{polarity}'"))
-    if metadata.get("expected") != expected:
-        errors.append(ValidationError(metadata_path, f"expected must be '{expected}'"))
-    if metadata.get("runtime") not in {"static", "eda"}:
-        errors.append(ValidationError(metadata_path, "runtime must be 'static' or 'eda'"))
-    refs = metadata.get("feature_ids")
-    if not isinstance(refs, list) or not refs:
-        errors.append(ValidationError(metadata_path, "feature_ids must be a non-empty array"))
-    else:
-        unknown = sorted(set(refs) - feature_ids)
-        if unknown:
-            errors.append(ValidationError(metadata_path, f"unknown feature IDs: {', '.join(unknown)}"))
-
-    script_value = metadata.get("script")
-    if not isinstance(script_value, str) or Path(script_value).name != script_value or not script_value.endswith(".tcl"):
-        errors.append(ValidationError(metadata_path, "script must be a local .tcl filename"))
-        return errors
-    script_path = case_dir / script_value
-    try:
-        script = script_path.read_text(encoding="utf-8")
-    except OSError as exc:
-        errors.append(ValidationError(script_path, f"cannot read script: {exc}"))
-        return errors
-    expected_marker = "# EXPECT: PASS" if polarity == "positive" else "# EXPECT: FAIL"
-    if script.count("# TEST_ACTION") != 1:
-        errors.append(ValidationError(script_path, "must contain exactly one # TEST_ACTION marker"))
-    if expected_marker not in script:
-        errors.append(ValidationError(script_path, f"missing {expected_marker}"))
-    if re.search(r"\b(TODO|TBD)\b", script, re.IGNORECASE):
-        errors.append(ValidationError(script_path, "contains an unresolved placeholder"))
-    if not delimiters_balanced(script):
-        errors.append(ValidationError(script_path, "has unbalanced braces, brackets, or quotes"))
+def validate_project(root: Path) -> list[ValidationError]:
+    _, errors = validate_manifest(root / "harness" / "function.json")
     return errors
 
 
-def validate_project(root: Path, cases_dir: Path | None = None) -> list[ValidationError]:
-    feature_ids, errors = validate_manifest(root / "harness" / "function.json")
-    selected_cases = cases_dir or root / "harness" / "tests" / "cases"
-    if selected_cases.exists():
-        for metadata_path in sorted(selected_cases.rglob("case.toml")):
-            errors.extend(validate_case(metadata_path.parent, feature_ids))
-    return errors
-
-
-def load_test_plan_validator() -> Any:
-    module_path = Path(__file__).with_name("test_plan_validator.py")
-    spec = importlib.util.spec_from_file_location("eda_test_plan_validator", module_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load test-plan validator: {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-def load_tcl_convention_validator() -> Any:
-    module_path = Path(__file__).with_name("tcl_convention_validator.py")
-    spec = importlib.util.spec_from_file_location("eda_tcl_convention_validator", module_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load TCL convention validator: {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-def project_report(root: Path, cases_dir: Path | None = None) -> dict[str, object]:
-    errors = validate_project(root, cases_dir)
+def project_report(root: Path) -> dict[str, object]:
+    errors = validate_project(root)
     diagnostics = [
         {
             "layer": "PROJECT",
@@ -282,88 +166,6 @@ def project_report(root: Path, cases_dir: Path | None = None) -> dict[str, objec
         ],
         "diagnostics": diagnostics,
     }
-
-
-def tcl_report(
-    case_dirs: list[Path],
-) -> dict[str, object]:
-    convention_validator = load_tcl_convention_validator()
-    checks: list[dict[str, object]] = []
-    diagnostics: list[dict[str, object]] = []
-    for case_dir in case_dirs:
-        convention = convention_validator.convention_report(case_dir)
-        convention["id"] = "L2"
-        checks.append(convention)
-        diagnostics.extend(convention["diagnostics"])
-    statuses = {str(check["status"]) for check in checks}
-    if statuses == {"PASS"}:
-        status = "PASS"
-    elif "FAIL" in statuses:
-        status = "FAIL"
-    elif "TOOL_UNAVAILABLE" in statuses:
-        status = "TOOL_UNAVAILABLE"
-    else:
-        status = "FAIL"
-    return {"status": status, "checks": checks, "diagnostics": diagnostics}
-
-
-def aggregate_layer(checks: list[dict[str, object]], layer_id: str) -> dict[str, object]:
-    selected = [item for item in checks if item.get("id") == layer_id]
-    statuses = {str(item.get("status")) for item in selected}
-    if not selected:
-        status = "FAIL"
-    elif "FAIL" in statuses:
-        status = "FAIL"
-    elif "TOOL_UNAVAILABLE" in statuses:
-        status = "TOOL_UNAVAILABLE"
-    elif "SKIPPED" in statuses:
-        status = "SKIPPED"
-    elif statuses == {"PASS"}:
-        status = "PASS"
-    else:
-        status = "FAIL"
-    diagnostics = [
-        diagnostic
-        for item in selected
-        for diagnostic in item.get("diagnostics", [])
-        if isinstance(diagnostic, dict)
-    ]
-    return {"id": layer_id, "status": status, "checks": selected, "diagnostics": diagnostics}
-
-
-def skipped_layer(layer_id: str, reason: str) -> dict[str, object]:
-    return {"id": layer_id, "status": "SKIPPED", "checks": [], "diagnostics": [], "reason": reason}
-
-
-def delivery_report(
-    workbook: Path,
-    case_dirs: list[Path],
-    requirements: Path | None = None,
-) -> dict[str, object]:
-    plan = load_test_plan_validator().plan_report(workbook.resolve(), requirements.resolve() if requirements else None)
-    layer_1 = {
-        "id": "L1",
-        "status": plan["status"],
-        "checks": plan.get("checks", []),
-        "diagnostics": plan.get("diagnostics", []),
-    }
-    if layer_1["status"] != "PASS":
-        checks = [
-            layer_1,
-            skipped_layer("L2", "Layer 1 did not pass"),
-        ]
-    else:
-        tcl = tcl_report(case_dirs)
-        layer_2 = aggregate_layer(tcl["checks"], "L2")
-        checks = [layer_1, layer_2]
-    diagnostics = [
-        diagnostic
-        for item in checks
-        for diagnostic in item.get("diagnostics", [])
-        if isinstance(diagnostic, dict)
-    ]
-    status = "PASS" if all(item["status"] == "PASS" for item in checks) else "FAIL"
-    return {"status": status, "checks": checks, "diagnostics": diagnostics}
 
 
 def feature_report(root: Path, feature_id: str, timeout: float = 300.0) -> dict[str, object]:
@@ -479,25 +281,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    project_parser = subparsers.add_parser("project", help="validate manifest and case structure")
+    project_parser = subparsers.add_parser("project", help="validate the project feature manifest")
     project_parser.add_argument("--root", type=Path, default=ROOT)
-    project_parser.add_argument("--cases", type=Path, help="override the generated cases directory")
     project_parser.add_argument("--format", choices=("text", "json"), default="text")
-
-    tcl_parser = subparsers.add_parser("tcl", help="run TCL convention validation on case directories")
-    tcl_parser.add_argument("cases", nargs="+", type=Path, help="one or more TCL case directories (each containing nith.run + tcl/ tree)")
-    tcl_parser.add_argument("--format", choices=("text", "json"), default="json")
-
-    plan_parser = subparsers.add_parser("plan", help="run Layer 1 test-plan validation")
-    plan_parser.add_argument("workbook", type=Path)
-    plan_parser.add_argument("--requirements", type=Path, help="JSON mapping commands to required test-point strings")
-    plan_parser.add_argument("--format", choices=("text", "json"), default="json")
-
-    delivery_parser = subparsers.add_parser("delivery", help="run the Excel -> TCL convention delivery gate")
-    delivery_parser.add_argument("workbook", type=Path)
-    delivery_parser.add_argument("cases", nargs="+", type=Path, help="one or more TCL case directories")
-    delivery_parser.add_argument("--requirements", type=Path)
-    delivery_parser.add_argument("--format", choices=("text", "json"), default="json")
 
     feature_parser = subparsers.add_parser("feature", help="run commands assigned to one feature")
     feature_parser.add_argument("feature_id")
@@ -513,14 +299,7 @@ def main(argv: list[str] | None = None) -> int:
         arguments.insert(0, "project")
     args = build_parser().parse_args(arguments)
     if args.command == "project":
-        cases = args.cases.resolve() if args.cases else None
-        report = project_report(args.root.resolve(), cases)
-    elif args.command == "tcl":
-        report = tcl_report(args.cases)
-    elif args.command == "plan":
-        report = load_test_plan_validator().plan_report(args.workbook.resolve(), args.requirements.resolve() if args.requirements else None)
-    elif args.command == "delivery":
-        report = delivery_report(args.workbook, args.cases, args.requirements)
+        report = project_report(args.root.resolve())
     else:
         report = feature_report(args.root.resolve(), args.feature_id, args.timeout)
     if args.format == "json":

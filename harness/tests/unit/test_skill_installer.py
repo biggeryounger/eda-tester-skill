@@ -135,7 +135,8 @@ class SkillInstallerTests(unittest.TestCase):
             "references/specs/test-plan-rules.md",
             "references/specs/tcl-script-rules.md",
             "scripts/generate_test_plan.py",
-            "scripts/validate.py",
+            "scripts/test_plan_validator.py",
+            "scripts/tcl_convention_validator.py",
         )
         for mode in ("link", "copy"):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as temporary_dir:

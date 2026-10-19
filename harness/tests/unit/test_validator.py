@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-SPEC = importlib.util.spec_from_file_location("eda_validator", ROOT / "skill" / "scripts" / "validate.py")
+SPEC = importlib.util.spec_from_file_location("project_validator", ROOT / "harness" / "scripts" / "project_validator.py")
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError("cannot load validator")
 VALIDATOR = importlib.util.module_from_spec(SPEC)
@@ -19,32 +19,8 @@ SPEC.loader.exec_module(VALIDATOR)
 
 
 class ValidatorTests(unittest.TestCase):
-    def test_repository_fixtures_pass(self) -> None:
+    def test_repository_manifest_passes(self) -> None:
         self.assertEqual([], VALIDATOR.validate_project(ROOT))
-
-    def test_unbalanced_tcl_is_detected(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary_dir:
-            case_dir = Path(temporary_dir) / "neg001_bad_syntax"
-            case_dir.mkdir()
-            (case_dir / "case.toml").write_text(
-                '\n'.join([
-                    'id = "neg001_bad_syntax"',
-                    'feature_ids = ["F-006"]',
-                    'command = "bad"',
-                    'polarity = "negative"',
-                    'runtime = "static"',
-                    'script = "run.tcl"',
-                    'expected = "reject"',
-                    'description = "fixture"',
-                ]),
-                encoding="utf-8",
-            )
-            (case_dir / "run.tcl").write_text(
-                "# EXPECT: FAIL\n# TEST_ACTION\nset value {broken\n",
-                encoding="utf-8",
-            )
-            errors = VALIDATOR.validate_case(case_dir, {"F-006"})
-            self.assertTrue(any("unbalanced" in error.message for error in errors))
 
     def test_multiple_active_features_are_rejected(self) -> None:
         feature = {

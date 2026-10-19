@@ -43,6 +43,7 @@ usage() {
   test project                检查项目清单、用例元数据和基础契约
   test skill                  检查可安装 Skill 的结构
   test feature FEATURE_ID     运行指定功能点登记的测试
+  test agent-e2e CASE_DIR...  通过 Codex JSONL 会话执行真实 Skill 端到端用例
   test tcl CASE_DIR...        运行指定 TCL 用例目录的规范检查
   test plan PLAN [参数...]    运行 Excel 测试计划检查
   test delivery PLAN CASE...  运行 Excel → TCL 交付门禁
@@ -56,6 +57,7 @@ usage() {
   ./init.sh --dry-run deploy --agent trae --skills-dir /path/to/trae/skills
   ./init.sh test all
   ./init.sh test feature F-026
+  ./init.sh test agent-e2e harness/tests/e2e/optimus_check_design_data_full_workflow --output /tmp/eda-agent-e2e
   ./init.sh test layer2 plan.xlsx path/to/pos001_case
 
 部署约定：
@@ -121,31 +123,56 @@ case "$command" in
                 run "$PYTHON" "$ROOT/harness/scripts/run_jenkins_gate.py"
                 ;;
             layer1)
-                run "$PYTHON" "$ROOT/skill/scripts/validate.py" project
+                run "$PYTHON" "$ROOT/harness/scripts/project_validator.py" project
                 run "$PYTHON" "$ROOT/harness/scripts/quick_validate.py"
                 run "$PYTHON" -c 'import openpyxl; print("openpyxl", openpyxl.__version__)'
                 run tclsh "$ROOT/harness/scripts/check_tcl_environment.tcl"
                 ;;
             layer2)
                 need_args 2 "$#" "test layer2 需要 PLAN 和至少一个 CASE_DIR"
-                run "$PYTHON" "$ROOT/skill/scripts/validate.py" delivery "$@"
+                plan=$1
+                shift
+                run "$PYTHON" "$ROOT/skill/scripts/test_plan_validator.py" "$plan"
+                run "$PYTHON" "$ROOT/skill/scripts/tcl_convention_validator.py" "$@"
                 ;;
             unit)
                 run "$PYTHON" -m unittest discover -s "$ROOT/harness/tests/unit" -v
                 ;;
             project)
-                run "$PYTHON" "$ROOT/skill/scripts/validate.py" project "$@"
+                run "$PYTHON" "$ROOT/harness/scripts/project_validator.py" project "$@"
                 ;;
             skill)
                 run "$PYTHON" "$ROOT/harness/scripts/quick_validate.py"
                 ;;
             feature)
                 need_args 1 "$#" "test feature 需要 FEATURE_ID"
-                run "$PYTHON" "$ROOT/skill/scripts/validate.py" feature "$@"
+                run "$PYTHON" "$ROOT/harness/scripts/project_validator.py" feature "$@"
                 ;;
-            tcl|plan|delivery)
+            agent-e2e)
+                need_args 1 "$#" "test agent-e2e 需要 E2E CASE_DIR"
+                case_dir=$1
+                shift
+                runner="$case_dir/run_agent_case.py"
+                if [ ! -f "$runner" ]; then
+                    printf 'ERROR: E2E Agent runner 不存在：%s\n' "$runner" >&2
+                    exit 2
+                fi
+                run "$PYTHON" "$runner" "$@"
+                ;;
+            tcl)
                 need_args 1 "$#" "test $scenario 缺少输入参数"
-                run "$PYTHON" "$ROOT/skill/scripts/validate.py" "$scenario" "$@"
+                run "$PYTHON" "$ROOT/skill/scripts/tcl_convention_validator.py" "$@"
+                ;;
+            plan)
+                need_args 1 "$#" "test $scenario 缺少输入参数"
+                run "$PYTHON" "$ROOT/skill/scripts/test_plan_validator.py" "$@"
+                ;;
+            delivery)
+                need_args 2 "$#" "test delivery 需要 PLAN 和至少一个 CASE_DIR"
+                plan=$1
+                shift
+                run "$PYTHON" "$ROOT/skill/scripts/test_plan_validator.py" "$plan"
+                run "$PYTHON" "$ROOT/skill/scripts/tcl_convention_validator.py" "$@"
                 ;;
             *)
                 printf 'ERROR: 未知测试场景：%s\n' "$scenario" >&2

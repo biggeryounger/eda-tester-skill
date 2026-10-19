@@ -16,7 +16,8 @@ def main() -> int:
         "assets/templates/测试用例设计表.xlsx",
         "references/specs/test-plan-rules.md",
         "references/specs/tcl-script-rules.md",
-        "scripts/validate.py",
+        "scripts/test_plan_validator.py",
+        "scripts/tcl_convention_validator.py",
     )
     missing = [relative for relative in required if not (skill / relative).is_file()]
     text = (skill / "SKILL.md").read_text(encoding="utf-8") if (skill / "SKILL.md").is_file() else ""
@@ -25,6 +26,12 @@ def main() -> int:
         errors.append("SKILL.md must declare name: eda-tester-skill")
     forbidden = ("PROCESS.MD", "function.json", "tests", "references/test-plan.md", "references/e2e-test-set.md")
     errors.extend(f"harness entry leaked into skill/: {relative}" for relative in forbidden if (skill / relative).exists())
+    readmes = sorted(
+        path.relative_to(skill).as_posix()
+        for path in skill.rglob("*")
+        if path.is_file() and path.name.casefold() == "readme.md"
+    )
+    errors.extend(f"README.md is not allowed inside skill/: {relative}" for relative in readmes)
     if errors:
         for error in errors:
             print(f"FAIL: {error}", file=sys.stderr)
