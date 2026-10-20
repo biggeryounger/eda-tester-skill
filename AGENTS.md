@@ -23,6 +23,15 @@
 - 当前功能点必须完成端到端验证并将状态更新为 `passing`，才能把下一个功能点改为 `active`。
 - 无法继续的功能点标记为 `blocked`；尚未开始的功能点保持 `not_started`。
 
+## 受保护冒烟用例
+
+- 固定保护 `harness/references/protected-smoke.json` 中的 SMOKE-001～SMOKE-010；执行入口为 `./init.sh test smoke`。十项均为可重复自动化测试，不依赖真实模型服务或 EDA 许可证。
+- 修改、删除、重命名、替换这些用例，或改动其断言、输入、fixture、预期结果、共享测试辅助代码、runner，必须先获得用户明确允许。即使声称修复、重构或更新 golden，也不得先改后报。
+- 不得通过 skip、expectedFailure、减少执行项、移出发现范围、修改执行入口或降低检查强度绕过保护。冒烟清单、本节规则、`harness/scripts/run_smoke.py` 和 `harness/tests/unit/test_protected_smoke.py` 本身也受同样保护。
+- 变更前先说明受影响编号、原因、具体差异及对断言强度的影响，获得用户对该范围的明确允许后再实施，并在 `harness/PROCESS.MD` 记录授权原话/来源、允许范围及验证结果。一般开发、修复、上传代码或 Jenkins 合入审批不视为允许修改受保护用例。
+- 受保护范围包括所选测试模块的共享 setup/helper，以及 `harness/tests/e2e/optimus_check_design_data_full_workflow/` 中被这些测试使用的输入、预期与执行脚本；其他文件中影响这些测试执行选择或裁决强度的改动同样适用。正常修改被测 Skill 实现无需额外授权，测试失败时优先修复实现。
+- 此机制为项目协作规则与自动化执行检查，不是不可篡改的权限隔离；不得宣称其能抵御有权修改仓库或 Jenkins 管理配置的人。首次建立清单由本次用户要求授权，此后的任何保护范围调整均需重新明确允许。
+
 ## 开发环境使用
 
 项目主要使用：

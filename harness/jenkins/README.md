@@ -52,8 +52,20 @@ docker compose up --build -d
 2. `harness/tests/unit/` 下全部单元及回归测试。
 3. `skill/` 发布产物结构与隔离检查。
 
+完整单元测试包含十项受保护冒烟的契约与执行验证；独立运行入口为 `./init.sh test smoke`。审批时需审阅 `skill/references/input/design_input_tcl/` 输入资源、PV 接口资料和 TCL 检查规则的差异；这些资料的归档不代表真实 EDA 工具验证通过。
+
 报告输出到 `harness/outputs/jenkins/`，Jenkins 会归档：
 
 - `index.html`
 - `junit.xml`
 - `complete.log`
+
+## 代码来源与信任边界
+
+流水线定义由 Jenkins SCM 从固定 GitHub 仓库的 `main` 加载，不读取本地 Jenkinsfile，也不从 CANDIDATE_REF 加载流水线。启动配置属于管理员控制面；具有修改 Jenkins 配置、启动脚本或容器权限的用户仍能改变门禁。
+
+每次构建先清空 Jenkins 工作区，再从 GitHub 获取候选 ref 并锁定提交 SHA；测试脚本、用例和被测 Skill 均来自该远端提交。本地完整门禁只是上传前检查，不作为 Jenkins 合入依据。
+
+候选提交仍可能修改测试或检查器，因此“来自远端”不能证明测试未被削弱；审批时必须审阅候选提交中 harness、init.sh 和测试依赖的差异。当前机制不提供独立于候选提交的受保护测试基线。
+
+首次迁移需先经现有审批流程使 `main` 包含 `harness/jenkins/Jenkinsfile`，再重建并重启 Jenkins，以应用新的 SCM 任务定义；远端文件缺失或读取失败时构建失败，不回退本地流水线。任务初始化通过重启更新，正在运行的旧构建不因此切换定义。

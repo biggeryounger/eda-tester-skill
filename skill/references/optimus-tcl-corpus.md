@@ -264,13 +264,15 @@ set_analysis_view_status -view $hold_view \
 
 ## 5. 用户确认的多 run 检查点模式
 
+完整接口与版本边界见 [PV 检查点参考](pv-checkpoints/index.md)，以下仅保留流程示例。
+
 用户提供并确认了一套 Optimus 成功调用案例，包含两个连续 run 和 Optimus 方言 MMMC。该案例补充以下运行语义：
 
 - `run_1.tcl` 可以完成 case initialization、测试动作、生成数据库或文件，并设置本步 checkpoint。
 - `run_2.tcl` 可以读取前一步数据库，继续生成输出并验证跨 run 状态。
 - `pv_check_golden <actual> -golden <expected> -filter <expression>` 比较两个文件，`-filter` 排除指定行。
-- `pv_check_log {<command>} -name <name> -filter <expression> -match <expression>` 捕获命令屏幕输出；`-filter` 排除匹配行，指定 `-match` 时只比较匹配行。
-- 每个 run 在 `exit` 前必须调用 `pv_rpt_checkpoints`，汇总该 run 的所有 checkpoint；每个 run 必须显式 `exit`。
+- `pv_check_log {<command>} -name <name> -filter <expression> -match <expression>` 捕获命令屏幕输出为 `<name>.mark`，默认与 `golden/<name>.mark` 比较；`-match` 在提取时仅保留匹配行，`-filter` 在比对时过滤实际与 Golden 两边的匹配行。
+- 每个 run 在 `exit` 前必须调用 `pv_rpt_checkpoints`，汇总该 run 的所有 checkpoint；每个 run 必须显式 `exit`。汇总发现 FAIL 不会自动返回非零值，必须结合检查点日志与真实返回码裁决。
 
 为避免工作目录中的旧文件使 golden 检查误通过，同一 run 生成并比较文件时采用以下稳定顺序：
 

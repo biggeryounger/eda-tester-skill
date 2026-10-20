@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "SMOKE-001",
+      "test": "tests.unit.test_skill_installer.SkillInstallerTests.test_link_install_creates_discoverable_skill",
+      "purpose": "Skill 安装后可发现"
+    },
+    {
+      "id": "SMOKE-002",
+      "test": "tests.unit.test_command_spec_parser.CommandSpecParserTests.test_extracts_complete_command_semantics",
+      "purpose": "完整命令语义解析"
+    },
+    {
+      "id": "SMOKE-003",
+      "test": "tests.unit.test_test_plan_generator.TestPlanGeneratorTests.test_generator_writes_nonempty_valid_workbook",
+      "purpose": "生成非空且符合模板的 Excel"
+    },
+    {
+      "id": "SMOKE-004",
+      "test": "tests.unit.test_test_plan_generator.TestPlanGeneratorTests.test_generator_rejects_empty_scenarios",
+      "purpose": "拒绝空场景交付"
+    },
+    {
+      "id": "SMOKE-005",
+      "test": "tests.unit.test_test_plan_validator.TestPlanValidatorTests.test_plan_014_rejects_hidden_case_row",
+      "purpose": "拒绝隐藏用例行"
+    },
+    {
+      "id": "SMOKE-006",
+      "test": "tests.unit.test_tcl_convention_validator.TclConventionValidatorTests.test_valid_single_step_case_passes_all_rules",
+      "purpose": "单步 TCL 正向门禁"
+    },
+    {
+      "id": "SMOKE-007",
+      "test": "tests.unit.test_tcl_convention_validator.TclConventionValidatorTests.test_every_run_requires_its_own_checkpoint",
+      "purpose": "每个 run 必须独立检查点"
+    },
+    {
+      "id": "SMOKE-008",
+      "test": "tests.unit.test_skill_workflow_modes.SkillWorkflowModesTests.test_wait_markers_define_resume_conditions",
+      "purpose": "等待门禁与恢复条件"
+    },
+    {
+      "id": "SMOKE-009",
+      "test": "tests.unit.test_e2e_full_workflow_runner.FullWorkflowE2ERunnerTests.test_runner_executes_and_compares_all_expected_outputs",
+      "purpose": "完整 workflow 五类产物比较"
+    },
+    {
+      "id": "SMOKE-010",
+      "test": "tests.unit.test_codex_skill_e2e_runner.CodexSkillE2ERunnerTests.test_drives_three_codex_turns_and_validates_agent_outputs",
+      "purpose": "假 Codex 稳定验证三轮协议及产物；不代表真实模型通过"
+    }
+  ]
+}

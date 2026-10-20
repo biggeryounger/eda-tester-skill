@@ -15,6 +15,8 @@
 - TCL-CHECKPOINT-001、TCL-CHECKPOINT-002、TCL-CHECKPOINT-003、
   TCL-CHECKPOINT-004、TCL-CHECKPOINT-005、TCL-CHECKPOINT-006：检查点
   存在性、参数形态、路径和同一 run 内 golden 产物的清理/生成/比较顺序。
+- TCL-CHECKPOINT-007：每个 pv_check_log 的命令块最多 4 条顶层 Tcl 命令，
+  按换行/分号分隔，忽略注释、空语句和续行，不展开嵌套体或动态调用。
 - TCL-CMD-DEF-001：CMD 用例不以 DEF 作为 golden 比较对象。
 - TCL-MMMC-001、TCL-MMMC-002：MMMC 文件保持声明式且命令方言匹配工具。
 - TCL-SCRIPT-001、TCL-SCRIPT-002、TCL-SCRIPT-003、TCL-SCRIPT-004、
@@ -136,6 +138,56 @@ def _commands(text: str) -> list[tuple[str, str, int, int]]:
             position += 1
         commands.append((match.group(1), text[match.end():position].strip(), start, position))
     return commands
+
+
+def _top_level_command_count(script: str) -> int:
+    """Count lexical Tcl commands, without evaluating the untrusted script.
+
+    Nested script bodies and substitutions are arguments of an outer command;
+    this limit does not expand procedures, loops or dynamically built scripts.
+    """
+    count = 0
+    active = False
+    braces = brackets = 0
+    quoted = comment = False
+    position = 0
+    while position < len(script):
+        char = script[position]
+        if char == "\\" and position + 1 < len(script):
+            if script[position + 1] != "\n" and not comment:
+                active = True
+            position += 2
+            continue
+        if comment:
+            if char == "\n":
+                comment = False
+            position += 1
+            continue
+        if not active and char == "#":
+            comment = True
+        elif braces:
+            if char == "{":
+                braces += 1
+            elif char == "}":
+                braces -= 1
+        elif char == '"' and not brackets:
+            quoted = not quoted
+            active = True
+        elif char == "{" and not quoted:
+            braces += 1
+            active = True
+        elif char == "[":
+            brackets += 1
+            active = True
+        elif char == "]" and brackets:
+            brackets -= 1
+        elif char in ";\n" and not quoted and not brackets:
+            count += int(active)
+            active = False
+        elif not char.isspace():
+            active = True
+        position += 1
+    return count + int(active)
 
 
 def _words(value: str) -> list[str]:
@@ -400,6 +452,13 @@ def _validate_run_script(
                 empty_options = [option for option, value in options.items() if not _nonempty_word(value)]
                 if empty_options:
                     error = f"option requires a non-empty value: {empty_options[0]}"
+            if block_ok and words[0].endswith("}"):
+                command_count = _top_level_command_count(words[0][1:-1])
+                if command_count > 4:
+                    diagnostics.append(TclConventionDiagnostic(
+                        "TCL-CHECKPOINT-007", path, line,
+                        f"pv_check_log command block has {command_count} top-level commands; maximum is 4",
+                    ))
             name = options.get("-name")
             if name and name in names:
                 error = f"duplicate checkpoint name: {name}"

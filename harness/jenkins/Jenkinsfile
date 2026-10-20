@@ -5,6 +5,7 @@ pipeline {
         string(name: 'TARGET_BRANCH', defaultValue: 'main', description: '审批后合入的目标分支')
     }
     options {
+        skipDefaultCheckout(true)
         disableConcurrentBuilds(abortPrevious: false)
         timeout(time: 60, unit: 'MINUTES')
         timestamps()

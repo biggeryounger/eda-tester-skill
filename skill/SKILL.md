@@ -23,11 +23,11 @@ description: Design EDA test cases from command specifications or generate valid
    - **执行脚本结构检查**：运行 `python3 scripts/test_plan_validator.py <plan.xlsx> [--requirements <requirements.json>]`，检查工作簿结构、字段格式、编号和其他确定性规则，结果必须为 `PASS`。
    - **执行 Agent 语义审查**：读取 `references/specs/test-plan-rules.md`，结合被测命令说明和目标工具逐条审查用例语义，记录每条规则的 `PASS`、`FAIL` 或 `SPEC-GAP` 及理由。
    - 两项均通过后才能展示设计并进入确认等待；任一项失败或存在未处理的 `SPEC-GAP` 时，先修正测试计划，不得继续生成 TCL。
-4. 展示 Excel、完整用例设计和两类覆盖率结果，然后进入等待门禁：
+4. 展示 Excel、完整用例设计和两类覆盖率结果，并按下方输入选择规则展示 design/tech/stage 可选输入列表，然后进入等待门禁：
 
    **WAIT-DESIGN-CONFIRMATION**
-   - 等待内容：用户明确确认当前用例设计可用于生成 TCL，并确认所选 design 和 tech。
-   - 继续条件：用户回复“确认”“可用”“按此生成”或等价的明确批准，且已明确 design 和 tech；修改意见、补充资料或含糊回复不能解除等待。用户无需选择或确认 `design.tcl`、`mmmc.tcl` 文件。
+   - 等待内容：用户明确确认当前用例设计可用于生成 TCL，并确认所选 design 和 tech 及 stage（design/tech/stage 组合）。
+   - 继续条件：用户回复“确认”“可用”“按此生成”或等价的明确批准，且已明确 design 和 tech 及 stage；修改意见、补充资料或含糊回复不能解除等待。用户无需选择或确认 `design.tcl`、`mmmc.tcl` 文件。
 
    Wait for explicit user confirmation；确认前不得生成 TCL。Do not generate any TCL file before confirmation.
 5. 确认后，Generate one case directory per Excel row，并执行下方“脚本生成与交付门禁”。
@@ -41,17 +41,19 @@ description: Design EDA test cases from command specifications or generate valid
    - **执行 Agent 语义审查**：读取 `references/specs/test-plan-rules.md`，结合被测命令说明和目标工具逐条审查用例语义。
    - 两项均通过后才能把表格作为脚本生成输入；失败项和未处理的 `SPEC-GAP` 必须进入 `WAIT-PLAN-FIX`。
 2. 以表格为已批准的设计输入，不重新执行场景设计或策略选择，不得擅自改写已给出的用例设计。
-3. 若必需字段、初始化输入或可执行预期存在缺失、歧义或冲突，停止脚本生成并逐项列出问题，然后进入等待门禁：
+3. 核对表中 design/tech/stage 与目标工具；需要选择或补充时，按下方输入选择规则展示可选输入列表。若必需字段、初始化输入或可执行预期存在缺失、歧义或冲突，停止脚本生成并逐项列出问题，然后进入等待门禁：
 
    **WAIT-PLAN-FIX**
-   - 等待内容：用户补充或修正列出的问题，或提供修订后的测试用例设计表；若 design 或 tech 未明确，也在此等待补充。
-   - 继续条件：所有阻塞问题均已获得明确且一致的输入，且 design 和 tech 已确定；不得猜测补全，未解决时保持等待。
+   - 等待内容：用户补充或修正列出的问题，或提供修订后的测试用例设计表；若 design 或 tech 或 stage 未明确，也在此等待补充。
+   - 继续条件：所有阻塞问题均已获得明确且一致的输入，且 design 和 tech 已确定，stage 也已确定；不得猜测补全，未解决时保持等待。
 
 4. 检查通过后，按每条有效用例直接生成 TCL，并执行下方“脚本生成与交付门禁”。
 
 ### 共享：脚本生成与交付门禁
 
-1. Generate one case directory per Excel row。取得用户选择的 design 和 tech 后，Skill 根据已登记的 design/tech 资源映射自动确定对应的 `design.tcl`，并结合目标工具自动确定目标工具方言的 `mmmc.tcl`；用户无需选择文件。不得跨工具替换 MMMC。将确定的文件复制并归档到每个用例目录：`design.tcl` 放入 `<case_dir>/tcl/design.tcl`，`mmmc.tcl` 放入 `<case_dir>/tcl/<tool>/mmmc.tcl`。归档后的用例不得依赖原始文件所在目录；映射缺失或不唯一时记录 `SPEC-GAP` 并停止生成。
+**输入选择规则**：从 `references/input/design_input_tcl/<tech>/<design>/<stage>/tcl` 实际存在的目录整理可选输入列表，按 tech/design/stage 排序，以表格列出编号、design、tech、stage、可用工具；仅列出同时存在 `design.tcl` 和 `<tool>/mmmc.tcl` 的组合，并按目标工具及已明确条件筛选。用户选择编号或明确的 design/tech/stage 组合；已明确完整组合时核对即可。沿用上述等待门禁，不新增确认轮次；无匹配项或文件缺失时记录 `SPEC-GAP`，不得猜测或回退到其他输入。
+
+1. Generate one case directory per Excel row。取得用户选择的 design 和 tech 及 stage 后，Skill 根据已登记的 design/tech 资源映射自动确定（以 stage 定位上述输入目录）对应的 `design.tcl`，并结合目标工具自动确定同目录下目标工具方言的 `mmmc.tcl`；用户无需选择文件。不得跨 stage 替换输入；不得跨工具替换 MMMC。将确定的文件复制并归档到每个用例目录：`design.tcl` 放入 `<case_dir>/tcl/design.tcl`，`mmmc.tcl` 放入 `<case_dir>/tcl/<tool>/mmmc.tcl`。归档后的用例不得依赖原始文件所在目录；映射缺失或不唯一时记录 `SPEC-GAP` 并停止生成。
 2. **执行脚本静态检查**：
    - 运行 `python3 scripts/tcl_convention_validator.py <case_dir>...`，在同一次 TCL 检查中分别报告 Tcl 基础语法、EDA 工具命令及选项使用、TCL 编程规范；编程规范包含用例目录、文件结构、命名、固定标记、白名单、调用形式及顺序等确定性规则。
 3. **执行 Agent 语义审查**：必须分别读取以下文档，不得用自动检查 PASS 替代：
@@ -67,3 +69,6 @@ description: Design EDA test cases from command specifications or generate valid
 - 选择策略或确认设计前：`references/test-strategies.md`
 - 解析 TXT 命令说明前：`references/command-spec-format.md`
 - 生成 Optimus full-flow 或 MMMC 时：`references/optimus-tcl-corpus.md`
+- iTools initial design 模板：`references/initial-design/itools.tcl`
+- Optimus initial design 模板：`references/initial-design/optimus.tcl`
+- 编写 PV 检查点前：`references/pv-checkpoints/index.md`（PVUtils / QoR 接口手册及门禁差异）

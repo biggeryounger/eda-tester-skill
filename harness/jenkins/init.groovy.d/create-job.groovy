@@ -8,7 +8,10 @@ import hudson.model.User
 import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
 import hudson.security.HudsonPrivateSecurityRealm
 import jenkins.model.Jenkins
-import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
+import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
+import hudson.plugins.git.GitSCM
+import hudson.plugins.git.BranchSpec
+import hudson.plugins.git.UserRemoteConfig
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
 def jenkins = Jenkins.get()
@@ -37,11 +40,15 @@ def job = jenkins.getItem(jobName)
 if (job == null) {
     job = jenkins.createProject(WorkflowJob, jobName)
 }
-def pipelineFile = new File('/usr/share/jenkins/ref/Jenkinsfile')
-if (!pipelineFile.isFile()) {
-    throw new IllegalStateException("Jenkinsfile is missing: ${pipelineFile}")
-}
-job.definition = new CpsFlowDefinition(pipelineFile.getText('UTF-8'), true)
+// The controller configuration is administrative; pipeline code is always remote main.
+def pipelineScm = new GitSCM(
+    [new UserRemoteConfig('https://github.com/biggeryounger/eda-tester-skill.git', null, null, null)],
+    [new BranchSpec('*/main')],
+    false, [], null, null, []
+)
+def pipelineDefinition = new CpsScmFlowDefinition(pipelineScm, 'harness/jenkins/Jenkinsfile')
+pipelineDefinition.setLightweight(true)
+job.definition = pipelineDefinition
 job.description = '测试候选提交的完整用例集，发布报告，等待人工审批后安全合入 main。'
 job.removeProperty(ParametersDefinitionProperty)
 job.addProperty(new ParametersDefinitionProperty(

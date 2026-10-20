@@ -8,12 +8,12 @@
 
 ## 当前交接快照
 
-- 当前功能：无；F-036“Agent E2E 用例规范与范式”已完成并标记为 `passing`。
-- 工作区状态：当前分支包含既有未提交开发改动；本功能只新增项目侧 Agent E2E 规范、规范契约测试和文档路由，不修改 Skill 运行时产物。
-- 最近验证：2026-10-20 删除目标版本可选门禁并补齐兼容覆盖明确文本后，`./init.sh test all` 完整通过：171/171 单元与回归测试 PASS，隔离 Skill 包结构 PASS。
-- 阻塞项：真实 Codex 会话验证仍受本机 codex-cli 0.133.0 与当前模型列表协议不兼容影响；不影响协议自动化测试和本次完整门禁。
-- 下一条命令：检查上传差异并推送 `codex/` 候选分支
-- 涉及文件：`harness/references/agent-e2e-pattern.md`、`harness/references/e2e-test-set.md`、`harness/tests/unit/test_agent_e2e_pattern.py`、`harness/function.json`、`harness/PROCESS.MD`
+- 当前功能：无；F-040“pv_check_log 命令数量限制”已完成，状态 `passing`。
+- 工作区状态：用户于 2026-10-20 要求“更新远程github仓空”，按上传流程准备候选提交；排除 .DS_Store，保留其本地修改。
+- 最近验证：2026-10-20 测试先行基线 2 项按预期失败；F-040 登记检查全通过（新测试 5/5、原 TCL 测试 47/47、项目清单）；完整门禁 181/181 PASS（含受保护冒烟 10/10）、Skill 结构 PASS。
+- 阻塞项：无本次阻塞；规则计数命令块的顶层 Tcl 命令，不展开 proc、循环或动态脚本；未执行 EDA 实机验证。既有 PV 参数覆盖缺口仍按参考入口记录。
+- 下一条命令：候选分支 `codex/pv-checkpoints-input-selection` 通过门禁后推送，触发 `eda-tester-skill-approved-merge`，由用户在 Jenkins 审批；不得直接推送 main。
+- 涉及文件：`skill/scripts/tcl_convention_validator.py`、`skill/references/pv-checkpoints/index.md`、`skill/SKILL.md`、`harness/tests/unit/test_pv_log_command_limit.py`、`harness/function.json`、`harness/PROCESS.MD`
 
 ## 当前目标
 
@@ -33,6 +33,26 @@
 ## 历史记录
 
 ### 已完成工作
+
+- 2026-10-20 用户要求“更新远程github仓空”，授权按上传流程更新当前 GitHub 仓库。SKILL.md 已包含本次 workflow 与参考资料索引；Jenkins README 补充当前报告覆盖与审阅范围；function.json 已登记 F-037～F-040 的状态。待上传资料仅包含 TCL 与参考文档/截图，排除 .DS_Store、日志、缓存和环境凭据；远端 origin 核对为唯一指定 GitHub 仓库。上传前差异检查发现 37 个输入 TCL 文件行尾空白，已仅清理这些格式问题。Jenkins/Docker 起初未运行，启动 Docker 后确认项目 Jenkins 已启动且任务使用远端 main 的 SCM 流水线。
+
+- 2026-10-20 F-040：新增 TCL-CHECKPOINT-007，pv_check_log 命令块超过 4 条顶层 Tcl 命令时报告调用行及实际数量；以换行/分号分隔，处理注释、空语句、续行、转义和参数中的花括号/引号/命令替换分隔符，不执行 Tcl 或展开动态调用。新增独立测试，不改受保护测试或共享 fixture/helper。测试先行时先纠正测试调用签名，随后超限断言按预期失败；实现后 5 项边界和原 47 项 TCL 检查通过。完整门禁发现此前 stage 文案使两个既有契约失败，修复 Skill 文案为“不得跨 stage 替换输入；不得跨工具替换 MMMC”，不削弱规则或测试；最终完整门禁 181/181 与 Skill 结构通过。
+
+- 2026-10-20 按用户要求扩充“生成检查点时的接口选择”为 15 种场景，覆盖 log 的 name/filter/match/log_files、golden 的 name/golden/filter、QoR 的 name/golden/dir/tolerance/rel_tolerance/ignore_metrics/no_check，以及无参数汇总。补充默认值、多命令命名、输出位置、容差单位和 regolden 边界；逐项标出检查器覆盖缺口，未扩展实现或修改受保护测试。文档核对与项目/Skill 结构/差异检查通过。
+
+- 2026-10-20 按用户指定的 legacy/pv_check_bundle_20261012 两份文档归档 PVUtils 与 QoR 完整接口手册；保留原文版本、参数、返回码和限制，标注来源相对位置、SHA-256 及归档编辑。新增精简参考入口，说明 log 的默认 mark Golden、QoR 字典容差/平铺 JSON、汇总不传播 FAIL 退出码，以及 regolden/额外 proc 与当前 Skill 门禁的边界。Skill 索引与 Optimus 检查点语料同步更新；F-015 仅补充资料与缺口说明，未改功能状态或实现，未改受保护测试。项目、Skill 结构、差异格式检查 PASS。
+
+- 2026-10-20 F-039：读取 `references/input/design_input_tcl/<tech>/<design>/<stage>/tcl` 实际输入结构，在两个 workflow 选择步骤要求展示编号、design、tech、stage、可用工具列表；按目标工具和已知条件筛选，只列出 design.tcl 与工具 MMMC 同时存在的组合。用户可选编号或完整组合，已完整指定时仅核对；stage 缺失沿用原等待门禁，禁止跨 stage/工具回退。测试先行登记后按预期失败，实现后全部功能验证与十项冒烟通过；未修改受保护测试。
+
+- 2026-10-20 按用户纠正，移除上轮插入 SKILL.md 的 initial design 模板正文和依赖说明，仅在参考文档索引保留 iTools、Optimus 两条 TCL 模板路径；归档文件保留。项目清单、Skill 结构和差异格式检查通过。
+
+- 2026-10-20 按用户后续要求，将 iTools 与 Optimus initial design 两份完整 TCL 模板和依赖、方言、注释说明直接插入 `skill/SKILL.md`；保留参考资料归档与索引。仅文档调整，不改变功能状态或受保护测试。项目清单、Skill 结构及差异格式检查通过。
+
+- 2026-10-20 按用户要求归档 iTools / Optimus initial design 模板：图 1 对应 Optimus，图 2 对应 iTools；在 `skill/references/initial-design/` 保存原始截图、逐行转录的两份 TCL 及使用上下文，保留线程数 8、`#return` 和 DEF 读取顺序。Skill 索引已增加入口，F-003 仅补充资料位置且保持未开始。此为参考资料归档，不新增实现功能或测试用例，不改受保护测试；项目清单、Skill 结构检查通过，未进行 EDA 实机验证。
+
+- 2026-10-20 F-038：按用户原话“挑选出10个冒烟用例，这些用例的改动必须经过我的允许”，首次建立 SMOKE-001～010 清单与保护规则；本次只选取既有测试，未修改其断言、输入或预期。授权范围为建立规则和执行入口，不包含未来改动受保护用例。规则同时保护清单、执行入口、契约检查、共享辅助代码和相关 E2E 资源；上传/合入审批不等于变更授权。新增 `./init.sh test smoke`，十项全执行且无 skip/expectedFailure 才通过；完整门禁通过契约测试自动执行冒烟。
+
+- 2026-10-20 F-037：Jenkins 任务改用 GitHub main 的 SCM Jenkinsfile，删除本地 Jenkinsfile 挂载与镜像复制；禁用默认检出，保留清空工作区后获取精确远端候选提交。README 记录迁移顺序、控制面权限及候选测试仍可修改的边界。自动化契约与完整门禁通过；未操作运行中 Jenkins。
 
 - 2026-10-20 新增 F-036“Agent E2E 用例规范与范式”：在 `harness/references/agent-e2e-pattern.md` 固化“确定性控制器 + 真实模型执行 + 确定性最终裁决”的测试模型，明确静态 runner 与 Agent runner 分工、隔离安装、`codex exec --json`/`resume` 多轮协议、WAIT 状态与产物时序、独立验证、断言矩阵、三态结果与退出码、稳定性及证据归档规则，并提供可复制的新增用例清单和当前标准范例。`e2e-test-set.md` 已增加文档路由；规范契约 4/4 PASS、完整 workflow 用例契约 5/5 PASS、项目清单 PASS。
 - 2026-10-18 新增 F-035“Codex Skill Agent E2E 执行层”：在隔离工作区安装当前 `skill/` 副本，通过 `codex exec --json` 显式调用 `$eda-tester-skill`，解析 `thread.started` session ID，再以 `codex exec resume` 依次提交三策略选择和 riscv/SMIC28 确认；强制三轮结构化状态为 `WAIT-STRATEGY`、`WAIT-DESIGN-CONFIRMATION`、`DELIVERED`，确认前禁止 TCL，交付后独立执行 Excel/TCL 检查器。新增 `./init.sh test agent-e2e` 统一入口、协议兼容假 Codex 自动化测试及 `TOOL_UNAVAILABLE` 分类。真实冒烟已调用本机 Codex，但 codex-cli 0.133.0 因不能解析模型列表新增的 `max` reasoning 值在首轮前中止；框架正确记录为 `TOOL_UNAVAILABLE`。

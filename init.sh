@@ -39,6 +39,7 @@ usage() {
   test all                    运行 Jenkins 同款完整测试门禁
   test layer1                 检查项目、Skill 结构、Python 依赖和 Tcl 环境
   test layer2 PLAN CASE...    检查测试计划和对应 TCL 用例目录
+  test smoke                  运行 10 个受保护冒烟用例（不允许跳过）
   test unit                   运行全部 Python 单元测试
   test project                检查项目清单、用例元数据和基础契约
   test skill                  检查可安装 Skill 的结构
@@ -134,6 +135,9 @@ case "$command" in
                 shift
                 run "$PYTHON" "$ROOT/skill/scripts/test_plan_validator.py" "$plan"
                 run "$PYTHON" "$ROOT/skill/scripts/tcl_convention_validator.py" "$@"
+                ;;
+            smoke)
+                run "$PYTHON" "$ROOT/harness/scripts/run_smoke.py"
                 ;;
             unit)
                 run "$PYTHON" -m unittest discover -s "$ROOT/harness/tests/unit" -v

@@ -9,4 +9,3 @@ USER jenkins
 RUN jenkins-plugin-cli --plugins workflow-aggregator git credentials-binding htmlpublisher junit timestamper
 
 COPY init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
-COPY Jenkinsfile /usr/share/jenkins/ref/Jenkinsfile
