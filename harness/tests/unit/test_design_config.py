@@ -69,11 +69,14 @@ class DesignConfigTests(unittest.TestCase):
             with self.assertRaisesRegex(ConfigError, "duplicate output"):
                 sync_design_tcl(self.profile(), "smoke", [targets[0], targets[0]])
 
-    def test_repository_config_is_valid_json_and_has_example_profile(self) -> None:
-        path = ROOT / "skill" / "assets/design-profiles.json"
-        data = json.loads(path.read_text(encoding="utf-8"))
-        profile = load_profile(data, "repository_example")
-        self.assertEqual("riscv_core", profile["top_cell"])
+    def test_repository_management_config_contains_process_inputs(self) -> None:
+        data = json.loads((ROOT / "skill/assets/输入件管理表.json").read_text())
+        self.assertEqual({"smic180"}, set(data))
+        process = data["smic180"]
+        self.assertTrue(process["tech_dir"].startswith("$env(PV_ROOT)/"))
+        for field in ("lef_files", "lib_files"):
+            self.assertTrue(process[field])
+            self.assertTrue(all(path.startswith(process["tech_dir"] + "/") for path in process[field]))
 
     def test_management_workbook_lists_every_central_input(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

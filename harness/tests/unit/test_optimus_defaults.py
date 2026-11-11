@@ -20,21 +20,16 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertEqual(["lef_path", "netlist_path", "def_path", "top_cell"], resolved["missing_required"])
 
     def test_example_profile_requires_explicit_selection(self) -> None:
+        import json
         resolved = resolve_template({}, use_example_profile=True)
-        self.assertEqual([], resolved["missing_required"])
+        self.assertEqual(["def_path"], resolved["missing_required"])
         self.assertEqual(EXAMPLE_PROFILE, resolved["values"])
-        self.assertEqual("21.1", EXAMPLE_PROFILE["optimus_version"])
-        self.assertEqual(
-            "$tech_dir/scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef "
-            "$tech_dir/scc28nhkcp_hsc30p140_rvt_ant.lef",
-            EXAMPLE_PROFILE["lef_path"],
-        )
-        self.assertEqual(
-            "$design_dir/floorplan.v.gz",
-            EXAMPLE_PROFILE["netlist_path"],
-        )
-        self.assertEqual("riscv_core", EXAMPLE_PROFILE["top_cell"])
+        process = json.loads((ROOT / "skill/assets/输入件管理表.json").read_text())["smic180"]
+        self.assertEqual(" ".join(process["lef_files"]), EXAMPLE_PROFILE["lef_path"])
+        self.assertEqual("./design/input.v", EXAMPLE_PROFILE["netlist_path"])
+        self.assertEqual("ddp_partition_top", EXAMPLE_PROFILE["top_cell"])
         self.assertEqual("./tcl/optimus/mmmc.tcl", EXAMPLE_PROFILE["mmmc_path"])
+        self.assertTrue(resolved["example_profile_selected"])
 
     def test_user_values_override_individually(self) -> None:
         resolved = resolve_template(
@@ -57,51 +52,25 @@ class OptimusDefaultsTests(unittest.TestCase):
         self.assertIn("lef_path", resolved["missing_required"])
 
     def test_default_tcl_files_are_portable_and_connected(self) -> None:
-        defaults_dir = ROOT / "skill" / "assets" / "defaults" / "optimus"
-        design = (defaults_dir / "design.tcl").read_text(encoding="utf-8")
-        mmmc = (defaults_dir / "mmmc.tcl").read_text(encoding="utf-8")
-        for value in (
-            "Itools21.1_Ifp_util0.65/riscv_core",
-            "smic28_library",
-            "set init_top_cell \"riscv_core\"",
-            "scc28n_12t25od33_1p8m_7ic_1tmc_alpa1_WITH_NDR.lef",
-            "scc28nhkcp_hsc30p140_rvt_ant.lef",
-            "set netlist_file \"$design_dir/floorplan.v.gz\"",
-            "set def_file \"$design_dir/floorplan.def.gz\"",
-        ):
+        base = ROOT / "skill/assets/templates/tool_cmd"
+        design = (base / "common/design.tcl").read_text()
+        mmmc = (base / "optimus/mmmc.tcl").read_text()
+        for value in ('set init_top_name "ddp_partition_top"',
+                      'set netlist_file "./design/input.v"', 'set def_file {}',
+                      'set liberty_files [list "$tech_dir/synopsys/typical.lib"]'):
             self.assertIn(value, design)
-        self.assertIn("create_analysis_view", mmmc)
-        self.assertEqual(4, mmmc.count("create_lib_set "))
-        self.assertEqual(4, mmmc.count("create_rc_corner "))
-        self.assertEqual(4, mmmc.count("create_analysis_corner "))
-        self.assertEqual(2, mmmc.count("create_analysis_mode "))
-        self.assertEqual(4, mmmc.count("create_analysis_view "))
-        self.assertEqual(1, mmmc.count("set_analysis_view "))
-        self.assertNotIn("set_analysis_view_status ", mmmc)
-        for value in (
-            "slowLibSet_40c",
-            "fastLibSet_40c",
-            "slowLibSet_125c",
-            "fastLibSet_125c",
-            "delay_corner_rcbest",
-            "delay_corner_rcworst",
-            "delay_corner_cbest",
-            "delay_corner_cworst",
-            "$design_dir/floorplan.sdc",
-            "set_analysis_view -hold {func_rcbest func_cbest} -setup {func_rcworst func_cworst}",
-        ):
-            self.assertIn(value, mmmc)
-        self.assertNotIn("/Users/", design + mmmc)
-        self.assertNotIn("/home/", design + mmmc)
-        self.assertNotIn("set_options", design)
-        self.assertNotIn("source ", design)
-        self.assertNotIn("Itools21.1_lfp_", design)
+        for command in ("create_lib_set", "create_rc_corner", "create_analysis_corner",
+                        "create_analysis_mode", "create_analysis_view", "set_views_status"):
+            self.assertEqual(1, sum(line.startswith(command + " ") for line in mmmc.splitlines()))
+        self.assertIn("set_views_status -setup {AV_TYP} -hold {AV_TYP}", mmmc)
+        for forbidden in ("/Users/", "/home/", "smic28"):
+            self.assertNotIn(forbidden, design + mmmc)
 
-    def test_skill_requires_user_selected_design_and_tech_inputs(self) -> None:
-        skill = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("用户选择的 design 和 tech", skill)
-        self.assertIn("<case_dir>/tcl/design.tcl", skill)
-        self.assertIn("<case_dir>/tcl/<tool>/mmmc.tcl", skill)
+    def test_skill_uses_management_table_and_target_tool_templates(self) -> None:
+        skill = (ROOT / "skill/SKILL.md").read_text()
+        self.assertIn("assets/输入件管理表.json", skill)
+        self.assertIn("assets/templates/tool_cmd/<tool>/", skill)
+        self.assertIn("对应目标工具", skill)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,11 @@
+{
+  "smic180": {
+    "tech_dir": "$env(PV_ROOT)/data_center/tmp_share/tech/smic180/digital/sc",
+    "lef_files": [
+      "$env(PV_ROOT)/data_center/tmp_share/tech/smic180/digital/sc/lef/smic18_5lm_grid.lef"
+    ],
+    "lib_files": [
+      "$env(PV_ROOT)/data_center/tmp_share/tech/smic180/digital/sc/synopsys/typical.lib"
+    ]
+  }
+}

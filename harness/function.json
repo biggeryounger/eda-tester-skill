@@ -299,6 +299,76 @@
         "tests.unit.test_pv_log_command_limit",
         "-v"
       ]
+    },
+    {
+      "id": "unit-optimus-static-syntax",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_optimus_static_syntax",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-itools-manual-check",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_itools_manual_check",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-pv-direct-calls",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_pv_direct_calls",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-skill-rules",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_skill_rules",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-fixed-smic180",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_fixed_smic180",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-current-resource-contract",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_current_resource_contract",
+        "-v"
+      ]
+    },
+    {
+      "id": "unit-current-delivery-contract",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.unit.test_current_delivery_contract",
+        "-v"
+      ]
     }
   ],
   "features": [
@@ -814,7 +884,7 @@
         "Excel 语义审查明确依据 test-plan-rules.md，TCL 语义审查明确依据 tcl-script-rules.md",
         "覆盖率检查分别报告场景覆盖率和被测选项覆盖率",
         "覆盖结果列出分子、分母、百分比及未覆盖项",
-        "工具或版本语法库不可用时报告 TOOL_UNAVAILABLE，不得以人工判断或确定性结构检查替代",
+        "工具或命令资料库不可用时报告 TOOL_UNAVAILABLE，不得以人工判断或确定性结构检查替代",
         "任一 FAIL、未解决 SPEC-GAP 或 TOOL_UNAVAILABLE 均停止交付"
       ],
       "test_cases": [
@@ -855,17 +925,12 @@
       "name": "Design/Tech 资源映射",
       "priority": "P0",
       "status": "passing",
-      "description": "用户确认 design 和 tech 后，Skill 根据已登记映射自动确定对应 design.tcl 与目标工具方言 mmmc.tcl，并自包含归档到每个用例目录。",
+      "description": "按当前输入管理表与 common/目标工具模板组织 design.tcl 和 MMMC；原 design/tech 目录映射由 F-048 迁移。",
       "acceptance_criteria": [
-        "场景一在 WAIT-DESIGN-CONFIRMATION 中只要求用户确认用例设计、design 和 tech",
-        "用户无需选择或确认 design.tcl、mmmc.tcl 文件",
-        "Skill 根据确认的 design/tech 自动解析唯一 design.tcl，并根据目标工具自动解析正确方言的 mmmc.tcl",
-        "不新增重复的 WAIT-DESIGN-TECH-SELECTION",
-        "场景二缺少 design/tech 时复用 WAIT-PLAN-FIX",
-        "design.tcl 复制到每个 <case_dir>/tcl/design.tcl",
-        "符合目标工具方言的 mmmc.tcl 复制到每个 <case_dir>/tcl/<tool>/mmmc.tcl",
-        "映射缺失或不唯一时记录 SPEC-GAP 并停止生成",
-        "归档后的用例不依赖原始文件目录且禁止跨工具替换 MMMC"
+        "当前 SKILL.md 路由到 SMIC180 输入管理表及 common/目标工具模板",
+        "每条 Excel 用例对应独立目录，归档 design.tcl 与目标工具 MMMC",
+        "不得跨工具替换 MMMC，归档不依赖模板原目录",
+        "输入缺失、歧义或冲突进入 WAIT-PLAN-FIX，不把示例当作用户设计"
       ],
       "test_cases": [
         "tests/unit/test_skill_workflow_modes.py",
@@ -1081,14 +1146,14 @@
     },
     {
       "id": "F-039",
-      "name": "Design/Tech/Stage 输入选择列表",
+      "name": "当前运行输入选择",
       "priority": "P0",
       "status": "passing",
-      "description": "在 Skill 两条 workflow 中展示实际可用输入组合，按 design/tech/stage 与目标工具解析输入件。",
+      "description": "从当前 SMIC180 JSON 工艺管理表与目标工具模板解析运行输入；旧 design/tech/stage 目录枚举由 F-048 迁移。",
       "acceptance_criteria": [
-        "两条场景在选择输入时展示编号、design、tech、stage、可用工具",
-        "仅展示 design.tcl 与对应工具 MMMC 均存在的组合",
-        "沿用现有等待门禁，要求确认 stage，禁止跨 stage 或工具替换输入"
+        "统一 Workflow 引用唯一输入管理表 smic180 对象",
+        "按 common/design.tcl 与对应目标工具 init/MMMC 模板生成，每条 Excel 用例一个目录",
+        "沿用明确设计确认和 WAIT-PLAN-FIX，不新增工艺选择门禁"
       ],
       "test_cases": [
         "tests/unit/test_design_input_selection.py"
@@ -1116,6 +1181,218 @@
       "validation_commands": [
         "unit-pv-log-command-limit",
         "unit-tcl-conventions",
+        "project"
+      ]
+    },
+    {
+      "id": "F-041",
+      "name": "Optimus 文档快照静态语法检查",
+      "priority": "P0",
+      "status": "passing",
+      "description": "依据用户指定 all_cmd_1008.txt 的实际 464 命令快照，集成 Tcl 语法解析和命令/参数校验，明确动态与资料缺口。",
+      "acceptance_criteria": [
+        "全量解析 464 个命令、保留类型/必选性/枚举/范围和源行，记录 SHA-256 与未知工具版本",
+        "使用 Tcl 原生解析 API，不执行输入脚本；检查嵌套控制体、PV 命令块和命令替换",
+        "检查未知命令/选项、缺参、静态类型/枚举/范围及说明明确的关系",
+        "动态与不完整语义报告 SPEC-GAP，缺少库/目标工具报告 TOOL_UNAVAILABLE",
+        "统一 TCL 入口 --syntax 分别报告语法/命令/编程规范并返回非零失败码；兼容历史规范检查 API",
+        "测试先行，新增独立自动用例，受保护测试不修改"
+      ],
+      "test_cases": [
+        "tests/unit/test_optimus_static_syntax.py"
+      ],
+      "validation_commands": [
+        "unit-optimus-static-syntax",
+        "unit-tcl-conventions",
+        "unit-skill-workflow-tools",
+        "project"
+      ]
+    },
+    {
+      "id": "F-042",
+      "name": "用例开发移除工具版本门禁",
+      "priority": "P0",
+      "status": "passing",
+      "description": "用例开发无需询问工具版本，按命令资料检查，移除版本匹配门禁。",
+      "acceptance_criteria": [
+        "两条 workflow 不询问或要求工具版本，缺少版本不阻塞设计、脚本生成或交付",
+        "静态检查 CLI 和 API 移除工具版本匹配要求，保留命令资料与解析依赖检查",
+        "独立自动测试与完整门禁通过，不修改受保护测试"
+      ],
+      "test_cases": [
+        "tests/unit/test_optimus_static_syntax.py"
+      ],
+      "validation_commands": [
+        "unit-optimus-static-syntax",
+        "unit-skill-workflow-tools",
+        "project"
+      ]
+    },
+    {
+      "id": "F-043",
+      "name": "iTools 手册命令静态检查工具",
+      "priority": "P0",
+      "status": "passing",
+      "description": "将用户指定 Innovus 手册检查器与规则库作为独立运行工具纳入 Skill，并接入 iTools 脚本生成后的检查流程。",
+      "acceptance_criteria": [
+        "默认规则不依赖原目录，支持多文件及 JSON 报告",
+        "检测必填、枚举、互斥、未知选项；缺规则返回不可用",
+        "保留部分规则和动态缺口，不将无错误等同完整通过",
+        "运行资源与开发测试分离，不执行输入 TCL"
+      ],
+      "test_cases": [
+        "tests/unit/test_itools_manual_check.py"
+      ],
+      "validation_commands": [
+        "unit-itools-manual-check",
+        "project"
+      ]
+    },
+    {
+      "id": "F-044",
+      "name": "PV检查点直接调用强制门禁",
+      "priority": "P0",
+      "status": "passing",
+      "description": "静态拒绝pv_check_log/pv_check_golden返回值接收及条件/辅助包装，默认交付检查失败。",
+      "acceptance_criteria": [
+        "直接调用通过，set/if/catch/proc/eval包装失败",
+        "跨行及命名空间调用可识别，注释及普通数据不误报",
+        "默认CLI扫描辅助Tcl且违规返回非零，生成交付必须PASS"
+      ],
+      "test_cases": [
+        "tests/unit/test_pv_direct_calls.py"
+      ],
+      "validation_commands": [
+        "unit-pv-direct-calls",
+        "project"
+      ]
+    },
+    {
+      "id": "F-045",
+      "name": "Skill 输入输出规则归档目录",
+      "priority": "P1",
+      "status": "passing",
+      "description": "新增 skill/rules 输入输出规则入口，并随 Skill 安装。",
+      "acceptance_criteria": [
+        "输入和输出规则分别归档并由 SKILL.md 路由",
+        "详细规范保持单一来源，规则链接可解析",
+        "link/copy 安装均保留 rules 目录，不修改受保护测试"
+      ],
+      "test_cases": [
+        "tests/unit/test_skill_rules.py"
+      ],
+      "validation_commands": [
+        "unit-skill-rules",
+        "project"
+      ]
+    },
+    {
+      "id": "F-046",
+      "name": "统一 Skill Workflow",
+      "priority": "P1",
+      "status": "passing",
+      "description": "命令说明与已有设计表在同一工作流中按输入状态衔接，合并重复计划检查。",
+      "acceptance_criteria": [
+        "只保留一个 Workflow，不再划分两个场景",
+        "已有设计表跳过策略和重新设计，新设计保留确认",
+        "保留四项等待状态和全部交付门禁"
+      ],
+      "test_cases": [
+        "tests/unit/test_skill_workflow_modes.py",
+        "tests/unit/test_design_input_selection.py"
+      ],
+      "validation_commands": [
+        "unit-skill-workflow-modes",
+        "unit-design-input-selection",
+        "unit-skill-workflow-tools",
+        "project"
+      ]
+    },
+    {
+      "id": "F-047",
+      "name": "固定 SMIC180 工艺输入",
+      "priority": "P1",
+      "status": "passing",
+      "description": "工艺固定 SMIC180，由 JSON 输入管理表提供工艺路径；不要求用户选择或确认工艺。",
+      "acceptance_criteria": [
+        "工艺来源固定为输入件管理表 smic180 对象，不向用户询问选择或确认",
+        "工艺目录、LEF 和 LIB 与当前 common/design.tcl 模板一致，两工具 MMMC 使用登记 LIB",
+        "新设计等待明确设计确认，不新增工艺选择门禁，阻塞项通过 WAIT-PLAN-FIX 补充"
+      ],
+      "test_cases": [
+        "tests/unit/test_fixed_smic180.py"
+      ],
+      "validation_commands": [
+        "unit-fixed-smic180",
+        "project"
+      ]
+    },
+    {
+      "id": "F-048",
+      "name": "当前输入模板门禁迁移",
+      "priority": "P0",
+      "status": "passing",
+      "description": "依据 SMIC180 JSON 输入管理表及 tool_cmd 模板迁移资源门禁，并按用户明确授权同步 SMOKE-008/009/010 的等待确认和共享 runner 输入；保留全部比较与拒绝断言。",
+      "acceptance_criteria": [
+        "验证唯一 SMIC180 工艺配置的路径、LEF 和 LIB 完整性",
+        "验证两工具初始化与 MMMC 模板、工具方言及连接关系",
+        "输入选择、固定工艺和 iTools 初始化测试不再读取退役输入树",
+        "不跳过或降低受保护测试强度，完整门禁未通过时不得发布"
+      ],
+      "test_cases": [
+        "tests/unit/test_current_resource_contract.py",
+        "tests/unit/test_design_input_selection.py",
+        "tests/unit/test_fixed_smic180.py",
+        "tests/unit/test_itools_defaults.py",
+        "tests/unit/test_skill_workflow_modes.py",
+        "tests/e2e/optimus_check_design_data_full_workflow"
+      ],
+      "validation_commands": [
+        "unit-current-resource-contract",
+        "unit-design-input-selection",
+        "unit-fixed-smic180",
+        "unit-itools-defaults",
+        "project",
+        "unit-e2e-full-workflow-runner",
+        "unit-codex-skill-e2e-runner",
+        "unit-e2e-full-workflow-case"
+      ]
+    },
+    {
+      "id": "F-049",
+      "name": "当前交付规则与检查依赖门禁",
+      "priority": "P0",
+      "status": "passing",
+      "description": "按当前模板更新历史路径与文案契约，保持输入缺口、覆盖率、确认及命令资料检查强度。",
+      "acceptance_criteria": [
+        "当前输入输出规则与引用完整可安装",
+        "Optimus 默认输入从当前配置加载，不依赖已删除 profile 文件且不自动填充设计",
+        "两工具命令资料完整保留且静态检查专项通过",
+        "完整门禁与十项冒烟通过，不隐藏真实错误"
+      ],
+      "test_cases": [
+        "tests/unit/test_current_delivery_contract.py",
+        "tests/unit/test_skill_workflow_modes.py",
+        "tests/unit/test_optimus_defaults.py",
+        "tests/unit/test_design_config.py",
+        "tests/unit/test_skill_workflow_tools.py",
+        "tests/unit/test_user_rule_coverage.py"
+      ],
+      "validation_commands": [
+        "unit-current-delivery-contract",
+        "unit-optimus-static-syntax",
+        "unit-itools-manual-check",
+        "unit-optimus-defaults",
+        "unit-design-config",
+        "unit-skill-rules",
+        "unit-skill-workflow-modes",
+        "unit-skill-workflow-tools",
+        "unit-scenario-strategy",
+        "unit-command-spec-parser",
+        "unit-tool-help-dumper",
+        "unit-user-rule-coverage",
+        "unit-tcl-conventions",
+        "unit-test-plan-generator",
         "project"
       ]
     }

@@ -139,7 +139,7 @@ source ./tcl/design.tcl
 set_options setup.lef_file $lef_files
 set_options setup.verilog $netlist_file
 set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl
-set_options setup.top_cell $init_top_cell
+set_options setup.top_cell $init_top_name
 setup_design
 read_def $def_file
 # DESIGN_INIT_END
@@ -165,8 +165,8 @@ def generate_tcl_cases(output: Path, rows: list[dict[str, object]]) -> list[Path
         tool_dir = case_dir / "tcl" / "optimus"
         tool_dir.mkdir(parents=True)
         (case_dir / "nith.run").write_text(NITH_RUN, encoding="utf-8")
-        shutil.copy2(SKILL / "assets" / "defaults" / "optimus" / "design.tcl", case_dir / "tcl" / "design.tcl")
-        shutil.copy2(SKILL / "assets" / "defaults" / "optimus" / "mmmc.tcl", tool_dir / "mmmc.tcl")
+        shutil.copy2(SKILL / "assets" / "templates" / "tool_cmd" / "common" / "design.tcl", case_dir / "tcl" / "design.tcl")
+        shutil.copy2(SKILL / "assets" / "templates" / "tool_cmd" / "optimus" / "mmmc.tcl", tool_dir / "mmmc.tcl")
         command, expect = commands[name]
         (tool_dir / "run.tcl").write_text(run_text(name, command, expect), encoding="utf-8")
         cases.append(case_dir)
@@ -288,7 +288,7 @@ def execute(output: Path) -> dict[str, object]:
         "VALIDATE-TEST-PLAN-STRUCTURE": ["test_plan_validator.py exit=0"],
         "REVIEW-TEST-PLAN-SEMANTICS": ["semantic-review.json test_plan=PASS"],
         "WAIT-DESIGN-CONFIRMATION": [turns["wait_design_confirmation"]["expected_state"], f"approved={confirmation['approved']}"],
-        "RESOLVE-DESIGN-TECH": [f"design={confirmation['design']}", f"tech={confirmation['tech']}", "optimus defaults archived"],
+        "RESOLVE-DESIGN-TECH": [f"design={confirmation['design']}", f"tech={confirmation['tech']}", "common design and Optimus MMMC templates archived"],
         "GENERATE-TCL": [f"case_directories={len(case_dirs)}"],
         "VALIDATE-TCL-STATIC": [f"passed={sum(tcl_statuses)}/{len(tcl_statuses)}"],
         "REVIEW-TCL-SEMANTICS": ["semantic-review.json tcl=PASS"],

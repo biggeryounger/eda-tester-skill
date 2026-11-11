@@ -1,0 +1,5269 @@
+# 1.COMMAND
+## Description
+**add_cell_obs** - add obs for cell.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| [-design_rule_width] | double |  -  | 
+| -layer | string |  -  | 
+| [-mask] | integer | [0, 2147483647] | 
+| [-polygon] | point_list |  -  | 
+| [-rect] | rect |  -  | 
+| [-spacing] | double |  -  | 
+
+# 2.COMMAND
+## Description
+**add_decoupling_cap** - Adds the specified total decoupling capacitance to the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cells] | object_list |  -  | 
+| [-prefix] | string |  -  | 
+| -total_cap | double |  -  | 
+
+# 3.COMMAND
+## Description
+**add_decoupling_cap_cell_candidates** - Define the candidate cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-from_file] | string |  -  | 
+| [ cell ] | string |  -  | 
+| [ capacitance ] | double |  -  | 
+
+# 4.COMMAND
+## Description
+**add_end_cap** - Adds physical-only end cap cells at the end of the site rows. A single-height end cap cell is required at the end of each row.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-core_boundary_only] | boolean |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+
+# 5.COMMAND
+## Description
+**add_filler** - Adds filler cell instances to specified area. By default, the command add fillers to the entire core area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-cell] | string_list |  -  | 
+| [-check_signal_drc] | boolean |  -  | 
+| [-create_rows] | boolean |  -  | 
+| [-diff_cell_violation] | boolean |  -  | 
+| [-eco_mode] | boolean |  -  | 
+| [-fit_gap] | boolean |  -  | 
+| [-fix_drc] | boolean |  -  | 
+| [-fix_max_length_violations_h] | boolean |  -  | 
+| [-fix_max_length_violations_v_stack] | boolean |  -  | 
+| [-keep_fixed] | boolean |  -  | 
+| [-min_hole] | boolean |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-utilization] | double |  -  | 
+| [-via_enclosure] | boolean |  -  | 
+
+# 6.COMMAND
+## Description
+**add_gate_array_cell** - Adds physical-only gate array filler cells in the design at pre-place stage. By default, gate array filler cells will be inserted to the entire core area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-cell] | string_list |  -  | 
+| [-cell_offsetx] | double |  -  | 
+| [-cell_offsety] | double |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-stepx] | double |  -  | 
+| [-stepy] | double |  -  | 
+
+# 7.COMMAND
+## Description
+**add_instance** - Adds an instance to current design. The new instance can be either unplaced or placed at a specific location. For a placed or fixed new instance, minor shift might be automatically applied to legalize it.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| [-is_physical] | boolean |  -  | 
+| [-location] | point |  -  | 
+| -name | string |  -  | 
+| [-orientation] | enum | {R0 R90 R180 R270 MX MX90 MY MY90} | 
+| [-parent] | string |  -  | 
+| [-place_status] | enum | {covered fixed placed soft_fixed unplaced} | 
+
+# 8.COMMAND
+## Description
+**add_io_filler** - Add I/O filler instances in the I/O box. The I/O filler instances are added to the gap between two I/O pad instances where the gap is large enough for I/O filler instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin] | double |  -  | 
+| -cell | string_list |  -  | 
+| [-end] | double |  -  | 
+| [-fill_any_gap] | boolean |  -  | 
+| [-orientation] | enum | {r0 r180 r90 r270 my mx mx90 my90} | 
+| [-prefix] | string |  -  | 
+| [-side] | enum | {top bottom left right} | 
+
+# 9.COMMAND
+## Description
+**add_io_instance** - Adds the io pad around the reference instance or in the target location.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-ccw] | boolean |  -  | 
+| -cell | string_list |  -  | 
+| -inst | string_list |  -  | 
+| [-location] | point |  -  | 
+| [-orientation] | enum | {r0 r90 r180 r270 mx mx90 my my90} | 
+| [-reference_instance] | string |  -  | 
+| [-selected] | boolean |  -  | 
+
+# 10.COMMAND
+## Description
+**add_io_row_filler** - Add I/O filler instances in the I/O rows. The I/O filler instances are added to the gap between   two I/O pad instances where the gap is large enough for the I/O filler instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin] | double |  -  | 
+| -cell | string_list |  -  | 
+| [-end] | double |  -  | 
+| [-fill_any_gap] | boolean |  -  | 
+| [-ignore_site_type] | boolean |  -  | 
+| [-io_row] | string |  -  | 
+| [-orientation] | enum | {r0 r90 r180 r270 mx mx90 my my90} | 
+| [-prefix] | string |  -  | 
+| [-use_small_io_height] | boolean |  -  | 
+
+# 11.COMMAND
+## Description
+**add_net** - Adds a net to current design. The new net can be either scalar net or bus net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bus] | string |  -  | 
+| [-ground] | boolean |  -  | 
+| [-module] | string |  -  | 
+| -name | string |  -  | 
+| [-power] | boolean |  -  | 
+
+# 12.COMMAND
+## Description
+**add_obj_floorplan_cut_box** - Specifies cutting area (one or more rect boxes) to cut the rectilinear shape of floorplan objects. The floorplan objects include block top cell, module constraint (guide, region, fence), and group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+| -rect_list | double_list |  -  | 
+| -type | string |  -  | 
+
+# 13.COMMAND
+## Description
+**add_object_to_datapath_group** - Adds an object or member to an existing data path group. The added object can be an instance or another data path group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-after] | string |  -  | 
+| [-before] | string |  -  | 
+| -group | string |  -  | 
+| -object | string_list |  -  | 
+| [-orientation] | enum | {r0 r180 r90 r270 my mx mx90 my90} | 
+
+# 14.COMMAND
+## Description
+**add_padding** - Specifies a value (number of sites or row heights) for padding for a cell or an instance. So that extra space is left around the instance during placement, which helps reduce congestion in both horizontal and vertical directions.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bottom] | integer |  -  | 
+| [-cell] | string_list |  -  | 
+| [-inst] | string_list |  -  | 
+| [-left] | integer |  -  | 
+| [-right] | integer |  -  | 
+| [-top] | integer |  -  | 
+
+# 15.COMMAND
+## Description
+**add_shield** - generates shielding wires for the critical wire by the router.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-include_fixed_wires] | boolean |  -  | 
+| [-selected_nets] | boolean |  -  | 
+
+# 16.COMMAND
+## Description
+**add_spare_cell** - Adds spare cells to design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -file | string |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-tie] | enum | {high low} | 
+
+# 17.COMMAND
+## Description
+**add_special_via** - Add a special via to the design; the via will appear in the DEF SPECIALNETS section.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -location | point |  -  | 
+| [-net] | string |  -  | 
+| [-shape] | enum | {BLOCKRING BLOCKAGEWIRE BLOCKWIRE COREWIRE DRCFILL FILLOPC FILLWIRE FOLLOWPIN IOWIRE NONE PADRING RING STRIPE} | 
+| [-shield_net] | string |  -  | 
+| [-status] | enum | {ROUTED FIXED COVER SHIELD} | 
+| [-user_class] | string |  -  | 
+| -via | string |  -  | 
+
+# 18.COMMAND
+## Description
+**add_special_wire** - Adds a special wire (or shape) to the design; the shape will appear in the DEF SPECIALNETS section.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin_extension] | double |  -  | 
+| [-end_extension] | double |  -  | 
+| -layer | string |  -  | 
+| [-net] | string |  -  | 
+| [-path_segment] | double_list |  -  | 
+| [-polygon] | double_list |  -  | 
+| [-rect] | rect |  -  | 
+| [-shape] | enum | {NONE RING STRIPE FOLLOWPIN IOWIRE COREWIRE BLOCKWIRE FILLWIRE BLOCKAGEWIRE PADRING BLOCKRING DRCFILL FILLWIREOPC} | 
+| [-shield_net] | string |  -  | 
+| [-status] | enum | {ROUTED FIXED COVER SHIELD NOSHIELD} | 
+| [-user_class] | string |  -  | 
+| [-width] | double |  -  | 
+
+# 19.COMMAND
+## Description
+**add_tie_high_low** - Adds instances of the specified tie cells to connect the tie-off pins of netlist instances to the tie-off pins of the added instances. As a result, it provides the connectivity between tie-off pins of netlist instances to power and ground.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string_list |  -  | 
+| [-cell_pin] | string_list |  -  | 
+| [-create_hier_port] | boolean |  -  | 
+| [-exclude_pin] | string_list |  -  | 
+| [-include_pin] | string_list |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+
+# 20.COMMAND
+## Description
+**add_to_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-unique] | boolean |  -  | 
+| base_collection | object_list |  -  | 
+| object_collection_or_list | object_list |  -  | 
+
+# 21.COMMAND
+## Description
+**add_well_tap** - Adds physical-only well tap cells. Well tap cells are a kind of filler cells that are required by some technology libraries to limit resistance between power or ground connections and wells of the substrate. By default, the command adds well tap cells in all core rows in the core box.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-avoid_abutment] | boolean |  -  | 
+| [-block_boundary_only] | boolean |  -  | 
+| [-bottom_termination_cell] | string_list |  -  | 
+| [-cell] | string |  -  | 
+| [-cell_interval] | double |  -  | 
+| [-channel_offset] | double | [0, 1.79769e+308] | 
+| [-checker_board] | boolean |  -  | 
+| [-column_cell] | string_list |  -  | 
+| [-fixed_gap] | boolean |  -  | 
+| [-in_row_offset] | string |  -  | 
+| [-incremental] | string_list |  -  | 
+| [-insert_in_channel] | boolean |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-site_offset] | integer |  -  | 
+| [-skip_row] | integer |  -  | 
+| [-start_row_number] | string |  -  | 
+| [-termination_cell] | string_list |  -  | 
+| [-top_termination_cell] | string_list |  -  | 
+
+# 22.COMMAND
+## Description
+**adjust_clock_skew** - Analyze based on the design structure and timing graph, and optimize the timing path by adjusting the Clock Arrival Time of sequential devices.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-hold] | boolean |  -  | 
+| [-post_cts] | boolean |  -  | 
+| [-post_route] | boolean |  -  | 
+
+# 23.COMMAND
+## Description
+**alias** - create a Tcl command alias.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -alias_name | string |  -  | 
+| -target_name | string |  -  | 
+
+# 24.COMMAND
+## Description
+**align_partition_clone** - align partition clones with the master one by power mesh and track.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-check_only] | boolean |  -  | 
+
+# 25.COMMAND
+## Description
+**all_analysis_corners** - get all analysis corners.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-active] | boolean |  -  | 
+
+# 26.COMMAND
+## Description
+**all_analysis_modes** - Returns a list of all defined analysis modes in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-active] | boolean |  -  | 
+| [-active_hold] | boolean |  -  | 
+| [-active_setup] | boolean |  -  | 
+
+# 27.COMMAND
+## Description
+**all_analysis_views** - Returns a list of all defined analysis views in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-type] | enum | {setup hold active all} | 
+
+# 28.COMMAND
+## Description
+**all_clocks** - get all clocks.
+
+
+# 29.COMMAND
+## Description
+**all_connected_objects** - Return the collection of all objects connected to the given net, pin, or port.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-leaf_only] | boolean |  -  | 
+| object | string |  -  | 
+
+# 30.COMMAND
+## Description
+**all_inputs** - get all input ports.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | object_list |  -  | 
+| [-no_clock] | boolean |  -  | 
+
+# 31.COMMAND
+## Description
+**all_outputs** - get all output ports.
+
+
+# 32.COMMAND
+## Description
+**all_rc_corners** - Returns a list of all defined rc corner in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-active] | boolean |  -  | 
+
+# 33.COMMAND
+## Description
+**all_registers** - returns a list of register instances or register pins in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-async_pins] | boolean |  -  | 
+| [-cells] | boolean |  -  | 
+| [-clock] | object_list |  -  | 
+| [-clock_pins] | boolean |  -  | 
+| [-data_pins] | boolean |  -  | 
+| [-edge_triggered] | boolean |  -  | 
+| [-fall_clock] | object_list |  -  | 
+| [-level_sensitive] | boolean |  -  | 
+| [-macros] | boolean |  -  | 
+| [-output_pins] | boolean |  -  | 
+| [-rise_clock] | object_list |  -  | 
+
+# 34.COMMAND
+## Description
+**allocate_clock_tree_source_groups** - For designs with clock tree source groups defined, this command assigns clock sinks to source groups roots via multi-tap assignment, then carries out necessary cloning and rewiring to balance sink distribution among the source group roots. Note that this process is normally performed automatically in the early stages of "synthesize_clock_smart_htrees".
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-skip_merge] | boolean |  -  | 
+
+# 35.COMMAND
+## Description
+**allocate_pg_mask** - colorize PG objects.
+
+
+# 36.COMMAND
+## Description
+**allocate_shape_mask** - colorize fixed objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-reset] | boolean |  -  | 
+
+# 37.COMMAND
+## Description
+**append_to_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-unique] | boolean |  -  | 
+| var_name | string |  -  | 
+| second_collection_or_list | object_list |  -  | 
+
+# 38.COMMAND
+## Description
+**append_to_set** - append an item to a set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-unique] | boolean |  -  | 
+| set | string |  -  | 
+| subset | string |  -  | 
+
+# 39.COMMAND
+## Description
+**assemble_design** - assemble block to top design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -block | string_list |  -  | 
+| [-floorplan_only] | boolean |  -  | 
+| [-mmmc_file] | string |  -  | 
+| [-top] | string |  -  | 
+| [-upf_file] | string |  -  | 
+
+# 40.COMMAND
+## Description
+**attach_cell_edge_type** - create edge_type for cell edges as Edge Type Rule in macro LEF.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bottom] | string |  -  | 
+| [-cell] | string |  -  | 
+| [-cell_row] | integer |  -  | 
+| [-left] | string |  -  | 
+| [-range] | double_list |  -  | 
+| [-reset] | boolean |  -  | 
+| [-right] | string |  -  | 
+| [-top] | string |  -  | 
+
+# 41.COMMAND
+## Description
+**attach_via_pillars** - attach via pillars to cell_pin/inst_pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell_pin] | string |  -  | 
+| [-instance_pin] | string |  -  | 
+| [-via_pillars] | string |  -  | 
+
+# 42.COMMAND
+## Description
+**begin_checkpoint_block** - Create a performance evaluation checkpoint block.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-categories] | string |  -  | 
+| [-indicator_name] | string |  -  | 
+| checkpoint_name | string |  -  | 
+
+# 43.COMMAND
+## Description
+**change_clone_partition_orient** - change the orientation of partition clone.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -orientation | string |  -  | 
+| -partition | string |  -  | 
+
+# 44.COMMAND
+## Description
+**change_floorplan** - After running an initial_floorplan, use this command to change the distances between the core boundary and the die boundary on the sides you specified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-core_to_bottom] | double |  -  | 
+| [-core_to_edge] | rect_dbu |  -  | 
+| [-core_to_left] | double |  -  | 
+| [-core_to_right] | double |  -  | 
+| [-core_to_top] | double |  -  | 
+| [-no_snap_to_grid] | boolean |  -  | 
+
+# 45.COMMAND
+## Description
+**check_antenna** - checks antenna violations in the design as specified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-limit] | integer |  -  | 
+| [-nets] | string |  -  | 
+| [-report] | string |  -  | 
+
+# 46.COMMAND
+## Description
+**check_clock_tree_path_count** - This command issues a warning for any sink whose number of convergence paths from clock sources exceeds the specified threshold. The check runs at the end of clock tree specification to flag complex convergence above sinks that could lead to excessive CTS run time during tree balancing.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-threshold] | integer |  -  | 
+
+# 47.COMMAND
+## Description
+**check_connectivity** - checks the connectivity of the wires.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-nets] | string |  -  | 
+| [-no_open] | boolean |  -  | 
+| [-out_file] | string |  -  | 
+
+# 48.COMMAND
+## Description
+**check_datapath_group** - Checks current data path placement whether against with the data path constraints, such as order, alignment, and orientation, which may have been originally specified in data path file or TCL commands and reports violations.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-out_file] | string |  -  | 
+
+# 49.COMMAND
+## Description
+**check_design_data** - Checks design data and generate a report file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -file | string |  -  | 
+| [-netlist] | boolean |  -  | 
+
+# 50.COMMAND
+## Description
+**check_drc** - checks for DRC violations.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | string |  -  | 
+| [-limit] | integer |  -  | 
+| [-out_file] | string |  -  | 
+
+# 51.COMMAND
+## Description
+**check_end_cap** - Checks end cap cells for violations.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-power_domain] | string |  -  | 
+| [-report_file] | string |  -  | 
+| [-row] | string |  -  | 
+| [-wrong_location] | boolean |  -  | 
+
+# 52.COMMAND
+## Description
+**check_filler** - Checks for locations that are missing filler cells. A detailed report will be generated to summarize missing filler cells by site.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-max_length_violations_h] | boolean |  -  | 
+| [-max_length_violations_v_stack] | boolean |  -  | 
+| [-output_file] | string |  -  | 
+| [-power_domain] | string |  -  | 
+| [-report_gap] | double |  -  | 
+
+# 53.COMMAND
+## Description
+**check_floorplan** - Checks the quality of the floorplan to identify potential issues before the design is passed on to other stage. This highlights the cells in the design display area with violation markers, where applicable.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-outfile] | string |  -  | 
+| [-report_utilization] | boolean |  -  | 
+
+# 54.COMMAND
+## Description
+**check_library** - Checks problematic cells that cause issues such as DRC and pin access violations. It also performs checks for the multi-height cell legal frequency. The report is dumped into an output file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_lib_cells] | boolean |  -  | 
+| [-cell] | string |  -  | 
+| [-legal_frequency] | boolean |  -  | 
+| [-out_file] | string |  -  | 
+| [-place] | boolean |  -  | 
+
+# 55.COMMAND
+## Description
+**check_partition_pin** - Check the generated partition pins and I/O pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-exclude_partition] | string_list |  -  | 
+| [-partition] | string_list |  -  | 
+| [-pin] | string_list |  -  | 
+| [-pin_file] | string |  -  | 
+| [-pre_check] | boolean |  -  | 
+| [-top_cell] | string |  -  | 
+
+# 56.COMMAND
+## Description
+**check_pg_vias** - Checks the stripes's overlapping area for missing power or ground vias.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| [-layer_range] | string_list |  -  | 
+| [-nets] | string_list |  -  | 
+| [-out_file] | string |  -  | 
+
+# 57.COMMAND
+## Description
+**check_place** - Command for place legal check.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-inst] | string_list |  -  | 
+| [-no_halo] | boolean |  -  | 
+| [-out_file] | string |  -  | 
+
+# 58.COMMAND
+## Description
+**check_power_domain** - Check power domain.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-inst_not_in_pd] | boolean |  -  | 
+| [-isolation] | string |  -  | 
+| [-isolation_no_io] | boolean |  -  | 
+| [-level_shifter] | string |  -  | 
+| [-level_shifter_no_io] | boolean |  -  | 
+| [-lib_cell_voltage] | boolean |  -  | 
+| [-pg_conn] | string_list |  -  | 
+| [-retention] | string |  -  | 
+
+# 59.COMMAND
+## Description
+**check_power_switch** - Check power switch placement and enable connections, including the row coverage for column insertion.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-check_floating] | boolean |  -  | 
+| [-check_floating_input] | boolean |  -  | 
+| [-check_floating_output] | boolean |  -  | 
+| [-check_place_status] | boolean |  -  | 
+| [-check_row_coverage] | boolean |  -  | 
+| -power_domain | string |  -  | 
+| [-report_longest_chain] | boolean |  -  | 
+| [-start_net] | string |  -  | 
+
+# 60.COMMAND
+## Description
+**check_tie_high_low** - Checks if all tie nets are connected to tie cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-no_tie_high_low] | string |  -  | 
+| [-out_file] | string |  -  | 
+| [-power_domain] | string |  -  | 
+
+# 61.COMMAND
+## Description
+**check_uniquify_design** - Checks if hierarchical instances are unique.
+
+
+# 62.COMMAND
+## Description
+**check_well_tap** - Checks well tap cells for violations and generates a violation report.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-avoid_abutment] | boolean |  -  | 
+| [-cell] | string_list |  -  | 
+| [-power_domain] | integer |  -  | 
+| [-rule] | double |  -  | 
+| [-site_offset] | integer |  -  | 
+
+# 63.COMMAND
+## Description
+**checkout_license** - Checks out licenses.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-count] | integer |  -  | 
+| feature_name | string |  -  | 
+
+# 64.COMMAND
+## Description
+**clear_markers** - clear markers.
+
+
+# 65.COMMAND
+## Description
+**clear_pg_net_connection** - clears pg net connections.
+
+
+# 66.COMMAND
+## Description
+**clear_selected** - clear the selected status of selected objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-object] | enum | {all net instance} | 
+
+# 67.COMMAND
+## Description
+**clear_upf** - Clear UPF data in the design.
+
+
+# 68.COMMAND
+## Description
+**clone_inst** - Excute the eco operation of instance cloning.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-ignore_qor] | boolean |  -  | 
+| -instances | string_list |  -  | 
+| [-max_clone_number] | integer |  -  | 
+| [-max_load] | integer |  -  | 
+| [-max_row_radius] | integer |  -  | 
+| [-min_load] | integer |  -  | 
+| [-verbose] | boolean |  -  | 
+| [-virtual] | boolean |  -  | 
+
+# 69.COMMAND
+## Description
+**commit_partition** - convert module to partition.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-no_physical] | boolean |  -  | 
+| [-partition] | string_list |  -  | 
+| [-pg_push_down_honor_layer] | boolean |  -  | 
+| [-pg_push_down_honor_upf] | boolean |  -  | 
+| [-push_down_honor_inside_pin_for_special_net] | boolean |  -  | 
+| [-push_down_selected_pg_wires_as_obs] | boolean |  -  | 
+| [-push_down_special_net_as_obs] | string_list |  -  | 
+| [-push_down_special_net_non_pg] | boolean |  -  | 
+
+# 70.COMMAND
+## Description
+**commit_upf** - Commit UPF.
+
+
+# 71.COMMAND
+## Description
+**connect_pg_net** - builds pg net connections.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-insts] | string |  -  | 
+| [-module] | string |  -  | 
+| [-override] | boolean |  -  | 
+| -pg_net | string |  -  | 
+| [-pins] | string |  -  | 
+| [-power_domain] | string |  -  | 
+| -type | enum | {pg_pin tie_high tie_low} | 
+
+# 72.COMMAND
+## Description
+**connect_pin** - make logical connection for the pin to a net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-hpin] | string |  -  | 
+| -inst | string |  -  | 
+| -net | string |  -  | 
+| [-no_new_hpin] | boolean |  -  | 
+| -pin | string |  -  | 
+
+# 73.COMMAND
+## Description
+**create_analysis_corner** - create an analysis corner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-early_lib_set] | string_list |  -  | 
+| [-early_operating_condition] | string |  -  | 
+| [-early_operating_condition_library] | string |  -  | 
+| [-late_lib_set] | string_list |  -  | 
+| [-late_operating_condition] | string |  -  | 
+| [-late_operating_condition_library] | string |  -  | 
+| [-lib_set] | string_list |  -  | 
+| -name | string |  -  | 
+| [-operating_condition] | string |  -  | 
+| [-operating_condition_library] | string |  -  | 
+| -rc_corner | string |  -  | 
+
+# 74.COMMAND
+## Description
+**create_analysis_mode** - create analysis mode.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-blm_constraint_file] | string_list |  -  | 
+| [-constraint_file] | string_list |  -  | 
+| -name | string |  -  | 
+
+# 75.COMMAND
+## Description
+**create_analysis_view** - create analysis view.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -analysis_corner | string |  -  | 
+| -analysis_mode | string |  -  | 
+| -name | string |  -  | 
+
+# 76.COMMAND
+## Description
+**create_block_halo** - Creates halo to blocks to prevent place from placing insts in the halo area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_blocks] | boolean |  -  | 
+| [-cell] | string_list |  -  | 
+| -halo_width | double_list |  -  | 
+| [-inst] | string_list |  -  | 
+| [-orientation] | enum | {r0 r180 r90 r270 my mx mx90 my90} | 
+| [-snap_to_site] | boolean |  -  | 
+
+# 77.COMMAND
+## Description
+**create_boundary_logic** - create reduced logic model only has the paths on boundary.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -directory | string |  -  | 
+| [-keep_all] | boolean |  -  | 
+| [-keep_selected] | boolean |  -  | 
+| [-model_type] | string |  -  | 
+
+# 78.COMMAND
+## Description
+**create_cell_edge_type_spacing** - Creates the cell_edge_spacing rule to define a spacing between two macro edges which have different edge types. It has the same effect as the Cell Edge Spacing Table Rule in LEF.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-edge_type] | string_list |  -  | 
+| [-except_abutted] | boolean |  -  | 
+| [-reset] | boolean |  -  | 
+| [-spacing] | double |  -  | 
+| [-type] | enum | {default exact} | 
+
+# 79.COMMAND
+## Description
+**create_clock** - defines the waveform of a clock used by the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add] | boolean |  -  | 
+| [-comment] | string |  -  | 
+| [-name] | string |  -  | 
+| -period | double |  -  | 
+| [-waveform] | string |  -  | 
+| [ pin_port_list ] | string |  -  | 
+
+# 80.COMMAND
+## Description
+**create_clock_route_constraint** - Create a route constraint for clock net routing.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bottom_routing_layer] | string |  -  | 
+| [-min_drive_pin_access_layer] | string |  -  | 
+| -name | string |  -  | 
+| [-non_default_rule] | string |  -  | 
+| [-routing_layer_effort] | enum | {low medium high} | 
+| [-shield_net] | string |  -  | 
+| [-shield_side] | enum | {one_side two_side} | 
+| [-top_routing_layer] | string |  -  | 
+
+# 81.COMMAND
+## Description
+**create_clock_smart_htree** - Create a smart h-tree structure for later synthesis.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-invert_input] | boolean |  -  | 
+| [-max_driver_length] | double |  -  | 
+| [-max_root_length] | double |  -  | 
+| -name | string |  -  | 
+| [-no_trace_through] | boolean |  -  | 
+| [-sink_bin_box] | string |  -  | 
+| [-sink_bin_exclusion_region] | list_string_list |  -  | 
+| [-sink_bin_number] | int_list |  -  | 
+| [-sink_bin_region] | int_list |  -  | 
+| [-sinks] | string_list |  -  | 
+| [-skip_symmetry] | boolean |  -  | 
+| -source | string |  -  | 
+| -tap_cell | string |  -  | 
+| -trunk_cell | string |  -  | 
+
+# 82.COMMAND
+## Description
+**create_clock_tree** - Create cts clock tree.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-name] | string |  -  | 
+| [-no_trace_through] | boolean |  -  | 
+| [-skip_skew_group] | boolean |  -  | 
+| -source | string |  -  | 
+
+# 83.COMMAND
+## Description
+**create_clock_tree_source_group** - Creates a clock tree source group for clock trees with multiple equivalent roots. It enables CTS to automatically balance sinks across roots to reduce insertion delay, and is mandatory for connecting a logical clock tree to multiple tap points from a top H-tree or mesh.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -clock_trees | string_list |  -  | 
+| -name | string |  -  | 
+
+# 84.COMMAND
+## Description
+**create_datapath_group** - Creates a data path group. The added object can be an instance or another data path group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-align_by_pin_name] | string_list |  -  | 
+| [-anchor_point] | enum | {SW SE NW NE N W S E MID} | 
+| [-column_number] | integer |  -  | 
+| [-inst] | string_list |  -  | 
+| -name | string |  -  | 
+| [-row_number] | integer |  -  | 
+| [-selected] | boolean |  -  | 
+| [-side] | enum | {W E MID} | 
+| [-skip_space] | string |  -  | 
+| [-skip_space_by_micron] | string |  -  | 
+| [-skip_space_by_site_width] | string_list |  -  | 
+| [-spread_group] | string |  -  | 
+| [-spread_group_by_micron] | string |  -  | 
+| [-spread_group_by_site_width] | string_list |  -  | 
+| [-type] | enum | {row col space} | 
+
+# 85.COMMAND
+## Description
+**create_fence** - Create a fence.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| object_name | string |  -  | 
+
+# 86.COMMAND
+## Description
+**create_generated_clock** - generate a clock from an existing clock definition.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add] | boolean |  -  | 
+| [-combinational] | boolean |  -  | 
+| [-comment] | string |  -  | 
+| [-divide_by] | integer |  -  | 
+| [-duty_cycle] | double |  -  | 
+| [-edge_shift] | double_list |  -  | 
+| [-edges] | int_list |  -  | 
+| [-invert] | boolean |  -  | 
+| [-master_clock] | object_list |  -  | 
+| [-multiply_by] | integer |  -  | 
+| -name | string |  -  | 
+| -source | object_list |  -  | 
+| pin_list | object_list |  -  | 
+
+# 87.COMMAND
+## Description
+**create_generated_clock_tree** - Create a ganerated clock tree. By default, sinks in the generated clock tree will be balanced with the sinks in the parent tree.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-derived_pins] | string_list |  -  | 
+| [-name] | string |  -  | 
+| [-no_trace_through] | boolean |  -  | 
+| [-parent_clock_trees] | string_list |  -  | 
+| -source | string |  -  | 
+
+# 88.COMMAND
+## Description
+**create_guide** - Create a guide.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| object_name | string |  -  | 
+
+# 89.COMMAND
+## Description
+**create_instance_group** - Create an instance group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+| [-rect] | double_list |  -  | 
+| [-type] | enum | {no_constraint fence guide region} | 
+
+# 90.COMMAND
+## Description
+**create_io_row** - Creates new I/O rows. You can use this command in the floorplanning stage.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin_offset] | double |  -  | 
+| [-corner] | enum | {BL BR TR TL} | 
+| [-edge_offset] | double |  -  | 
+| [-end_offset] | double |  -  | 
+| [-length] | double |  -  | 
+| [-offsetx] | double |  -  | 
+| [-offsety] | double |  -  | 
+| [-orientation] | enum | {r0 r180 r90 r270} | 
+| [-prefix] | string |  -  | 
+| [-side] | enum | {left top right bottom} | 
+| -site | string |  -  | 
+| [-site_number] | integer |  -  | 
+
+# 91.COMMAND
+## Description
+**create_lib_set** - create the lib set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-aocv] | string_list |  -  | 
+| -name | string |  -  | 
+| [-pocv] | string_list |  -  | 
+| -timing_lib | string_list |  -  | 
+
+# 92.COMMAND
+## Description
+**create_ndr** - create non default rule.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-hard_spacing] | boolean |  -  | 
+| -name | string |  -  | 
+| [-non_default_spacing] | string |  -  | 
+| [-non_default_spacing_multiplier] | string |  -  | 
+| [-non_default_width] | string |  -  | 
+| [-non_default_width_multiplier] | string |  -  | 
+
+# 93.COMMAND
+## Description
+**create_operating_condition** - create operating conditions.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -P | double |  -  | 
+| -T | double |  -  | 
+| -V | double |  -  | 
+| -lib_file | string |  -  | 
+| -name | string |  -  | 
+
+# 94.COMMAND
+## Description
+**create_perf_checkpoint** - Create a performance evaluation checkpoint.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-categories] | string |  -  | 
+| [-indicator_name] | string |  -  | 
+| checkpoint_name | string |  -  | 
+
+# 95.COMMAND
+## Description
+**create_perf_indicator** - Create a user-defined performance indicator.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-description] | string |  -  | 
+| [-no_inheritance] | boolean |  -  | 
+| [-precision] | integer |  -  | 
+| [-preferable] | string |  -  | 
+| [-target] | string |  -  | 
+| [-tcl] | string |  -  | 
+| [-threshold] | string |  -  | 
+| [-tools] | string |  -  | 
+| [-type] | string |  -  | 
+| [-unit] | string |  -  | 
+| [-warning] | string |  -  | 
+| name | string |  -  | 
+
+# 96.COMMAND
+## Description
+**create_pg_pin** - Creates a power or ground pin. The command can create either a physical pin or a logical pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-direction] | enum | {input output no_defined} | 
+| -name | string |  -  | 
+| -net | string |  -  | 
+| -shape_box | double_list_list |  -  | 
+| -shape_layer | string |  -  | 
+
+# 97.COMMAND
+## Description
+**create_place_blockage** - Create a placement blockage.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_macros] | boolean |  -  | 
+| [-all_partitions] | boolean |  -  | 
+| [-area] | double_list |  -  | 
+| [-blockage_percentage] | integer |  -  | 
+| [-cover_inst] | boolean |  -  | 
+| [-hinst] | string |  -  | 
+| [-inst] | string |  -  | 
+| [-name] | string |  -  | 
+| [-outer_ring_by_side] | int_list |  -  | 
+| [-snap_to_site] | boolean |  -  | 
+| [-type] | enum | {hard soft partial} | 
+
+# 98.COMMAND
+## Description
+**create_power_switch** - Adds power switches entirely within the power domain.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-avoid_fixed_instance_overlap] | boolean |  -  | 
+| [-back_to_back_chain] | enum | {left_to_right right_to_left} | 
+| [-bottom_offset] | double |  -  | 
+| [-checker_board] | boolean |  -  | 
+| [-column] | boolean |  -  | 
+| [-connect_bottom_switch_enable_pins] | enum | {left_to_right right_to_left} | 
+| [-enable_net_in] | string_list |  -  | 
+| [-enable_net_out] | string_list |  -  | 
+| [-enable_pin_in] | string_list |  -  | 
+| [-enable_pin_out] | string_list |  -  | 
+| [-first_instance_name] | string |  -  | 
+| [-global_pattern] | string_list |  -  | 
+| [-global_switch_cell_name] | string |  -  | 
+| [-height] | double |  -  | 
+| [-horizontal_pitch] | double |  -  | 
+| [-ignore_blockage] | boolean |  -  | 
+| [-incremental] | boolean |  -  | 
+| [-left_offset] | double |  -  | 
+| [-loop_back_at_end] | boolean |  -  | 
+| [-max_switch_number] | integer |  -  | 
+| [-no_double_height_check] | boolean |  -  | 
+| [-no_enable_chain] | boolean |  -  | 
+| [-no_verify_row] | boolean |  -  | 
+| [-orientation] | enum | {r0 r180 mx my} | 
+| -power_domain | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-report_power_switch] | string |  -  | 
+| [-right_offset] | double |  -  | 
+| [-ring] | boolean |  -  | 
+| [-skip_row] | integer |  -  | 
+| [-snap_to_nearest] | boolean |  -  | 
+| [-switch_module_instance] | string |  -  | 
+| [-top_down] | boolean |  -  | 
+| [-top_offset] | double |  -  | 
+| [-width] | double |  -  | 
+
+# 99.COMMAND
+## Description
+**create_rc_corner** - create rc corner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+| [-post_route_cap_scale_factor] | double_list |  -  | 
+| [-post_route_clkcap_scale_factor] | double_list |  -  | 
+| [-post_route_clkres_scale_factor] | double_list |  -  | 
+| [-post_route_res_scale_factor] | double_list |  -  | 
+| [-post_route_xcap_scale_factor] | double_list |  -  | 
+| [-pre_route_cap_scale_factor] | double |  -  | 
+| [-pre_route_clkcap_scale_factor] | double |  -  | 
+| [-pre_route_clkres_scale_factor] | double |  -  | 
+| [-pre_route_res_scale_factor] | double |  -  | 
+| [-rc_tech] | string |  -  | 
+| [-temperature] | double |  -  | 
+
+# 100.COMMAND
+## Description
+**create_region** - Create a region.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| object_name | string |  -  | 
+
+# 101.COMMAND
+## Description
+**create_relative_floorplan** - Capture and define the placement relationship of floorplan objects independently from the actual coordinates in a floorplan.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-box_type] | enum_list | {none target reference both} | 
+| -horizontal_edge_offset | double_list |  -  | 
+| [-orientation] | enum_list | {r0 r180 r90 r270 my mx mx90 my90} | 
+| [-reference] | string_list |  -  | 
+| [-reference_type] | enum_list | {object core die} | 
+| -target | string_list |  -  | 
+| -vertical_edge_offset | double_list |  -  | 
+
+# 102.COMMAND
+## Description
+**create_ring** - Create power ground ring for the design as specified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-blocks] | string_list |  -  | 
+| -layers | string_list |  -  | 
+| -nets | string_list |  -  | 
+| [-offset] | double_list |  -  | 
+| [-power_domains] | enum | {default_power_domain all_power_domains} | 
+| [-ring_type] | enum | {core_ring block_ring} | 
+| [-snap_to_grid] | enum | {none grid half_grid either} | 
+| -spacing | double_list |  -  | 
+| -width | double_list |  -  | 
+
+# 103.COMMAND
+## Description
+**create_routing_blockage** - Create a routing blockage.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -coordinate | string |  -  | 
+| [-cut_layer] | string_list |  -  | 
+| [-design_rule_width] | double |  -  | 
+| [-except_pg] | boolean |  -  | 
+| [-fill_only] | boolean |  -  | 
+| [-layer] | string_list |  -  | 
+| [-name] | string |  -  | 
+| [-pg_only] | boolean |  -  | 
+| [-spacing] | double |  -  | 
+
+# 104.COMMAND
+## Description
+**create_routing_halo** - Create routing halos.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_blocks] | boolean |  -  | 
+| -bottom_layer | string |  -  | 
+| [-cells] | string_list |  -  | 
+| [-insts] | string_list |  -  | 
+| -top_layer | string |  -  | 
+| -width | double |  -  | 
+
+# 105.COMMAND
+## Description
+**create_row** - Create rows from the specified site.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-flip_first_row] | boolean |  -  | 
+| [-no_abut] | boolean |  -  | 
+| [-no_abut_first_only] | boolean |  -  | 
+| [-no_align] | boolean |  -  | 
+| [-no_flip] | boolean |  -  | 
+| [-rects] | double_list_list |  -  | 
+| -site | string |  -  | 
+| [-spacing] | double |  -  | 
+
+# 106.COMMAND
+## Description
+**create_skew_group** - Create cts skew group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corners] | string_list |  -  | 
+| [-analysis_modes] | string_list |  -  | 
+| [-auto] | boolean |  -  | 
+| [-clocks] | string_list |  -  | 
+| [-constrain_types] | enum | {cts report_only} | 
+| [-exclusive_sinks] | string_list |  -  | 
+| -name | string |  -  | 
+| [-priority] | integer |  -  | 
+| [-sinks] | string_list |  -  | 
+| [-skew_groups] | string_list |  -  | 
+| [-sources] | string_list |  -  | 
+| [-target_insertion_delay] | double |  -  | 
+| [-target_skew] | double |  -  | 
+
+# 107.COMMAND
+## Description
+**create_spare_module** - Create spare module.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| [-clock] | string |  -  | 
+| -module_name | string |  -  | 
+| [-reset] | string |  -  | 
+| [-tie] | string |  -  | 
+| [-tie_low_pins] | string |  -  | 
+| [-use_cell_as_prefix] | boolean |  -  | 
+
+# 108.COMMAND
+## Description
+**create_stripe** - Creates power ground stripes in the design as specified. By default, stripes are created for the entire core box.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| [-blocks] | string_list |  -  | 
+| [-cut_by_blocks] | string_list |  -  | 
+| [-direction] | enum | {preferred vertical horizontal} | 
+| [-end_extend_to] | enum | {none die_boundary first_ring same_dir_stripe orthogonal_stripe area_boundary} | 
+| [-generate_pins] | boolean |  -  | 
+| [-generate_via] | boolean |  -  | 
+| [-generate_via_layer_range] | string_list |  -  | 
+| -layer | string |  -  | 
+| [-local_start_offset] | double |  -  | 
+| [-local_stop_offset] | double |  -  | 
+| -nets | string_list |  -  | 
+| [-over_cell_pin] | string |  -  | 
+| [-over_power_domains] | string_list |  -  | 
+| [-pillar_follow] | string_list |  -  | 
+| [-pillar_length] | double | [0, 1.79769e+308] | 
+| [-pillar_offset] | double | [0, 1.79769e+308] | 
+| [-pillar_pitch] | double | [0, 1.79769e+308] | 
+| [-pitch] | double | [0, 1.79769e+308] | 
+| [-sets_number] | integer |  -  | 
+| [-snap_to_grid] | enum | {none grid half_grid either} | 
+| [-spacing] | double | [0, 1.79769e+308] | 
+| [-start] | double |  -  | 
+| [-start_from] | enum | {bottom top left right} | 
+| [-start_offset_from_core] | double |  -  | 
+| [-stop] | double |  -  | 
+| [-stop_offset_from_core] | double |  -  | 
+| [-width] | double | [0, 1.79769e+308] | 
+
+# 109.COMMAND
+## Description
+**create_track** - creates routing tracks with various options.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-directions] | string_list |  -  | 
+| -layers | string_list |  -  | 
+| [-mask_pattern] | string |  -  | 
+| [-mode] | string |  -  | 
+| [-offset_to_core] | double_list |  -  | 
+| [-offset_to_die] | double_list |  -  | 
+| [-pitch_pattern] | string |  -  | 
+| [-pitches] | double_list |  -  | 
+| [-width_pitch_pattern] | string |  -  | 
+
+# 110.COMMAND
+## Description
+**current_design** - get the current design name.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ design ] | string |  -  | 
+
+# 111.COMMAND
+## Description
+**cut_row** - Cut rows in specified area or cut rows which intersect with the specified objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-bottom_spacing] | double |  -  | 
+| [-halo] | double |  -  | 
+| [-io_spacing] | rect |  -  | 
+| [-keep_cell_status] | boolean |  -  | 
+| [-left_spacing] | double |  -  | 
+| [-object] | string |  -  | 
+| [-right_spacing] | double |  -  | 
+| [-selected] | boolean |  -  | 
+| [-site] | string |  -  | 
+| [-top_spacing] | double |  -  | 
+
+# 112.COMMAND
+## Description
+**define_partition_feedthrough** - define a partition feedthrough.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -box | rect |  -  | 
+| [-forbidden_layer] | string |  -  | 
+
+# 113.COMMAND
+## Description
+**delete_all_partition_feedthroughs** - delete all partitions' feedthroughs.
+
+
+# 114.COMMAND
+## Description
+**delete_assigns** - Delete assign statements from the Verilog.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add_buffer] | boolean |  -  | 
+| [-cell_name] | string |  -  | 
+| [-inst_prefix] | string |  -  | 
+| [-nets] | string_list |  -  | 
+| [-verbose] | boolean |  -  | 
+
+# 115.COMMAND
+## Description
+**delete_buffer_tree** - Deletes all buffers added in synthesis stage.
+
+
+# 116.COMMAND
+## Description
+**delete_cell_edge_type** - Deletes the spacing rule between two edge_types. The specified edge_types must be predefined.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| -edge_type | string |  -  | 
+
+# 117.COMMAND
+## Description
+**delete_cell_edge_type_spacing** - Deletes the spacing rule between two edge_types. The specified edge_types must be predefined.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -edge_type | string_list |  -  | 
+
+# 118.COMMAND
+## Description
+**delete_cell_obs** - delete cell obs.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| -layer | string |  -  | 
+| [-polygon] | point_list |  -  | 
+| [-rect] | rect |  -  | 
+
+# 119.COMMAND
+## Description
+**delete_clock_route_constraint** - Delete the specified route constraint defined before.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+
+# 120.COMMAND
+## Description
+**delete_clock_smart_htrees** - Delete the specified smart H-trees.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-regexp] | boolean |  -  | 
+| pattern | string |  -  | 
+
+# 121.COMMAND
+## Description
+**delete_clock_tree_source_groups** - Delete the specified clock tree source groups defined before.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-regexp] | boolean |  -  | 
+| pattern | string_list |  -  | 
+
+# 122.COMMAND
+## Description
+**delete_clock_trees** - Delete cts clock tree.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| pattern | string |  -  | 
+
+# 123.COMMAND
+## Description
+**delete_instance** - Detetes instances from current design. The command works for both logical and physical instances with wildcards (*?) supported.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-module] | string |  -  | 
+| -name | string |  -  | 
+
+# 124.COMMAND
+## Description
+**delete_io_filler** - Delete I/O filler instances in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin] | double |  -  | 
+| [-cell] | string_list |  -  | 
+| [-end] | double |  -  | 
+| [-prefix] | string |  -  | 
+| [-side] | enum | {left bottom right top} | 
+
+# 125.COMMAND
+## Description
+**delete_io_instance** - Delete the specified I/O instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-inst] | string_list |  -  | 
+
+# 126.COMMAND
+## Description
+**delete_io_row_filler** - Add I/O filler instances in the I/O rows. The I/O filler instances are added to the gap between   two I/O pad instances where the gap is large enough for the I/O filler instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-begin] | double |  -  | 
+| [-cell] | string_list |  -  | 
+| [-end] | double |  -  | 
+| [-io_row] | string |  -  | 
+| [-prefix] | string |  -  | 
+
+# 127.COMMAND
+## Description
+**delete_net** - Deleted nets from current design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bus_base_name] | string |  -  | 
+| [-bus_bit_name] | string |  -  | 
+| [-module] | string |  -  | 
+| [-name] | string |  -  | 
+
+# 128.COMMAND
+## Description
+**delete_object_from_datapath_group** - Delete the specified data path object from the parent group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string_list |  -  | 
+
+# 129.COMMAND
+## Description
+**delete_padding** - Deletes the padding of specified instances or cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-all_cell] | boolean |  -  | 
+| [-all_inst] | boolean |  -  | 
+| [-cell] | string_list |  -  | 
+| [-inst] | string_list |  -  | 
+
+# 130.COMMAND
+## Description
+**delete_partition** - delete partition.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-partition] | string |  -  | 
+
+# 131.COMMAND
+## Description
+**delete_physical_cell** - Deletes physical cells in the design, including well tap cells, end cap cells, filler cells and gate array cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-cell] | string_list |  -  | 
+| [-fixed_instance] | boolean |  -  | 
+| [-instance] | string_list |  -  | 
+| [-prefix] | string |  -  | 
+
+# 132.COMMAND
+## Description
+**delete_power_switch** - Delete the power switch methodologies added by the create_power_switch command, from either columns or rings, or removes specified power switch defined in UPF.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-column] | boolean |  -  | 
+| [-inst] | string_list |  -  | 
+| -power_domain | string |  -  | 
+| [-ring] | boolean |  -  | 
+
+# 133.COMMAND
+## Description
+**delete_relative_floorplan** - Specifies cutting area (one or more rect boxes) to cut the rectilinear shape of floorplan objects. The floorplan objects include block top cell, module constraint (guide, region, fence), layershape, pin, net, group, and instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-object] | string_list |  -  | 
+
+# 134.COMMAND
+## Description
+**delete_skew_groups** - Delete cts skew groups.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| pattern | string |  -  | 
+
+# 135.COMMAND
+## Description
+**delete_tie_high_low** - Delete the specified tie cells from current design. Tie pins will be automatically reconnected to 1'b1 and 1'b0. Either -cell or -prefix must be specified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string_list |  -  | 
+| [-prefix] | string |  -  | 
+
+# 136.COMMAND
+## Description
+**derive_clock_trees** - Analyze the input data and derive clock trees, skew groups and other clock tree synthesis configurations, but do not start the synthesize program.
+ Typically, this step is preformed automatically by the 'synthesize_clock_tree' command and does not need to be triggered manually.
+ It enables designers to manually create and configure built-in clock trees, skew groups, and related properties before actual synthesis, when they wish to adjust settings such as clock trees, skew groups, or Smart H-Tree.
+
+
+# 137.COMMAND
+## Description
+**derive_timing_budget** - Generates timing budgets for partitions. The default report folder is 'timing_budget_report'.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cycle_ratio] | boolean |  -  | 
+| [-detailed] | boolean |  -  | 
+| [-partition] | string |  -  | 
+| [-preliminary] | boolean |  -  | 
+
+# 138.COMMAND
+## Description
+**disconnect_pin** - pin disconnect from net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -inst | string |  -  | 
+| [-net] | string |  -  | 
+| -pin | string |  -  | 
+
+# 139.COMMAND
+## Description
+**early_route** - performs a quick route to estimate the routing congestion.
+
+
+# 140.COMMAND
+## Description
+**enable_perf** - Enable or Disable perfcom.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-off] | boolean |  -  | 
+| [-on] | boolean |  -  | 
+
+# 141.COMMAND
+## Description
+**end_checkpoint_block** - End a perfcom checkpoint block.
+
+
+# 142.COMMAND
+## Description
+**evaluate_clone_failed_reason** - Provides explantions why the given instance cannot be cloned (clone failed) in CTS. An empty list means the istance is eligible for cloning.
+ This Command serves a similar purpose to the 'clone_failed_resongs' attribute but offers two distinctions:
+ 1. It can be invoke before synthesize_clock_tree. 
+ 2. It dynamically evaluates the reason each time, instead of returning a saved property value from the most recent cloning attempt.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -instance | string |  -  | 
+
+# 143.COMMAND
+## Description
+**extract_lef** - extract LEF of current top design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-extract_block_pg_pin_layers] | string_list |  -  | 
+| -output_file | string |  -  | 
+| [-pg_pin] | boolean |  -  | 
+| [-pg_pin_layers] | string_list |  -  | 
+| [-port_for_each_pg_wire] | boolean |  -  | 
+| [-top_layer] | string |  -  | 
+
+# 144.COMMAND
+## Description
+**extract_rc** - Extract parasitics RC data.
+
+
+# 145.COMMAND
+## Description
+**filter_collection** - Return a collection of object that were filtered from the base collection based on user's specified criteria(filter_expression). The base collection remains unchanged.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-nocase] | boolean |  -  | 
+| [-regexp] | boolean |  -  | 
+| base_collection | object_list |  -  | 
+| filter_express | string |  -  | 
+
+# 146.COMMAND
+## Description
+**fix_third_party_drc** - fixes third party drc.
+
+
+# 147.COMMAND
+## Description
+**flatten_blm** - flatten boundary logic models.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-model_type] | string |  -  | 
+
+# 148.COMMAND
+## Description
+**foreach_in_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| var_name | string |  -  | 
+| collection | object_list |  -  | 
+| body | string |  -  | 
+
+# 149.COMMAND
+## Description
+**get_always_on_cell** - Returns the always on buffer/inverter of different power domains. The specified type of cells in the lib should be marked as 'always-on true', 'dont_use false' and 'dont_touch false'.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-power_domain] | string |  -  | 
+| [-type] | enum | {all buffer inverter} | 
+
+# 150.COMMAND
+## Description
+**get_attribute** - Get attribute value of object.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-view] | string |  -  | 
+| objects | object_list |  -  | 
+| attribute | string |  -  | 
+
+# 151.COMMAND
+## Description
+**get_blm_attribute** - Get the attributes specified by set_blm_attribute.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-map_type] | enum | {view corner} | 
+| [-top] | string |  -  | 
+
+# 152.COMMAND
+## Description
+**get_cells** - returns a list of cell instances that match patterns.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | string |  -  | 
+| [-hierarchical] | boolean |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-of_objects] | object_list |  -  | 
+| [-regexp] | boolean |  -  | 
+| [ patterns ] | string_list |  -  | 
+
+# 153.COMMAND
+## Description
+**get_clock_route_constraint** - Return the clock route constraints defined before.
+
+
+# 154.COMMAND
+## Description
+**get_clock_smart_htrees** - Return the smart H-trees defined before.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-regexp] | boolean |  -  | 
+| [ pattern ] | string |  -  | 
+
+# 155.COMMAND
+## Description
+**get_clock_tree_capacitance** - Return the capacitance information for the specified item.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-delay_type] | enum | {early late} | 
+| [-edge_type] | enum | {rise fall all} | 
+| [-load] | boolean |  -  | 
+| [-wire] | boolean |  -  | 
+| [ pin_name ] | string |  -  | 
+| [ port_name ] | string |  -  | 
+
+# 156.COMMAND
+## Description
+**get_clock_tree_cells** - Get cts clock tree cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell_type] | enum | {buffer inverter clock_gate logic source generator all} | 
+| [-clock_trees] | string_list |  -  | 
+| [-exclude_clock_trees] | string_list |  -  | 
+| [-net_type] | enum | {leaf trunk top} | 
+| [ pattern ] | string |  -  | 
+
+# 157.COMMAND
+## Description
+**get_clock_tree_nets** - Use this command to get the clock tree nets whose name match the specified pattern.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_trees] | string_list |  -  | 
+| [-exclude_clock_trees] | string_list |  -  | 
+| [-net_type] | enum | {top trunk leaf} | 
+| [-regexp] | boolean |  -  | 
+| [ pattern ] | string |  -  | 
+
+# 158.COMMAND
+## Description
+**get_clock_tree_sinks** - Get cts clock tree sinks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_trees] | string_list |  -  | 
+| [-exclude_clock_trees] | string_list |  -  | 
+| [ pattern ] | string |  -  | 
+
+# 159.COMMAND
+## Description
+**get_clock_tree_slew** - Return the slew information for the specified pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-delay_type] | enum | {late early} | 
+| [-edge_type] | enum | {all rise fall} | 
+| pin_name | string |  -  | 
+
+# 160.COMMAND
+## Description
+**get_clock_tree_source_groups** - Get the specified clock tree source groups defined before.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-regexp] | boolean |  -  | 
+| [ pattern ] | string_list |  -  | 
+
+# 161.COMMAND
+## Description
+**get_clock_trees** - Get cts clock trees.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ pattern ] | string |  -  | 
+
+# 162.COMMAND
+## Description
+**get_clocks** - get a list of clocks in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-nocase] | boolean |  -  | 
+| [-regexp] | boolean |  -  | 
+| clock_list | string_list |  -  | 
+
+# 163.COMMAND
+## Description
+**get_cts_attribute** - Get object attributes for CTS flow.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-cell] | string |  -  | 
+| [-clock_tree] | string |  -  | 
+| [-early] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-instance] | string |  -  | 
+| [-late] | boolean |  -  | 
+| [-library_cell_pin] | string |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-net] | string |  -  | 
+| [-net_type] | string |  -  | 
+| [-pin] | string |  -  | 
+| [-power_domain] | string |  -  | 
+| [-rise] | boolean |  -  | 
+| [-skew_group] | string |  -  | 
+| [-smart_htree] | string |  -  | 
+| [-source_group] | string |  -  | 
+| attribute_name | enum | {top_net_transitive_fanout driving_cell_pin source_output_max_slew source_latency skew_group_ignore_pins skew_group_max_buffer_depth cell_density cell_halo_v smart_htree_invert_input buffer_cells assign_pin_to_clock_tree sink_type smart_htree_skip_symmetry merge_clock_gates recluster_clock_tree_for_power sink_type_causes smart_htree_sink_bin_box target_max_slew_sdc cell_halo_h top_net_fanout_count skew_group_constrain_types skew_group_active_sinks clock_route_constraint smart_htree_no_trace_through insertion_delay target_skew target_insertion_delay target_max_slew skew_group_clock clock_period merge_clock_logics transitive_fanout max_net_length clock_tree_associated_source_group clone_clock_logics source_group_associated_clock_trees skew_group_analysis_mode clone_clock_gates skew_group_priority net_type logic_cells icg_cells delay_cells clone_failed_reasons top_net_fanout_threshold ideal_net consider_during_latency_refresh smart_htree smart_htree_sink_instance_prefix case_analysis target_max_cap skew_group_analysis_corners smart_htree_mode smart_htree_sink_bin_number node_type skew_group_include_source_latency smart_htree_sink_bin_region smart_htree_sink_bin_exclusion_region inverter_cells smart_htree_source smart_htree_trunk_cell smart_htree_tap_cell smart_htree_sinks why_not_merge} | 
+
+# 164.COMMAND
+## Description
+**get_current_memory** - returns the current memory use.
+
+
+# 165.COMMAND
+## Description
+**get_datapath_group_attribute** - Gets or modifies the specified attributes of an existing data path group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-align_by_pin_name] | boolean |  -  | 
+| [-anchor_point] | boolean |  -  | 
+| [-flip] | boolean |  -  | 
+| [-location] | boolean |  -  | 
+| -name | string |  -  | 
+| [-orientation] | boolean |  -  | 
+| [-side] | boolean |  -  | 
+| [-skip_space] | boolean |  -  | 
+| [-type] | boolean |  -  | 
+
+# 166.COMMAND
+## Description
+**get_interactive_analysis_modes** - Return a list of the analysis modes in MMMC that are in interactive constraint entry mode.
+
+
+# 167.COMMAND
+## Description
+**get_lef_equiv_cells** - Report lef equivalent cells.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cells | string_list |  -  | 
+
+# 168.COMMAND
+## Description
+**get_lib_cells** - get a list of library cells that match pattern.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-nocase] | boolean |  -  | 
+| [-quiet] | boolean |  -  | 
+| [-regexp] | boolean |  -  | 
+| patterns | string_list |  -  | 
+
+# 169.COMMAND
+## Description
+**get_lib_pins** - get a list of library cell pins that match pattern.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | string |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-of_objects] | object_list |  -  | 
+| [-regexp] | boolean |  -  | 
+| [ patterns ] | string_list |  -  | 
+
+# 170.COMMAND
+## Description
+**get_lib_set** - get the lib set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-aocv] | boolean |  -  | 
+| [-pocv] | boolean |  -  | 
+| [-timing_lib] | boolean |  -  | 
+| lib_set_name | string |  -  | 
+
+# 171.COMMAND
+## Description
+**get_libs** - get a list of libs.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | string |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-of_objects] | object_list |  -  | 
+| [-regexp] | boolean |  -  | 
+| [ patterns ] | string_list |  -  | 
+
+# 172.COMMAND
+## Description
+**get_licenses** - Gets license name list.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+
+# 173.COMMAND
+## Description
+**get_log_file** - get log file path.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cmd_file] | boolean |  -  | 
+| [-detail_log] | boolean |  -  | 
+
+# 174.COMMAND
+## Description
+**get_net_attributes** - gets attributes of net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bottom_preferred_routing_layer] | boolean |  -  | 
+| -net | string |  -  | 
+| [-non_default_rule] | boolean |  -  | 
+| [-preferred_routing_layer_effort] | boolean |  -  | 
+| [-route_pattern] | boolean |  -  | 
+| [-shield_net] | boolean |  -  | 
+| [-shield_type] | boolean |  -  | 
+| [-skip_route] | boolean |  -  | 
+| [-top_preferred_routing_layer] | boolean |  -  | 
+
+# 175.COMMAND
+## Description
+**get_nets** - returns a list of all nets that match patterns.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-hierarchical] | boolean |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-of_objects] | string_list |  -  | 
+| [-regexp] | boolean |  -  | 
+| [ patterns ] | string_list |  -  | 
+
+# 176.COMMAND
+## Description
+**get_obj** - get db object.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-if] | string |  -  | 
+| [-regexp] | boolean |  -  | 
+| [-unique] | boolean |  -  | 
+| base_from | object |  -  | 
+| [ attr_chain ] | string |  -  | 
+| [ pattern ] | string |  -  | 
+
+# 177.COMMAND
+## Description
+**get_obj_name** - Return the name of the objects in the specified collection.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| object | object_list |  -  | 
+
+# 178.COMMAND
+## Description
+**get_object_by_area** - Get objects by designated area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-object_types] | enum_list | {inst bump bus_guide inst_all_shapes marker net patch_wire pg_pin pin placement_blockage port regular resize_blockage routing_blockage row special special_via special_wire via wire} | 
+| [-polygon] | point_list |  -  | 
+| [-rect] | rect |  -  | 
+
+# 179.COMMAND
+## Description
+**get_options** - get value of specified options.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-non_default] | boolean |  -  | 
+| [-print] | boolean |  -  | 
+| [ option_name ] | string |  -  | 
+
+# 180.COMMAND
+## Description
+**get_path_groups** - create a collection of path groups whose name matches the pattern list.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-nocase] | boolean |  -  | 
+| [-regexp] | boolean |  -  | 
+| patterns | string_list |  -  | 
+
+# 181.COMMAND
+## Description
+**get_peak_memory** - returns the peak memory in current session.
+
+
+# 182.COMMAND
+## Description
+**get_perf_definition** - Get the definition of the performance indicator.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| perf_name | string |  -  | 
+
+# 183.COMMAND
+## Description
+**get_perf_indicator** - Get the value of the performance indicator.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-checkpoint_name] | string |  -  | 
+| [-pending] | boolean |  -  | 
+| perf_name | string |  -  | 
+
+# 184.COMMAND
+## Description
+**get_pins** - returns a list of all instance pins that match patterns.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | string |  -  | 
+| [-hierarchical] | boolean |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-of_objects] | object_list |  -  | 
+| [-regexp] | boolean |  -  | 
+| [ patterns ] | string_list |  -  | 
+
+# 185.COMMAND
+## Description
+**get_pocv_rc_variation_factor** - Get variation factor for delay of interconnection.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-early] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| -view | string |  -  | 
+
+# 186.COMMAND
+## Description
+**get_ports** - get a list of ports.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | string |  -  | 
+| [-nocase] | boolean |  -  | 
+| [-regexp] | boolean |  -  | 
+| port_list | string_list |  -  | 
+
+# 187.COMMAND
+## Description
+**get_primary_analysis_corner** - Return the main corner (primary-half analysis corner) used for balancing the clock trees.
+
+
+# 188.COMMAND
+## Description
+**get_rc_corner** - get rc corner by specified name.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-post_route_cap_scale_factor] | boolean |  -  | 
+| [-post_route_clkcap_scale_factor] | boolean |  -  | 
+| [-post_route_clkres_scale_factor] | boolean |  -  | 
+| [-post_route_res_scale_factor] | boolean |  -  | 
+| [-post_route_xcap_scale_factor] | boolean |  -  | 
+| [-pre_route_cap_scale_factor] | boolean |  -  | 
+| [-pre_route_clkcap_scale_factor] | boolean |  -  | 
+| [-pre_route_clkres_scale_factor] | boolean |  -  | 
+| [-pre_route_res_scale_factor] | boolean |  -  | 
+| [-rc_tech] | boolean |  -  | 
+| [-temperature] | boolean |  -  | 
+| rc_corner_name | string |  -  | 
+
+# 189.COMMAND
+## Description
+**get_resource_status** - get current resource status.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cputime] | boolean |  -  | 
+| [-elapse] | boolean |  -  | 
+| [-memory] | boolean |  -  | 
+| [-peak] | boolean |  -  | 
+| [-rss] | boolean |  -  | 
+
+# 190.COMMAND
+## Description
+**get_selected** - get the selected objects.
+
+
+# 191.COMMAND
+## Description
+**get_shape** - Executes geometric, e.g., SIZE and BBOX, and logical, e.g., AND and ANDNOT, operations on shapes which may be a polygon, a rectangle, or a list of rectangles or polygons.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-format] | enum | {vrect polygon hrect area} | 
+| [-step] | double |  -  | 
+| operation | operation |  -  | 
+
+# 192.COMMAND
+## Description
+**get_skew_group_delay** - Get the clock path delay information for the specified skew group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-cell_depth] | enum_list | {buffer inverter logic clock_gate generator} | 
+| [-check_type] | enum | {setup hold} | 
+| [-delay_type] | enum | {early late} | 
+| [-edge_type] | enum | {rise fall} | 
+| [-from] | string |  -  | 
+| [-longest] | boolean |  -  | 
+| [-only_cell_delay] | boolean |  -  | 
+| [-only_real_delay] | boolean |  -  | 
+| [-only_virtual_delay] | boolean |  -  | 
+| [-only_wire_delay] | boolean |  -  | 
+| [-shortest] | boolean |  -  | 
+| [-skew] | boolean |  -  | 
+| -skew_group | string |  -  | 
+| [-through] | string |  -  | 
+| [-to] | string |  -  | 
+
+# 193.COMMAND
+## Description
+**get_skew_group_path** - Get the clock path information for the specified skew group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-cell_depth] | enum_list | {buffer inverter logic clock_gate generator} | 
+| [-check_type] | enum | {setup hold} | 
+| [-delay_type] | enum | {early late} | 
+| [-longest] | boolean |  -  | 
+| [-only_cell_delay] | boolean |  -  | 
+| [-only_real_delay] | boolean |  -  | 
+| [-only_virtual_delay] | boolean |  -  | 
+| [-only_wire_delay] | boolean |  -  | 
+| [-shortest] | boolean |  -  | 
+| [-sink] | string |  -  | 
+| -skew_group | string |  -  | 
+| [-under] | string |  -  | 
+
+# 194.COMMAND
+## Description
+**get_skew_groups** - Get cts skew groups.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ pattern ] | string |  -  | 
+
+# 195.COMMAND
+## Description
+**get_timing_arcs** - Return a collection of specified timing arcs.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-filter] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-of_objects] | object_list |  -  | 
+| [-to] | object_list |  -  | 
+
+# 196.COMMAND
+## Description
+**get_transformed_geom** - Get transformed geometry points.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-hinst] | string |  -  | 
+| [-inst] | string |  -  | 
+| [-location] | point |  -  | 
+| [-orientation] | enum | {R0 R90 R180 R270 MX MX90 MY MY90} | 
+| [-sub_geom] | point_list |  -  | 
+| [-top_geom] | point_list |  -  | 
+
+# 197.COMMAND
+## Description
+**get_wire_path** - Get the routing information of the path segment.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -end | string |  -  | 
+| [-mute] | boolean |  -  | 
+| -start | string |  -  | 
+| [-tcl] | boolean |  -  | 
+
+# 198.COMMAND
+## Description
+**getenv** - getenv.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| name | string |  -  | 
+
+# 199.COMMAND
+## Description
+**group_path** - Groups paths in a design, and identifies them with a path group name. You can use the path group names for reporting.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-comment] | string |  -  | 
+| [-from] | object_list |  -  | 
+| -name | string |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+
+# 200.COMMAND
+## Description
+**gui_add_shape** - Add a user shape.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-arrow] | boolean |  -  | 
+| -layer_num | integer |  -  | 
+| [-line] | rect |  -  | 
+| [-rect] | rect |  -  | 
+| [-width] | integer |  -  | 
+
+# 201.COMMAND
+## Description
+**gui_add_sub_record_tcl** - Gui playback setting.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| sub_tcl | string |  -  | 
+
+# 202.COMMAND
+## Description
+**gui_check** - Gui playback check the widget value.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-check] | boolean |  -  | 
+| -enable | boolean |  -  | 
+| [-value] | string |  -  | 
+| [-visible] | boolean |  -  | 
+| object_name | string |  -  | 
+
+# 203.COMMAND
+## Description
+**gui_check_item** - Gui playback check the tree_widget item value.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-brush] | string |  -  | 
+| [-check] | boolean |  -  | 
+| [-color] | string |  -  | 
+| [-expand] | boolean |  -  | 
+| [-select] | boolean |  -  | 
+| [-visible] | boolean |  -  | 
+| item_name | string |  -  | 
+
+# 204.COMMAND
+## Description
+**gui_clear_all_rulers** - Clear all rulers.
+
+
+# 205.COMMAND
+## Description
+**gui_clear_highlight** - Clear the highlights on gui.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-color] | integer |  -  | 
+| [-selected] | boolean |  -  | 
+| [ [obj_list] ] | object_list |  -  | 
+
+# 206.COMMAND
+## Description
+**gui_clear_highlighted_timing_path** - Clear all highlight timing path(s) on GUI.
+
+
+# 207.COMMAND
+## Description
+**gui_clear_scan_chain_display** - Clear all the scan chain display on GUI.
+
+
+# 208.COMMAND
+## Description
+**gui_clear_spare_cell_display** - Clear all the spare cells display on GUI.
+
+
+# 209.COMMAND
+## Description
+**gui_close_cts_diagnostic** - Close the specified window.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-window_id] | string |  -  | 
+
+# 210.COMMAND
+## Description
+**gui_delete_shapes** - Clear all user shapes.
+
+
+# 211.COMMAND
+## Description
+**gui_deselect** - Deselect the objects on gui.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-point] | point |  -  | 
+| [-rect] | rect |  -  | 
+
+# 212.COMMAND
+## Description
+**gui_display_scan_chain** - Display the specified scan chain on GUI.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-scan_chain_name] | string |  -  | 
+
+# 213.COMMAND
+## Description
+**gui_display_spare_cell** - Display all the spare cells on GUI.
+
+
+# 214.COMMAND
+## Description
+**gui_flightline** - Change the visible state of the flight line.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-off] | boolean |  -  | 
+| [-on] | boolean |  -  | 
+
+# 215.COMMAND
+## Description
+**gui_get_cts_diagnostic_id** - Get the ids of the CTD windows.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-detail] | boolean |  -  | 
+
+# 216.COMMAND
+## Description
+**gui_get_cts_diagnostic_title** - Get the titles of the CTD windows.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-window_id] | string |  -  | 
+
+# 217.COMMAND
+## Description
+**gui_get_view_box** - Gui view db box.
+
+
+# 218.COMMAND
+## Description
+**gui_hide** - Hide gui.
+
+
+# 219.COMMAND
+## Description
+**gui_highlight** - Highlight objects on gui.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-auto_color] | boolean |  -  | 
+| [-color] | string |  -  | 
+| [-selected] | boolean |  -  | 
+| [ [obj_list] ] | object_list |  -  | 
+
+# 220.COMMAND
+## Description
+**gui_highlight_clock_path** - Trace the clock tree path.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-color_index] | integer |  -  | 
+| [-from] | string |  -  | 
+| [-through] | string |  -  | 
+| [-to] | string |  -  | 
+
+# 221.COMMAND
+## Description
+**gui_highlight_timing_path** - Highlight specified timing path on GUI.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-append] | boolean |  -  | 
+| -file | string |  -  | 
+| [-paths] | string |  -  | 
+
+# 222.COMMAND
+## Description
+**gui_load_timing_report** - Read path report file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -file | string |  -  | 
+
+# 223.COMMAND
+## Description
+**gui_log_viewer** - Launch the log viewer application.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-file] | string |  -  | 
+
+# 224.COMMAND
+## Description
+**gui_playback_setting** - Gui playback setting.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-time] | boolean |  -  | 
+
+# 225.COMMAND
+## Description
+**gui_record** - Gui playback record command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -action | string |  -  | 
+| [-params] | string |  -  | 
+| [-time] | integer |  -  | 
+| [-v] | double |  -  | 
+| object_name | string |  -  | 
+
+# 226.COMMAND
+## Description
+**gui_record_action** - Gui playback control command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-file] | string |  -  | 
+| [-move] | boolean |  -  | 
+| [-off] | boolean |  -  | 
+| [-on] | boolean |  -  | 
+| [-show] | boolean |  -  | 
+| [-spacing] | integer |  -  | 
+| [-stop] | boolean |  -  | 
+| [-time] | boolean |  -  | 
+
+# 227.COMMAND
+## Description
+**gui_redo** - Redo for gui operations.
+
+
+# 228.COMMAND
+## Description
+**gui_redraw** - Redraw view.
+
+
+# 229.COMMAND
+## Description
+**gui_resize_window** - Adjust window size.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ size ] | int_list |  -  | 
+
+# 230.COMMAND
+## Description
+**gui_save_timing_report** - Save UTF timing reports.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-file] | string |  -  | 
+| -output_file | string |  -  | 
+| [-path_group] | string |  -  | 
+
+# 231.COMMAND
+## Description
+**gui_select** - Set the objects selected on gui.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-point] | point |  -  | 
+| [-rect] | rect |  -  | 
+
+# 232.COMMAND
+## Description
+**gui_set** - Set main window title.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-title] | string |  -  | 
+
+# 233.COMMAND
+## Description
+**gui_show** - Show gui.
+
+
+# 234.COMMAND
+## Description
+**gui_show_cts_diagnostic** - Create a CTD Window.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-unit_delay_mode] | boolean |  -  | 
+| [-window_id] | string |  -  | 
+| [-window_title] | string |  -  | 
+
+# 235.COMMAND
+## Description
+**gui_show_nets** - Show the specific nets.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [ [obj_name_list] ] | object_list |  -  | 
+
+# 236.COMMAND
+## Description
+**gui_snap_shot** - Creates a snapshot of the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -dir | string |  -  | 
+| -name | string |  -  | 
+| [-overwrite] | boolean |  -  | 
+
+# 237.COMMAND
+## Description
+**gui_undo** - Undo for gui operations.
+
+
+# 238.COMMAND
+## Description
+**gui_zoom** - Zoom on gui. Sample: gui_zoom -in.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fit] | boolean |  -  | 
+| [-in] | boolean |  -  | 
+| [-out] | boolean |  -  | 
+| [-point] | point |  -  | 
+| [-r] | double |  -  | 
+| [-rect] | rect |  -  | 
+| [-selected] | boolean |  -  | 
+
+# 239.COMMAND
+## Description
+**highlight_feedthrough_nets** - highlight feedthrough net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-net_list] | string |  -  | 
+| -net_mapping_file | string |  -  | 
+
+# 240.COMMAND
+## Description
+**index_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| collection | object_list |  -  | 
+| index | integer |  -  | 
+
+# 241.COMMAND
+## Description
+**initialize_floorplan** - Initialize floorplan. Sample: initialize_floorplan.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-aspect_ratio] | double |  -  | 
+| [-boundary] | double_list |  -  | 
+| [-core_to_die_offset] | double_list |  -  | 
+| [-die_height] | double |  -  | 
+| [-die_width] | double |  -  | 
+| [-enable_same_site_row_overlap] | boolean |  -  | 
+| [-flip_first_row] | boolean |  -  | 
+| -site | string |  -  | 
+| [-utilization] | double |  -  | 
+
+# 242.COMMAND
+## Description
+**insert_buffer** - Inserts buffer to specified net or pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| [-distance_to_sink_ratio] | double |  -  | 
+| [-location] | int_list |  -  | 
+| [-name] | string |  -  | 
+| [-net] | string |  -  | 
+| [-pins] | string_list |  -  | 
+
+# 243.COMMAND
+## Description
+**insert_clock_tree_source_group_roots** - Create a multi-tree 'source group' under the specified source driving pin. A source group consists of multiple, logically equivalent clock trees that collectively drive a set of clock tree sinks.
+        The command performs three main actions:
+          1. Inserts the intended clock tree root instances into the netlist. Their input pins connect to the root pin, while the fanout originally driven by the root pin is rerouted to the output of a single root instance.
+          2. Defines clock trees at the outputs of each newly inserted root instance.
+          3. Creates a clock source group that unifies these clock trees.
+        The assignment of individual sinks to specific source group roots will be done during CTS.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-honor_aspect_ratio] | boolean |  -  | 
+| [-locations] | point_list |  -  | 
+| -name | string |  -  | 
+| [-sink_bin_exclusion_region] | double_list_list |  -  | 
+| [-sink_bin_number] | int_list |  -  | 
+| [-sink_bin_region] | rect |  -  | 
+| [-sink_bin_search_area] | point |  -  | 
+| -source | string |  -  | 
+| -tap_cell | string |  -  | 
+
+# 244.COMMAND
+## Description
+**insert_io_buffer** - Inserts buffers/inverters onto block I/O pins and positions them close to the associated pins. For a top-level input (output) wired to a non-default power domain, the inserted buffer follows the hierarchy of the destination (source) cell and is placed inside that power domain.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-follow_io_name] | boolean |  -  | 
+| [-included_net_file] | string |  -  | 
+| [-input_cells] | string_list |  -  | 
+| [-output_cells] | string_list |  -  | 
+| [-prefix] | string |  -  | 
+| [-skip_clock_net] | boolean |  -  | 
+| [-status] | enum | {placed fixed soft_fixed} | 
+| [-suffix] | string |  -  | 
+
+# 245.COMMAND
+## Description
+**insert_partition_feedthrough** - insert feedthrough buffers into partitions.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-both_input_output] | boolean |  -  | 
+| [-buffer_cells] | string_list |  -  | 
+| [-check_only] | boolean |  -  | 
+| [-exclude_net] | string |  -  | 
+| [-exclude_partitions] | string_list |  -  | 
+| [-nets] | string |  -  | 
+| [-new_inst_prefix] | string |  -  | 
+| [-new_net_prefix] | string |  -  | 
+| [-no_insert_buffer] | boolean |  -  | 
+| [-reuse_buffer] | boolean |  -  | 
+| [-route_based] | boolean |  -  | 
+| [-save_net_mapping_file] | string |  -  | 
+| [-save_topology_file] | string |  -  | 
+
+# 246.COMMAND
+## Description
+**legalize_clock_tree_placement** - Legalize clock tree placement while respecting cell halo constraints. This command is used at the conclusion of CTS to guarantee legal placement of all clock cells, while complying with cell halo and density requirements.
+
+
+# 247.COMMAND
+## Description
+**legalize_pin** - Moves a pin from its existing location to legalize location.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-keep_layer] | boolean |  -  | 
+| [-move_fixed_pin] | boolean |  -  | 
+| [-partition] | string |  -  | 
+| [-pin] | string_list |  -  | 
+| [-ref_pin_order] | boolean |  -  | 
+| [-snap_to_boundary] | boolean |  -  | 
+| [-snap_to_track] | boolean |  -  | 
+
+# 248.COMMAND
+## Description
+**list_licenses** - Lists all checked-out licenses.
+
+
+# 249.COMMAND
+## Description
+**merge_hierarchy** - merge specified hierarchical instances to new hierarchical instance.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-instances] | string_list |  -  | 
+| -new_instance | string |  -  | 
+| -new_module | string |  -  | 
+| [-selected] | boolean |  -  | 
+
+# 250.COMMAND
+## Description
+**move_power_switch** - Move power switch instances by offset value in X or Y direction.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect_dbu |  -  | 
+| [-column_location] | double |  -  | 
+| [-honor_soft_blockage] | boolean |  -  | 
+| [-inst] | string_list |  -  | 
+| [-offsetx] | double |  -  | 
+| [-offsety] | double |  -  | 
+| -power_domain | string |  -  | 
+| [-report_power_switch] | string |  -  | 
+| [-selected] | boolean |  -  | 
+
+# 251.COMMAND
+## Description
+**optimize** - Performs timing optimization for the design according to the specified options or default settings.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-drv] | boolean |  -  | 
+| [-hold] | boolean |  -  | 
+| [-hold_violation_file] | string |  -  | 
+| [-incremental] | boolean |  -  | 
+| [-output_qor_dir] | string |  -  | 
+| [-post_cts] | boolean |  -  | 
+| [-post_place] | boolean |  -  | 
+| [-post_route] | boolean |  -  | 
+| [-power] | boolean |  -  | 
+| [-prefix] | string |  -  | 
+| [-setup] | boolean |  -  | 
+
+# 252.COMMAND
+## Description
+**optimize_area** - Optimize area while preserving timing quality. Techniques include de-clone, delete-buffer, down-sizing.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-no_declone] | boolean |  -  | 
+| [-no_delete_buffer] | boolean |  -  | 
+| [-no_down_size] | boolean |  -  | 
+| [-retain_hold] | boolean |  -  | 
+
+# 253.COMMAND
+## Description
+**optimize_via** - Fix special net vias with the specified types of violations indicated by check_drc command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| [-cut_spacing] | boolean |  -  | 
+| [-layers] | string_list |  -  | 
+| [-min_cut] | boolean |  -  | 
+| [-min_step] | boolean |  -  | 
+| [-short] | boolean |  -  | 
+
+# 254.COMMAND
+## Description
+**perf_profiler** - runtime performance profiling (v2: tree-based profiling with session/trace/dump support).
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-auto_print] | boolean |  -  | 
+| [-cpu] | string |  -  | 
+| [-disable] | boolean |  -  | 
+| [-dump] | string |  -  | 
+| [-enable] | boolean |  -  | 
+| [-fold] | string |  -  | 
+| [-function] | string |  -  | 
+| [-module] | string |  -  | 
+| [-print] | enum | {tree module session function} | 
+| [-reset] | boolean |  -  | 
+| [-session] | string |  -  | 
+| [-sort] | enum | {self elapsed calls cpu longest name} | 
+| [-threads] | integer |  -  | 
+| [-trace] | boolean |  -  | 
+| [-trace_thread] | integer |  -  | 
+
+# 255.COMMAND
+## Description
+**place** - Places standard cells of the design. By default, the command performs full placement flow, including global and detail place.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-detail] | boolean |  -  | 
+| [-global] | boolean |  -  | 
+| [-incremental] | boolean |  -  | 
+| [-legalize] | boolean |  -  | 
+
+# 256.COMMAND
+## Description
+**place_datapath_group** - Places instances of all defined data path groups in row(s) and column(s) based on user-defined relative placement information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-delete_overlap_physical_cell] | string_list |  -  | 
+| [-keep_datapath_area] | boolean |  -  | 
+| [-name] | string_list |  -  | 
+| [-no_resolve_overlap] | boolean |  -  | 
+
+# 257.COMMAND
+## Description
+**place_eco** - Places unplaced standard cells in an incremental manner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-place_detail_honor_ga_filler_groups] | boolean |  -  | 
+| [-timing_driven] | boolean |  -  | 
+| [-untouch_placed_instances] | boolean |  -  | 
+| [-use_ga_cells_site] | string |  -  | 
+| [-use_ga_filler_cells] | string_list |  -  | 
+| [-use_spare_cells] | boolean |  -  | 
+
+# 258.COMMAND
+## Description
+**place_instance** - Places an instance of the design. This command is not checked for legality that instance can be placed in a position that overlaps other boxes, either placed or fixed, and it can be placed within placement blockages or region. User can check the legality of the instance by using check_place command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -inst | string |  -  | 
+| -location | double_list |  -  | 
+| [-orientation] | enum | {r0 r90 r180 r270 mx mx90 my my90} | 
+| [-status] | enum | {fixed placed soft_fixed} | 
+
+# 259.COMMAND
+## Description
+**place_io_pad** - Places IO cells which must be defined as CLASS PAD on the die boundary in random order.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cells] | string_list |  -  | 
+| [-insts] | string_list |  -  | 
+| [-io_file] | string |  -  | 
+| [-no_random] | boolean |  -  | 
+
+# 260.COMMAND
+## Description
+**place_io_pins** - Places IO pins to design boundary and creates a physical shape for each pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-align] | boolean |  -  | 
+| [-exclude_pin_file] | string |  -  | 
+| [-improve_si] | boolean |  -  | 
+| [-move_fixed_pin] | boolean |  -  | 
+| [-pin_file] | string |  -  | 
+| [-pins] | string_list |  -  | 
+
+# 261.COMMAND
+## Description
+**place_macro** - Place the hard macro and generates a quick, initial floorplan.
+
+
+# 262.COMMAND
+## Description
+**place_partition_pin** - Assigns partition pins before the partitions are committed.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-mark_fixed] | boolean |  -  | 
+| [-partition] | string |  -  | 
+| [-pin] | string_list |  -  | 
+
+# 263.COMMAND
+## Description
+**place_spare_module** - Place spare module.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect_dbu |  -  | 
+| [-channel] | boolean |  -  | 
+| [-max_width] | double |  -  | 
+| [-min_length] | double |  -  | 
+| [-min_width] | double |  -  | 
+| -module_name | string |  -  | 
+| [-num_module] | integer |  -  | 
+| [-offset_x] | double |  -  | 
+| [-offset_y] | double |  -  | 
+| [-power_domain] | string |  -  | 
+| [-prefix] | string |  -  | 
+| [-step_x] | double |  -  | 
+| [-step_y] | double |  -  | 
+| [-utilization_factor] | double | [0, 1] | 
+
+# 264.COMMAND
+## Description
+**print_message_status** - print message status.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-ids] | string_list |  -  | 
+
+# 265.COMMAND
+## Description
+**prune_db** - Prune DB into a smaller one per the specified area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-concise] | boolean |  -  | 
+| [-db_name] | string |  -  | 
+| [-dir] | string |  -  | 
+| -rect | rect |  -  | 
+
+# 266.COMMAND
+## Description
+**puts** - puts.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| string | string |  -  | 
+
+# 267.COMMAND
+## Description
+**read_datapath_file** - Reads a relative placement file in .datapath format and then calls place_datapath_group to place all the data path elements defined in the file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -file | string |  -  | 
+| [-hier_path] | string |  -  | 
+| [-leftover_group] | boolean |  -  | 
+| [-location] | point |  -  | 
+| [-skip_placement] | boolean |  -  | 
+
+# 268.COMMAND
+## Description
+**read_db** - read db data.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-ignore_timing_data] | boolean |  -  | 
+| db_path | string |  -  | 
+| [ top_design ] | string |  -  | 
+
+# 269.COMMAND
+## Description
+**read_def** - Read DEF files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-keep_shape] | boolean |  -  | 
+| file_names | string_list |  -  | 
+
+# 270.COMMAND
+## Description
+**read_lef** - Read LEF files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| file_names | string_list |  -  | 
+
+# 271.COMMAND
+## Description
+**read_spef** - read SPEF file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-corner_spef] | list_string_list |  -  | 
+| [-rc_corner] | string |  -  | 
+| [ file_name ] | string |  -  | 
+
+# 272.COMMAND
+## Description
+**read_third_party_drc** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -file | string |  -  | 
+| [-format] | enum | {Calibre} | 
+| [-offset_x] | double |  -  | 
+| [-offset_y] | double |  -  | 
+
+# 273.COMMAND
+## Description
+**read_upf** - Read UPF files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| file_name | string |  -  | 
+
+# 274.COMMAND
+## Description
+**read_verilog** - Read Verilog files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| file_names | string |  -  | 
+
+# 275.COMMAND
+## Description
+**redirect** - redirect command output to the specified file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-append] | boolean |  -  | 
+| -file | string |  -  | 
+| [-no_log] | boolean |  -  | 
+| [-tee] | boolean |  -  | 
+| command | string |  -  | 
+
+# 276.COMMAND
+## Description
+**refresh_clock_latency** - Refreshes the IO latency values for clock sinks that are marked are marked with the 'consider_during_latency_refresh' attribute.
+
+
+# 277.COMMAND
+## Description
+**release_license** - Releases licenses.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-count] | integer |  -  | 
+| feature_name | string |  -  | 
+
+# 278.COMMAND
+## Description
+**remove_block_halo** - Remove halo from the specified blocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_blocks] | boolean |  -  | 
+| [-cell] | string_list |  -  | 
+| [-inst] | string_list |  -  | 
+
+# 279.COMMAND
+## Description
+**remove_buffer** - Removes the specified buffer or inverter insts. If the net is routed, the wire will be merged after the cell is removed.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -insts | string_list |  -  | 
+
+# 280.COMMAND
+## Description
+**remove_fence** - Remove a fence.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ fence_name ] | string |  -  | 
+
+# 281.COMMAND
+## Description
+**remove_from_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-intersect] | boolean |  -  | 
+| base_collection | object_list |  -  | 
+| object_collection_or_list | object_list |  -  | 
+
+# 282.COMMAND
+## Description
+**remove_guide** - Remove a guide.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ guide_name ] | string |  -  | 
+
+# 283.COMMAND
+## Description
+**remove_instance_group** - Remove an instance group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+
+# 284.COMMAND
+## Description
+**remove_pg_pin** - Removes the specified PG pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-area] | double_list_list |  -  | 
+| [-layers] | string_list |  -  | 
+| [-net] | string |  -  | 
+| [-selected] | boolean |  -  | 
+
+# 285.COMMAND
+## Description
+**remove_place_blockage** - Remove a placement blockage.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-cut_layer] | string_list |  -  | 
+| [-layer] | string_list |  -  | 
+| [-name] | string |  -  | 
+| [-trim_metal_layer] | string_list |  -  | 
+| [-type] | enum | {hard soft partial} | 
+
+# 286.COMMAND
+## Description
+**remove_region** - Remove a region.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ region_name ] | string |  -  | 
+
+# 287.COMMAND
+## Description
+**remove_routing_blockage** - Remove a routing blockage.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-name] | string |  -  | 
+| [-type] | enum | {all routing fill_only} | 
+
+# 288.COMMAND
+## Description
+**remove_routing_halo** - Removes routing halo from the specified blocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_blocks] | boolean |  -  | 
+| [-cells] | string_list |  -  | 
+| [-insts] | string_list |  -  | 
+
+# 289.COMMAND
+## Description
+**remove_row** - Remove the specified rows.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-row] | string |  -  | 
+| [-selected] | boolean |  -  | 
+| [-site] | string |  -  | 
+
+# 290.COMMAND
+## Description
+**remove_track** - remove the existing tracks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-direction] | enum | {vertical horizontal} | 
+| [-layers] | string |  -  | 
+
+# 291.COMMAND
+## Description
+**report_annotated_check** - Reports a summary of timing check annotation.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-hold] | boolean |  -  | 
+| [-list_annotated] | boolean |  -  | 
+| [-list_not_annotated] | boolean |  -  | 
+| [-max_lines] | integer |  -  | 
+| [-max_skew] | boolean |  -  | 
+| [-no_change] | boolean |  -  | 
+| [-period] | boolean |  -  | 
+| [-recovery] | boolean |  -  | 
+| [-removal] | boolean |  -  | 
+| [-setup] | boolean |  -  | 
+| [-view] | string |  -  | 
+| [-width] | boolean |  -  | 
+
+# 292.COMMAND
+## Description
+**report_annotated_delay** - Reports a summary of delay annotation.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | boolean |  -  | 
+| [-from_in_ports] | boolean |  -  | 
+| [-list_annotated] | boolean |  -  | 
+| [-list_not_annotated] | boolean |  -  | 
+| [-max_lines] | integer |  -  | 
+| [-net] | boolean |  -  | 
+| [-to_out_ports] | boolean |  -  | 
+| [-view] | string |  -  | 
+
+# 293.COMMAND
+## Description
+**report_aocv** - report aocv info.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-derate_type] | string |  -  | 
+| -file | string |  -  | 
+| [-lib_set_names] | string_list |  -  | 
+| [-object_type] | string |  -  | 
+| [-path_type] | string |  -  | 
+| [-pt_mode] | boolean |  -  | 
+| [-rf_type] | string |  -  | 
+| [-voltage] | double |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 294.COMMAND
+## Description
+**report_cell_edge_type** - Reports the cell edge type information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-out_file] | string |  -  | 
+
+# 295.COMMAND
+## Description
+**report_cell_edge_type_spacing** - Reports the cell edge spacing information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-out_file] | string |  -  | 
+
+# 296.COMMAND
+## Description
+**report_clock_cell_halo_violations** - Use this command to identify clock instances where cell-halo violations exists.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-number] | integer |  -  | 
+| [-only_summary] | boolean |  -  | 
+| [-out_file] | string |  -  | 
+
+# 297.COMMAND
+## Description
+**report_clock_timing** - report clock timing info such as skew, latency or transiton for current design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-capture] | boolean |  -  | 
+| [-clock] | object_list |  -  | 
+| [-fall] | boolean |  -  | 
+| [-from] | object_list |  -  | 
+| [-from_clock] | object_list |  -  | 
+| [-greater_than] | double |  -  | 
+| [-hold] | boolean |  -  | 
+| [-launch] | boolean |  -  | 
+| [-nworst] | integer |  -  | 
+| [-rise] | boolean |  -  | 
+| [-setup] | boolean |  -  | 
+| [-to] | object_list |  -  | 
+| [-to_clock] | object_list |  -  | 
+| -type | enum | {latency skew interclock_skew summary} | 
+| [-verbose] | boolean |  -  | 
+| [-view] | string |  -  | 
+
+# 298.COMMAND
+## Description
+**report_clock_tree_path_count** - Count and print the number of clock paths from the root node to the sink nodes.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-out_file] | string |  -  | 
+
+# 299.COMMAND
+## Description
+**report_clock_tree_structure** - Report cts clock tree structrue.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-check_type] | enum | {setup hold} | 
+| [-clock_trees] | string_list |  -  | 
+| [-delay_type] | enum | {early late} | 
+| [-out_file] | string |  -  | 
+| [-show_below_generators] | boolean |  -  | 
+| [-show_below_logic] | boolean |  -  | 
+| [-show_sinks] | boolean |  -  | 
+| [-show_timing] | boolean |  -  | 
+
+# 300.COMMAND
+## Description
+**report_clock_trees** - Report the summary of all clock trees.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corners] | string_list |  -  | 
+| [-clock_trees] | string_list |  -  | 
+| [-early] | boolean |  -  | 
+| [-include_histogram_table] | boolean |  -  | 
+| [-include_special_pin_table] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| [-max_capacitance_violating_pins] | integer |  -  | 
+| [-max_fanout_violating_nets] | integer |  -  | 
+| [-max_length_violating_nets] | integer |  -  | 
+| [-max_resistance_violating_nets] | integer |  -  | 
+| [-max_slew_violating_pins] | integer |  -  | 
+| [-out_file] | string |  -  | 
+| [-summary] | boolean |  -  | 
+
+# 301.COMMAND
+## Description
+**report_clocks** - Reports the period and rise/fall edge times for each clock that has been defined.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-view] | string |  -  | 
+| [ clock_names ] | object_list |  -  | 
+
+# 302.COMMAND
+## Description
+**report_congestion** - reports congestion information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-3d] | boolean |  -  | 
+| [-area] | boolean |  -  | 
+| [-hotspot] | boolean |  -  | 
+| [-net_in_congestion] | string |  -  | 
+| [-out_file] | string |  -  | 
+
+# 303.COMMAND
+## Description
+**report_cts_cell_prefix_info** - Prints out the command usage infomation.
+
+
+# 304.COMMAND
+## Description
+**report_delay_calculation** - report delay calc details.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -from | object_list |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-si] | boolean |  -  | 
+| -to | object_list |  -  | 
+| [-view] | string |  -  | 
+
+# 305.COMMAND
+## Description
+**report_density** - Reports the design placement density of the specified area.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect_dbu |  -  | 
+
+# 306.COMMAND
+## Description
+**report_density_map** - Divides the design into multiple bins. Calculates the density of each bin and generates a density report of bins whose density is greater than threshold in a step-size of 0.05.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-grid_in_micron] | double | [0, 1000] | 
+| [-grid_in_row] | integer | [1, 100] | 
+| [-threshold] | double | [0, 2] | 
+
+# 307.COMMAND
+## Description
+**report_drv** - Report design rule violations including capacitance, fanout, transition-time and max-length rule violations.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-output_file] | string |  -  | 
+| -type | enum | {cap transition fanout length} | 
+| [-with_drv_margin] | boolean |  -  | 
+
+# 308.COMMAND
+## Description
+**report_mbff** - Report the flip-flop infos in design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-detailed] | boolean |  -  | 
+| [-equivalent] | boolean |  -  | 
+| [-output_file] | string |  -  | 
+| [-summary] | boolean |  -  | 
+
+# 309.COMMAND
+## Description
+**report_min_pulse_width** - Analyze and report the min pulse width check for the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-digits] | integer |  -  | 
+| [-only_violations] | boolean |  -  | 
+| [-verbose] | boolean |  -  | 
+| [-view] | string |  -  | 
+| [ pin_list ] | object_list |  -  | 
+
+# 310.COMMAND
+## Description
+**report_padding** - Reports the cell/instance padding information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_cell] | boolean |  -  | 
+| [-all_inst] | boolean |  -  | 
+| [-cell] | string |  -  | 
+| [-inst] | string |  -  | 
+| [-out_file] | string |  -  | 
+
+# 311.COMMAND
+## Description
+**report_path_group** - Report path groups.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-name] | string |  -  | 
+
+# 312.COMMAND
+## Description
+**report_path_group_options** - Report path group options.
+
+
+# 313.COMMAND
+## Description
+**report_pin_density** - Reports pin density for the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect_dbu |  -  | 
+
+# 314.COMMAND
+## Description
+**report_pin_density_map** - Divides the design into multiple bins. Calculates the pin density of each bin and generates a report for bins whose pin density is greater than 0.5 in a step-size of 0.0025...
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-display_step] | double | [0, 1.79769e+308] | 
+| [-grid_in_micron] | double | [0, 1000] | 
+| [-grid_in_row] | integer |  -  | 
+| [-threshold] | double |  -  | 
+
+# 315.COMMAND
+## Description
+**report_qor** - Report QoR summary information and statistics for the design, must specify one stage from { -pre_place | -place | -place_opt | -cts | -cts_opt | -route | -route_opt }.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cts] | boolean |  -  | 
+| [-cts_opt] | boolean |  -  | 
+| [-extended_views] | boolean |  -  | 
+| [-hold] | boolean |  -  | 
+| [-only_report] | boolean |  -  | 
+| [-output_dir] | string |  -  | 
+| [-place] | boolean |  -  | 
+| [-place_opt] | boolean |  -  | 
+| [-pre_place] | boolean |  -  | 
+| [-prefix] | string |  -  | 
+| [-route] | boolean |  -  | 
+| [-route_opt] | boolean |  -  | 
+| [-view] | string |  -  | 
+
+# 316.COMMAND
+## Description
+**report_route** - reports routing information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-method] | string |  -  | 
+| [-nets] | string |  -  | 
+| [-out_file] | string |  -  | 
+| [-selected] | boolean |  -  | 
+| [-type] | string |  -  | 
+| [-verbose] | boolean |  -  | 
+
+# 317.COMMAND
+## Description
+**report_scan_chain** - Reports the scan chain information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-chain] | string |  -  | 
+| [-out_file] | string |  -  | 
+| [-verbose] | boolean |  -  | 
+
+# 318.COMMAND
+## Description
+**report_scan_chain_partition** - Reports compatible scan chains in scan chain partitions.
+
+
+# 319.COMMAND
+## Description
+**report_shield** - reports shield routing information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-out_file] | string |  -  | 
+| [-selected_nets] | boolean |  -  | 
+
+# 320.COMMAND
+## Description
+**report_skew_groups** - Report the insertion delays, skews, min and max paths and summary table for the clock tree in each timing corner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corners] | string_list |  -  | 
+| [-cell_depth] | string_list |  -  | 
+| [-early] | boolean |  -  | 
+| [-from] | string_list |  -  | 
+| [-include_histogram_table] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| [-no_pin_insertion_delay] | boolean |  -  | 
+| [-no_source_latency] | boolean |  -  | 
+| [-out_file] | string |  -  | 
+| [-path_number] | integer |  -  | 
+| [-skew_groups] | string_list |  -  | 
+| [-summary] | boolean |  -  | 
+| [-through] | string_list |  -  | 
+| [-to] | string_list |  -  | 
+
+# 321.COMMAND
+## Description
+**report_timing** - Generate a timing report for the design, show the detailed timing info for the critical path.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-aocv_depth] | boolean |  -  | 
+| [-capacitance] | boolean |  -  | 
+| [-delay_type] | enum | {max min} | 
+| [-derate] | boolean |  -  | 
+| [-digits] | integer |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_through] | object_list_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-from_clock] | string |  -  | 
+| [-input_pins] | boolean |  -  | 
+| [-max_paths_limit] | integer |  -  | 
+| [-nets] | boolean |  -  | 
+| [-nworst] | integer |  -  | 
+| [-path_group] | string_list |  -  | 
+| [-path_type] | enum | {full short summary end full_clock_expanded} | 
+| [-power_domain] | boolean |  -  | 
+| [-required_time] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_through] | object_list_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-slack_greater_than] | double |  -  | 
+| [-slack_less_than] | double |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+| [-to_clock] | string |  -  | 
+| [-transition_time] | boolean |  -  | 
+| [-unconstrained] | boolean |  -  | 
+| [-view] | string |  -  | 
+
+# 322.COMMAND
+## Description
+**report_timing_constraints** - reports the slack for each type of timing and design rule constraint.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all_violators] | boolean |  -  | 
+| [-check_type] | string |  -  | 
+| [-digits] | integer |  -  | 
+| [-drv_type] | string |  -  | 
+| [-verbose] | boolean |  -  | 
+| [-view] | string |  -  | 
+
+# 323.COMMAND
+## Description
+**report_timing_derate** - Report timing derate factors.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-include_inherited] | string |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 324.COMMAND
+## Description
+**report_tracks** - reports track information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+
+# 325.COMMAND
+## Description
+**report_via_pillars** - reports via pillars information.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell_pin] | string |  -  | 
+| [-instance_pin] | string |  -  | 
+
+# 326.COMMAND
+## Description
+**report_violation_path** - Report critial instances and nets along violation paths.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-output_file] | string |  -  | 
+| [-target_slack] | double |  -  | 
+| -type | enum | {instance net} | 
+| [-view] | string |  -  | 
+
+# 327.COMMAND
+## Description
+**report_vt_instance_count** - Report vt instance statistics.
+
+
+# 328.COMMAND
+## Description
+**report_worst_chain_structure** - This command shows details of the worst chain, which refers to the chain holding the path with the worst negative slack (WNS) across the entire design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-check_type] | enum | {setup hold} | 
+| [-out_file] | string |  -  | 
+| [-through] | string |  -  | 
+| [-through_file] | string |  -  | 
+| [-view] | string |  -  | 
+
+# 329.COMMAND
+## Description
+**reset_clock** - Remove previously created clock assertions.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [ clocks ] | object_list |  -  | 
+
+# 330.COMMAND
+## Description
+**reset_clock_groups** - define groups of clocks that interact with each other.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-asynchronous] | boolean |  -  | 
+| [-logically_exclusive] | boolean |  -  | 
+| [-name] | string |  -  | 
+| [-physically_exclusive] | boolean |  -  | 
+
+# 331.COMMAND
+## Description
+**reset_clock_latency** - reset constraints from previous set_clock_lantency commands.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | object_list |  -  | 
+| [-source] | boolean |  -  | 
+| objects | object_list |  -  | 
+
+# 332.COMMAND
+## Description
+**reset_cts_attribute** - Reset object attributes for CTS flow.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-cell] | string |  -  | 
+| [-clock_tree] | string |  -  | 
+| [-early] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-instance] | string |  -  | 
+| [-late] | boolean |  -  | 
+| [-library_cell_pin] | string |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-net] | string |  -  | 
+| [-net_type] | string |  -  | 
+| [-pin] | string |  -  | 
+| [-power_domain] | string |  -  | 
+| [-rise] | boolean |  -  | 
+| [-skew_group] | string |  -  | 
+| [-smart_htree] | string |  -  | 
+| [-source_group] | string |  -  | 
+| attribute_name | enum | {top_net_transitive_fanout driving_cell_pin source_output_max_slew source_latency skew_group_ignore_pins skew_group_max_buffer_depth cell_density cell_halo_v smart_htree_invert_input buffer_cells assign_pin_to_clock_tree sink_type smart_htree_skip_symmetry merge_clock_gates recluster_clock_tree_for_power sink_type_causes smart_htree_sink_bin_box target_max_slew_sdc cell_halo_h top_net_fanout_count skew_group_constrain_types skew_group_active_sinks clock_route_constraint smart_htree_no_trace_through insertion_delay target_skew target_insertion_delay target_max_slew skew_group_clock clock_period merge_clock_logics transitive_fanout max_net_length clock_tree_associated_source_group clone_clock_logics source_group_associated_clock_trees skew_group_analysis_mode clone_clock_gates skew_group_priority net_type logic_cells icg_cells delay_cells clone_failed_reasons top_net_fanout_threshold ideal_net consider_during_latency_refresh smart_htree smart_htree_sink_instance_prefix case_analysis target_max_cap skew_group_analysis_corners smart_htree_mode smart_htree_sink_bin_number node_type skew_group_include_source_latency smart_htree_sink_bin_region smart_htree_sink_bin_exclusion_region inverter_cells smart_htree_source smart_htree_trunk_cell smart_htree_tap_cell smart_htree_sinks why_not_merge} | 
+
+# 333.COMMAND
+## Description
+**reset_disable_clock_gating_check** - reset the previously disabled clock gating check.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| objects | object_list |  -  | 
+
+# 334.COMMAND
+## Description
+**reset_disable_timing** - Restore the disabled timing propagation through the specified arcs, or a collection of instance-specific arcs that are created using the get_timing_arcs command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-from] | string |  -  | 
+| [-to] | string |  -  | 
+| object_list | object_list |  -  | 
+
+# 335.COMMAND
+## Description
+**reset_ideal_latency** - clear ideal latency.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| objects | object_list |  -  | 
+
+# 336.COMMAND
+## Description
+**reset_ideal_network** - clear ideal network.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| objects | object_list |  -  | 
+
+# 337.COMMAND
+## Description
+**reset_ideal_transition** - clear ideal transition.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| objects | object_list |  -  | 
+
+# 338.COMMAND
+## Description
+**reset_obj** - reset db object attributes.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-verbose] | boolean |  -  | 
+| base_from | object |  -  | 
+| [ attr_chain ] | string |  -  | 
+
+# 339.COMMAND
+## Description
+**reset_options** - reset value of specified options.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-quiet] | boolean |  -  | 
+| category_or_option_name | string |  -  | 
+| [ sub_names ] | string_list |  -  | 
+
+# 340.COMMAND
+## Description
+**reset_path_group** - remove path group objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-name] | string_list |  -  | 
+
+# 341.COMMAND
+## Description
+**reset_path_group_options** - clear path group options.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-name] | string_list |  -  | 
+
+# 342.COMMAND
+## Description
+**reset_timing_derate** - Resets timing_derate factors specified on a design or list of instances, nets, or lib cells by set_timing_derate. The default derate factor after reset_timing_derate is 1.0.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | object_list |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 343.COMMAND
+## Description
+**reset_wire_load_mode** - Resets the wireload mode to the default mode of top.
+
+
+# 344.COMMAND
+## Description
+**reset_wire_load_model** - Resets wireload models for the specified list of objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ objects ] | string |  -  | 
+
+# 345.COMMAND
+## Description
+**route** - routes the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add_passive_fill] | boolean |  -  | 
+| [-via_pillar_insertion] | boolean |  -  | 
+| [-via_swap] | boolean |  -  | 
+| [-wire_optimize] | boolean |  -  | 
+
+# 346.COMMAND
+## Description
+**route_detail** - performs detailed routes on the design.
+
+
+# 347.COMMAND
+## Description
+**route_eco** - performs eco routes on the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fix_drc] | boolean |  -  | 
+
+# 348.COMMAND
+## Description
+**route_global** - performs global route on the design.
+
+
+# 349.COMMAND
+## Description
+**route_hilbert** - hilbert route.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -layer | string |  -  | 
+| [-mode] | enum | {1D 2D 2D_revert} | 
+| [-net_count] | integer |  -  | 
+| [-nets] | string_list |  -  | 
+| [-points] | int_list |  -  | 
+| [-rects] | int_list |  -  | 
+| [-shuffle_net_order] | boolean |  -  | 
+| [-spacing] | double_list |  -  | 
+| [-width] | double_list |  -  | 
+
+# 350.COMMAND
+## Description
+**route_secondary_pg_pin** - Use signal router to connect the secondary power/ground pins to the specified PG nets.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-fanout_limit] | integer |  -  | 
+| [-non_default_rule] | string |  -  | 
+| [-pg_nets] | string_list |  -  | 
+
+# 351.COMMAND
+## Description
+**route_special** - Routes power structures.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | double_list |  -  | 
+| [-block_pin_layer_range] | string_list |  -  | 
+| [-block_pin_target] | enum_list | {nearest block_pin block_ring core_ring ring_pin pad_ring stripe} | 
+| [-block_pin_width_range] | double_list |  -  | 
+| [-blocks] | string_list |  -  | 
+| [-connect] | enum_list | {all block_pin core_pin floating_stripe pad_pin pad_ring} | 
+| [-core_pin_target] | enum_list | {block_pin block_ring core_ring ring_pin pad_ring stripe design_boundary nearest_at_row_end none} | 
+| [-floating_stripe_target] | enum_list | {all block_pin block_ring core_ring ring_pin pad_ring stripe followpin} | 
+| [-layer_range] | string_list |  -  | 
+| [-nets] | string_list |  -  | 
+| [-power_domains] | string_list |  -  | 
+| [-route_via_layer_range] | string_list |  -  | 
+| [-stripe_layer_range] | string_list |  -  | 
+| [-target_via_layer_range] | string_list |  -  | 
+
+# 352.COMMAND
+## Description
+**run_uniquify_design** - Uniquify the module-hinst groups.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-exclude_module] | string_list |  -  | 
+| [-same_group] | string_list |  -  | 
+| [ any_module ] | string |  -  | 
+
+# 353.COMMAND
+## Description
+**scan_reorder** - Reorders the scan cells after running placement.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-allow_swapping] | boolean |  -  | 
+| [-clock_aware] | boolean |  -  | 
+| [-keep_pd_ports] | boolean |  -  | 
+| [-preferH] | boolean |  -  | 
+| [-preferV] | boolean |  -  | 
+| [-skip_mode] | enum | {skipNone skipBuffer} | 
+
+# 354.COMMAND
+## Description
+**scan_trace** - Records the total number of elements in the scan chain, and the starting and ending scan points.
+
+
+# 355.COMMAND
+## Description
+**set_analysis_view_status** - specify the analysis view status.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -active | boolean |  -  | 
+| -hold | boolean |  -  | 
+| -setup | boolean |  -  | 
+| -view | string |  -  | 
+
+# 356.COMMAND
+## Description
+**set_annotated_check** - Annotate the setup, hold, recovery and removal timing checks between two pins in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | string |  -  | 
+| [-fall] | boolean |  -  | 
+| -from | object_list |  -  | 
+| [-hold] | boolean |  -  | 
+| [-incremental] | boolean |  -  | 
+| [-recovery] | boolean |  -  | 
+| [-removal] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-setup] | boolean |  -  | 
+| -to | object_list |  -  | 
+| check_value | double |  -  | 
+
+# 357.COMMAND
+## Description
+**set_annotated_delay** - Annotate the delay between two pins on an instance or net in the design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-from] | object_list |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-net] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-to] | object_list |  -  | 
+| delay_value | double |  -  | 
+
+# 358.COMMAND
+## Description
+**set_annotated_transition** - Annotate the transition time for a pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition_value | double |  -  | 
+| port_or_pin_list | object_list |  -  | 
+
+# 359.COMMAND
+## Description
+**set_blm_attribute** - Used to config how BLM instances are generated, and how top level data maps to BLMs if view/corner names conflict between the top module and child blocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-keep_flatten] | boolean |  -  | 
+| [-keep_high_fanout_ports] | boolean |  -  | 
+| [-map_type] | enum | {view corner} | 
+| [-reset] | boolean |  -  | 
+| [-reset_map_type] | enum | {view corner} | 
+| [-top] | string |  -  | 
+| [-view_corner] | string |  -  | 
+
+# 360.COMMAND
+## Description
+**set_case_analysis** - Sets constant or transitional values to a list of pins or ports.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| value | string |  -  | 
+| objects | object_list |  -  | 
+
+# 361.COMMAND
+## Description
+**set_clock_gating_check** - add setup or hold timing checks for data signals used to gate clocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-high] | boolean |  -  | 
+| [-hold] | double |  -  | 
+| [-low] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-setup] | double |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 362.COMMAND
+## Description
+**set_clock_groups** - define groups of clocks that interact with each other.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-allow_paths] | boolean |  -  | 
+| [-asynchronous] | boolean |  -  | 
+| [-comment] | string |  -  | 
+| -group | object_list_list |  -  | 
+| [-logically_exclusive] | boolean |  -  | 
+| [-name] | string |  -  | 
+| [-physically_exclusive] | boolean |  -  | 
+
+# 363.COMMAND
+## Description
+**set_clock_latency** - describes expected delays of the clock tree when analyzing a design using ideal clocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | object_list |  -  | 
+| [-early] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-source] | boolean |  -  | 
+| delay | double |  -  | 
+| objects | object_list |  -  | 
+
+# 364.COMMAND
+## Description
+**set_clock_transition** - Describes expected transition times of the ideal clocks.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition | double |  -  | 
+| clocks | object_list |  -  | 
+
+# 365.COMMAND
+## Description
+**set_clock_uncertainty** -  specifies the uncertainty or jitter in a clock.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall_from] | object_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-hold] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-setup] | boolean |  -  | 
+| [-to] | object_list |  -  | 
+| uncertainty | double |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 366.COMMAND
+## Description
+**set_cts_attribute** - Set object attributes for CTS flow.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-analysis_corner] | string |  -  | 
+| [-cell] | string |  -  | 
+| [-clock_tree] | string |  -  | 
+| [-early] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-instance] | string |  -  | 
+| [-late] | boolean |  -  | 
+| [-library_cell_pin] | string |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-net] | string |  -  | 
+| [-net_type] | string |  -  | 
+| [-pin] | string |  -  | 
+| [-power_domain] | string |  -  | 
+| [-rise] | boolean |  -  | 
+| [-skew_group] | string |  -  | 
+| [-smart_htree] | string |  -  | 
+| [-source_group] | string |  -  | 
+| [-usage] | boolean |  -  | 
+| [ attribute_name ] | enum | {top_net_transitive_fanout driving_cell_pin source_output_max_slew source_latency skew_group_ignore_pins skew_group_max_buffer_depth cell_density cell_halo_v smart_htree_invert_input buffer_cells assign_pin_to_clock_tree sink_type smart_htree_skip_symmetry merge_clock_gates recluster_clock_tree_for_power sink_type_causes smart_htree_sink_bin_box target_max_slew_sdc cell_halo_h top_net_fanout_count skew_group_constrain_types skew_group_active_sinks clock_route_constraint smart_htree_no_trace_through insertion_delay target_skew target_insertion_delay target_max_slew skew_group_clock clock_period merge_clock_logics transitive_fanout max_net_length clock_tree_associated_source_group clone_clock_logics source_group_associated_clock_trees skew_group_analysis_mode clone_clock_gates skew_group_priority net_type logic_cells icg_cells delay_cells clone_failed_reasons top_net_fanout_threshold ideal_net consider_during_latency_refresh smart_htree smart_htree_sink_instance_prefix case_analysis target_max_cap skew_group_analysis_corners smart_htree_mode smart_htree_sink_bin_number node_type skew_group_include_source_latency smart_htree_sink_bin_region smart_htree_sink_bin_exclusion_region inverter_cells smart_htree_source smart_htree_trunk_cell smart_htree_tap_cell smart_htree_sinks why_not_merge} | 
+| [ attribute_value ] | string |  -  | 
+
+# 367.COMMAND
+## Description
+**set_cycle_ratio_budget** - Sets the timing budget constraint based on the clock cycle.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | string |  -  | 
+| [-from_partition] | string |  -  | 
+| [-from_top] | boolean |  -  | 
+| [-reset] | boolean |  -  | 
+| [-to_partition] | string |  -  | 
+| [-to_top] | boolean |  -  | 
+
+# 368.COMMAND
+## Description
+**set_data_check** - Add a setup or hold timing check between two pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock] | object_list |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-hold] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-setup] | boolean |  -  | 
+| [-to] | object_list |  -  | 
+| margin | double |  -  | 
+
+# 369.COMMAND
+## Description
+**set_datapath_group_attribute** - Sets or modifies the specified attributes of an existing  data path group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-anchor_point] | enum | {SW SE NW NE MID} | 
+| [-flip] | enum | {NONE X Y XY} | 
+| [-location] | point |  -  | 
+| -name | string |  -  | 
+| [-orientation] | enum | {none r0 mx my r180} | 
+| [-skip_space] | string |  -  | 
+
+# 370.COMMAND
+## Description
+**set_disable_clock_gating_check** - disable clock gating checks on a clock gating instance, clock gating pin, or clock gating enable pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| objects | object_list |  -  | 
+
+# 371.COMMAND
+## Description
+**set_disable_timing** - Disables timing propagation through the specified arcs, or a collection of instance-specific arcs that are created using the get_timing_arcs command.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-from] | string |  -  | 
+| [-to] | string |  -  | 
+| object_list | object_list |  -  | 
+
+# 372.COMMAND
+## Description
+**set_dont_touch** - specifies the objects are not allowed to be modified during optimization.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ objects ] | object_list |  -  | 
+| [ value ] | boolean |  -  | 
+
+# 373.COMMAND
+## Description
+**set_dont_touch_network** - Indicates that the paths connected to the specified pins, ports, or clocks are not allowed to be modified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-no_propagation] | boolean |  -  | 
+| objects | object_list |  -  | 
+
+# 374.COMMAND
+## Description
+**set_dont_use** - specifies the objects are not allowed to be used during optimization.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [ objects ] | object_list |  -  | 
+| [ value ] | boolean |  -  | 
+
+# 375.COMMAND
+## Description
+**set_drive** -  describes the resistance of an input port external driver.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| resistance | double |  -  | 
+| port_list | object_list |  -  | 
+
+# 376.COMMAND
+## Description
+**set_driving_cell** -  describes an input port external driver.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-from_pin] | string |  -  | 
+| [-input_transition_fall] | double |  -  | 
+| [-input_transition_rise] | double |  -  | 
+| -lib_cell | string |  -  | 
+| [-library] | string |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-pin] | string |  -  | 
+| [-rise] | boolean |  -  | 
+| port_list | object_list |  -  | 
+
+# 377.COMMAND
+## Description
+**set_false_path** - Identifies false paths in a design, and breaks or disables specific instance timing arcs in a design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_through] | object_list_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-hold] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_through] | object_list_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-setup] | boolean |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+
+# 378.COMMAND
+## Description
+**set_fanout_load** - specifies the fanout load on a set of ports.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| fanout_load | double |  -  | 
+| objects | object_list |  -  | 
+
+# 379.COMMAND
+## Description
+**set_ideal_latency** - specifies ideal network latency.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| delay | double |  -  | 
+| objects | object_list |  -  | 
+
+# 380.COMMAND
+## Description
+**set_ideal_network** - marks a set of ports or pins in the current design as sources of an ideal network.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-no_propagation] | boolean |  -  | 
+| objects | object_list |  -  | 
+
+# 381.COMMAND
+## Description
+**set_ideal_transition** - specifies ideal transition for the ideal network and ideal nets.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition_time | double |  -  | 
+| objects | object_list |  -  | 
+
+# 382.COMMAND
+## Description
+**set_input_delay** - specify the arrival time of an input signal.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add_delay] | boolean |  -  | 
+| [-clock] | object_list |  -  | 
+| [-clock_fall] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-level_sensitive] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-network_latency_included] | boolean |  -  | 
+| [-reference_pin] | object_list |  -  | 
+| [-rise] | boolean |  -  | 
+| [-source_latency_included] | boolean |  -  | 
+| delay | double | [-1e+06, 1e+06] | 
+| port_pin_list | object_list |  -  | 
+
+# 383.COMMAND
+## Description
+**set_input_transition** - specify the transition time (slew) of an input signal.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition | double |  -  | 
+| ports | object_list |  -  | 
+
+# 384.COMMAND
+## Description
+**set_interactive_analysis_modes** - Specifies the analysis modes in MMMC to be in interactive constraint entry mode.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| active_mode | object_list |  -  | 
+
+# 385.COMMAND
+## Description
+**set_load** -  defines sdc command set_load.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-pin_load] | boolean |  -  | 
+| [-subtract_pin_load] | boolean |  -  | 
+| [-wire_load] | boolean |  -  | 
+| capacitance | double |  -  | 
+| objects | object_list |  -  | 
+
+# 386.COMMAND
+## Description
+**set_logic_one** - Set ports/pins to constant logic one value.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| ports_pins_list | object_list |  -  | 
+
+# 387.COMMAND
+## Description
+**set_logic_zero** - Set ports/pins to constant logic zero value.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| ports_pins_list | object_list |  -  | 
+
+# 388.COMMAND
+## Description
+**set_max_capacitance** - sets the max_capacitance attribute to a specified value on the specified objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_path] | boolean |  -  | 
+| [-data_path] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| capacitance | double |  -  | 
+| objects | object_list |  -  | 
+
+# 389.COMMAND
+## Description
+**set_max_delay** - constrains the maximum delay through combinational logic paths.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_through] | object_list_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-ignore_clock_latency] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_through] | object_list_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+| delay | double |  -  | 
+
+# 390.COMMAND
+## Description
+**set_max_fanout** - sets a maximum fanout load on input cells/ports/pins/design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| fanout | double |  -  | 
+| objects | object_list |  -  | 
+
+# 391.COMMAND
+## Description
+**set_max_time_borrow** - sets the max_time_borrow attribute to a specified value on the specified objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| time_borrow | double |  -  | 
+| objects | object_list |  -  | 
+
+# 392.COMMAND
+## Description
+**set_max_transition** -  specifies the maximum transition time (slew).
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_path] | boolean |  -  | 
+| [-data_path] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-override] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition | double | [-1e+06, 1e+06] | 
+| objects | object_list |  -  | 
+
+# 393.COMMAND
+## Description
+**set_min_capacitance** - sets the min_capacitance attribute to a specified value on the specified objects.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_path] | boolean |  -  | 
+| [-data_path] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| capacitance | double |  -  | 
+| objects | object_list |  -  | 
+
+# 394.COMMAND
+## Description
+**set_min_delay** - constrains the minimum delay through combinational logic paths.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-fall] | boolean |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_through] | object_list_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-ignore_clock_latency] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_through] | object_list_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+| delay | double |  -  | 
+
+# 395.COMMAND
+## Description
+**set_min_pulse_width** - Selects the most restrictive value when multiple minimum pulse width checks are set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-high] | boolean |  -  | 
+| [-low] | boolean |  -  | 
+| value | double |  -  | 
+| objects | object_list |  -  | 
+
+# 396.COMMAND
+## Description
+**set_min_transition** -  specifies the minimum transition time (slew).
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clock_path] | boolean |  -  | 
+| [-data_path] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-override] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| transition | double | [-1e+06, 1e+06] | 
+| objects | object_list |  -  | 
+
+# 397.COMMAND
+## Description
+**set_multicycle_path** - Allow multiple clock cycles for a timing check.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-end] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-fall_from] | object_list |  -  | 
+| [-fall_through] | object_list_list |  -  | 
+| [-fall_to] | object_list |  -  | 
+| [-from] | object_list |  -  | 
+| [-hold] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| [-rise_from] | object_list |  -  | 
+| [-rise_through] | object_list_list |  -  | 
+| [-rise_to] | object_list |  -  | 
+| [-setup] | boolean |  -  | 
+| [-start] | boolean |  -  | 
+| [-through] | object_list_list |  -  | 
+| [-to] | object_list |  -  | 
+| path_multiplier | integer |  -  | 
+
+# 398.COMMAND
+## Description
+**set_net_attributes** - sets attributes to net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-bottom_preferred_routing_layer] | string |  -  | 
+| -net | string |  -  | 
+| [-non_default_rule] | string |  -  | 
+| [-preferred_routing_layer_effort] | enum | {low medium high hard} | 
+| [-reset] | boolean |  -  | 
+| [-route_pattern] | enum | {steiner trunk} | 
+| [-shield_net] | string |  -  | 
+| [-shield_type] | enum | {single_side both_side} | 
+| [-skip_route] | boolean |  -  | 
+| [-top_preferred_routing_layer] | string |  -  | 
+
+# 399.COMMAND
+## Description
+**set_obj** - set db object attributes.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-verbose] | boolean |  -  | 
+| base_from | object |  -  | 
+| [ attr_chain ] | string |  -  | 
+| value | string |  -  | 
+
+# 400.COMMAND
+## Description
+**set_obj_floorplan_box** - Define the boundary box of a specified object.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -location | double_list_list |  -  | 
+| -name | string |  -  | 
+| -type | string |  -  | 
+
+# 401.COMMAND
+## Description
+**set_obj_floorplan_polygon** - Defines the boundary box of a specified object.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+| -polygon | double_list |  -  | 
+| -type | string |  -  | 
+
+# 402.COMMAND
+## Description
+**set_options** - set value of specified options.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| category_or_option_name | string |  -  | 
+| option_value_list | string_list |  -  | 
+
+# 403.COMMAND
+## Description
+**set_output_delay** - specify the departure time of an output signal.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add_delay] | boolean |  -  | 
+| [-clock] | object_list |  -  | 
+| [-clock_fall] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-level_sensitive] | boolean |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| [-network_latency_included] | boolean |  -  | 
+| [-reference_pin] | object_list |  -  | 
+| [-rise] | boolean |  -  | 
+| [-source_latency_included] | boolean |  -  | 
+| delay | double |  -  | 
+| port_pin_list | object_list |  -  | 
+
+# 404.COMMAND
+## Description
+**set_path_group_options** - specify options to guide timing optimization when path groups are used.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-effort] | enum | {low high} | 
+| [-target_slack] | double |  -  | 
+| [-weight] | integer | [0, 2147483647] | 
+| path_group_name | string |  -  | 
+
+# 405.COMMAND
+## Description
+**set_perf_default_file_name** - The name of the default performance file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| name | string |  -  | 
+
+# 406.COMMAND
+## Description
+**set_perf_indicator** - Set the value of the performance indicator.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -value | string |  -  | 
+| name | string |  -  | 
+
+# 407.COMMAND
+## Description
+**set_pin_constraint** - Sets the constraints for partition pins or an I/O pins. You can use this command before assigning pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-depth] | double |  -  | 
+| [-edge] | integer |  -  | 
+| [-layer] | string_list |  -  | 
+| [-location] | string_list |  -  | 
+| -pin | string_list |  -  | 
+| [-spacing] | double |  -  | 
+| [-width] | double |  -  | 
+
+# 408.COMMAND
+## Description
+**set_placement_status** - sets placement_status on specified inst(s).
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| inst_pattern | string |  -  | 
+| placement_status | enum | {placed cover fixed soft_fixed unplaced} | 
+
+# 409.COMMAND
+## Description
+**set_pocv_rc_variation_factor** - Set variation factor for delay of interconnection.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-early] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| [-view] | string |  -  | 
+| variation factor | double |  -  | 
+
+# 410.COMMAND
+## Description
+**set_power_domain_attribute** - Change power domain attributes include box, name, core to side offset, etc.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-box] | double_list_list |  -  | 
+| [-core_to_bottom] | double |  -  | 
+| [-core_to_left] | double |  -  | 
+| [-core_to_right] | double |  -  | 
+| [-core_to_top] | double |  -  | 
+| [-min_gaps] | double_list |  -  | 
+| -power_domain | string |  -  | 
+| [-row_flip] | enum | {auto first second noflip} | 
+| [-row_space_type] | enum | {1 2} | 
+| [-row_spacing] | double |  -  | 
+| [-rs_exts] | double_list |  -  | 
+
+# 411.COMMAND
+## Description
+**set_propagated_clock** - changes a clock tree from an ideal network that has no delay one that uses calculated or back-annotated gate and interconnect delays.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| objects | object_list |  -  | 
+
+# 412.COMMAND
+## Description
+**set_resistance** - sets the wire resistance value on the specified nets.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| resistance | double |  -  | 
+| net_list | object_list |  -  | 
+
+# 413.COMMAND
+## Description
+**set_route_status** - sets route_status on specified net(s).
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| net_pattern | string |  -  | 
+| route_status | enum | {routed cover fixed noshield} | 
+
+# 414.COMMAND
+## Description
+**set_selected** - append the specified objects to the selected list.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| obj_list | object_list |  -  | 
+
+# 415.COMMAND
+## Description
+**set_selected_net_shape** - Set net shapes chosen by the specified query criteria to the selected set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cut_layers] | string_list |  -  | 
+| [-direction] | enum | {H V} | 
+| [-floating_via_only] | boolean |  -  | 
+| [-layers] | string_list |  -  | 
+| [-nets] | string_list |  -  | 
+| [-object_type] | enum | {wire via both} | 
+| [-rect] | rect |  -  | 
+| [-shapes] | enum_list | {RING STRIPE FOLLOWPIN IOWIRE COREWIRE BLOCKWIRE PADRING BLOCKRING FILLWIRE FILLWIREOPC DRCFILL NONE} | 
+| [-shield] | boolean |  -  | 
+| [-status] | enum_list | {COVER FIXED NOSHIELD ROUTED SHIELD UNKNOWN} | 
+| [-type] | enum | {regular special patch} | 
+| [-use] | enum | {CLOCK POWER SIGNAL} | 
+| [-via_cells] | string_list |  -  | 
+
+# 416.COMMAND
+## Description
+**set_sense** - modify the propagation of a clock signal.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-clocks] | object_list |  -  | 
+| [-negative] | boolean |  -  | 
+| [-positive] | boolean |  -  | 
+| [-stop_propagation] | boolean |  -  | 
+| [-type] | string |  -  | 
+| pins | object_list |  -  | 
+
+# 417.COMMAND
+## Description
+**set_timing_derate** -  derate delay calculation results used by the STA.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add] | boolean |  -  | 
+| [-analysis_corner] | string_list |  -  | 
+| [-cell_check] | boolean |  -  | 
+| [-cell_delay] | boolean |  -  | 
+| [-clock] | boolean |  -  | 
+| [-data] | boolean |  -  | 
+| [-early] | boolean |  -  | 
+| [-fall] | boolean |  -  | 
+| [-late] | boolean |  -  | 
+| [-net_delay] | boolean |  -  | 
+| [-rise] | boolean |  -  | 
+| derate | double |  -  | 
+| [ objects ] | object_list |  -  | 
+
+# 418.COMMAND
+## Description
+**set_views_status** - specify the analysis view status.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -hold | object_list |  -  | 
+| -setup | object_list |  -  | 
+
+# 419.COMMAND
+## Description
+**set_wire_load_mode** - Controls how the software will search through the design hierarchy to find the appropriate wireload model for a net, or a hierarchical part of a net.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| mode_name | string |  -  | 
+
+# 420.COMMAND
+## Description
+**set_wire_load_model** - Specifies the wireload model to be used from the library.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-library] | object |  -  | 
+| [-max] | boolean |  -  | 
+| [-min] | boolean |  -  | 
+| -name | string |  -  | 
+| [ objects ] | string |  -  | 
+
+# 421.COMMAND
+## Description
+**setenv** - setenv.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| name | string |  -  | 
+| [ value ] | string |  -  | 
+
+# 422.COMMAND
+## Description
+**setup_design** - Setup design.
+
+
+# 423.COMMAND
+## Description
+**size_cell** - Resizes the specified instances with the cell in the same footprint.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string_list |  -  | 
+| [-downsize] | boolean |  -  | 
+| -insts | string_list |  -  | 
+| [-pin_map] | string_list |  -  | 
+| [-upsize] | boolean |  -  | 
+
+# 424.COMMAND
+## Description
+**sizeof_collection** - 
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| collection | object_list |  -  | 
+
+# 425.COMMAND
+## Description
+**sort_db** - Sort db data in list, not sort data in array. DEF PINS is not sorted.
+
+
+# 426.COMMAND
+## Description
+**source** - Read a file and evaluate as a Tcl script.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-continue_on_error] | boolean |  -  | 
+| [-echo] | boolean |  -  | 
+| [-quiet] | boolean |  -  | 
+| [-verbose] | boolean |  -  | 
+| filename | string |  -  | 
+
+# 427.COMMAND
+## Description
+**specify_blm** - specify BLM directory for a cell.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+| -dir | string |  -  | 
+
+# 428.COMMAND
+## Description
+**specify_partition** - specify a partition.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-core_spacing] | double_list |  -  | 
+| -hinst | string |  -  | 
+| [-min_pin_pitch] | int_list |  -  | 
+| [-pin_layer_bottom] | string_list |  -  | 
+| [-pin_layer_left] | string_list |  -  | 
+| [-pin_layer_right] | string_list |  -  | 
+| [-pin_layer_top] | string_list |  -  | 
+| [-placement_halo] | double_list |  -  | 
+| [-power_rail_width] | double |  -  | 
+| [-reserved_layer] | string_list |  -  | 
+| [-routing_halo] | double |  -  | 
+| [-routing_halo_bottom_layer] | integer |  -  | 
+| [-routing_halo_top_layer] | integer |  -  | 
+
+# 429.COMMAND
+## Description
+**specify_pin_constraint** - Sets the constraint for a partition pin or an I/O pin.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | rect |  -  | 
+| [-depth] | double |  -  | 
+| [-edge_number] | string |  -  | 
+| [-global] | boolean |  -  | 
+| [-layer] | string_list |  -  | 
+| [-module] | string_list |  -  | 
+| [-pin] | string_list |  -  | 
+| [-side] | enum | {top bottom left right} | 
+| [-spacing] | integer |  -  | 
+| [-width] | double |  -  | 
+
+# 430.COMMAND
+## Description
+**specify_spare_gate** - Specifies spare gates to place.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-cell] | string |  -  | 
+| [-hinst] | string |  -  | 
+| [-inst] | string |  -  | 
+
+# 431.COMMAND
+## Description
+**synthesize_clock_smart_htree** - Synthesize the smart H-trees created before.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+
+# 432.COMMAND
+## Description
+**synthesize_clock_tree** - synthesize clock tree.
+
+
+# 433.COMMAND
+## Description
+**trim_wires** - Performs wire trimming on the specified wires.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| [-floating_only] | boolean |  -  | 
+| [-nets] | string_list |  -  | 
+| [-selected] | boolean |  -  | 
+| [-status] | enum | {COVER FIXED NOSHIELD ROUTED SHIELD} | 
+| [-trial_run] | boolean |  -  | 
+
+# 434.COMMAND
+## Description
+**uncommit_partition** - convert partition to module.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-keep_partition_row] | boolean |  -  | 
+| [-keep_pin_geometry] | boolean |  -  | 
+| -partition | string_list |  -  | 
+| [-remove_physical_instance] | boolean |  -  | 
+
+# 435.COMMAND
+## Description
+**underive_clock_trees** - This command removes all clock trees, skew group definitions and other clock tree synthesis configurations. It completely resets all related settings, except for the global mode configurations.
+
+
+# 436.COMMAND
+## Description
+**unflatten_blm** - unflatten boundary logic models.
+
+
+# 437.COMMAND
+## Description
+**unplace** - Unplaces the design. It changes the place_status of all instances from placed to unplaced.
+
+
+# 438.COMMAND
+## Description
+**unplace_all_blocks** - Unplaces all block instances by resetting their place status from placed to unplaced.
+
+
+# 439.COMMAND
+## Description
+**unroute** - removes the route info as specified.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-area] | string_list |  -  | 
+| [-direction] | enum | {H V} | 
+| [-floating_via] | boolean |  -  | 
+| [-layers] | string |  -  | 
+| [-nets] | string |  -  | 
+| [-physical_pin_shape] | boolean |  -  | 
+| [-selected] | boolean |  -  | 
+| [-shape_type] | enum_list | {RING PADRING BLOCKRING STRIPE FOLLOWPIN IOWIRE COREWIRE BLOCKWIRE FILLWIRE FILLWIREOPC DRCFILL NONE} | 
+| [-status] | enum | {routed shielding shielded fixed} | 
+| [-type] | enum | {regular special} | 
+| [-use] | enum | {CLOCK POWER SIGNAL} | 
+| [-wires_only] | enum | {0 1} | 
+
+# 440.COMMAND
+## Description
+**unspecify_blm** - unspecify BLM directory for a cell.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -cell | string |  -  | 
+
+# 441.COMMAND
+## Description
+**update_analysis_corner** - update an analysis corner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-early_lib_set] | string_list |  -  | 
+| [-early_operating_condition] | string |  -  | 
+| [-early_operating_condition_library] | string |  -  | 
+| [-late_lib_set] | string_list |  -  | 
+| [-late_operating_condition] | string |  -  | 
+| [-late_operating_condition_library] | string |  -  | 
+| [-lib_set] | string_list |  -  | 
+| -name | string |  -  | 
+| [-operating_condition] | string |  -  | 
+| [-operating_condition_library] | string |  -  | 
+| -power_domain | string |  -  | 
+
+# 442.COMMAND
+## Description
+**update_analysis_mode** - update analysis mode.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-blm_constraint_file] | string_list |  -  | 
+| [-constraint_file] | string_list |  -  | 
+| -name | string |  -  | 
+| [-reset_latency_files] | boolean |  -  | 
+
+# 443.COMMAND
+## Description
+**update_floorplan_size** - Update the size of floorplan in horizontal or vertical direction.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-size_horizontal] | double |  -  | 
+| [-size_vertical] | double |  -  | 
+
+# 444.COMMAND
+## Description
+**update_instance_group** - Update an instance group.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add] | boolean |  -  | 
+| [-delete] | boolean |  -  | 
+| -name | string |  -  | 
+| -objects | string_list |  -  | 
+
+# 445.COMMAND
+## Description
+**update_io_pin** - Place, edit or move IO pins.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-edge_number] | integer |  -  | 
+| [-end_to] | point |  -  | 
+| [-fix_overlap] | enum | {0 1} | 
+| [-fixed_pin] | boolean |  -  | 
+| [-layer] | string_list |  -  | 
+| [-location] | point |  -  | 
+| -pin | string_list |  -  | 
+| [-pin_depth] | double |  -  | 
+| [-pin_width] | double |  -  | 
+| [-side] | enum | {left top right bottom} | 
+| [-spacing] | double |  -  | 
+| [-spread_direction] | enum | {clockwise counter_clockwise both} | 
+| [-spread_type] | enum | {start center side edge range} | 
+| [-start_from] | point |  -  | 
+| [-unit] | enum | {micron track} | 
+
+# 446.COMMAND
+## Description
+**update_lib_set** - update setting of existing lib set.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-aocv] | string_list |  -  | 
+| -name | string |  -  | 
+| [-pocv] | string_list |  -  | 
+| [-timing_lib] | string_list |  -  | 
+
+# 447.COMMAND
+## Description
+**update_message_setting** - update message setting by id.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -ids | string_list |  -  | 
+| [-limit] | integer |  -  | 
+| [-reset_limit] | boolean |  -  | 
+
+# 448.COMMAND
+## Description
+**update_pg_vias** - Add or remove PG vias.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-add] | boolean |  -  | 
+| [-area] | double_list |  -  | 
+| [-between_selected] | boolean |  -  | 
+| [-bottom_layer] | string |  -  | 
+| [-nets] | string_list |  -  | 
+| [-remove] | boolean |  -  | 
+| [-top_layer] | string |  -  | 
+
+# 449.COMMAND
+## Description
+**update_rc_corner** - update setting of an existing rc corner.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -name | string |  -  | 
+| [-post_route_cap_scale_factor] | double_list |  -  | 
+| [-post_route_clkcap_scale_factor] | double_list |  -  | 
+| [-post_route_clkres_scale_factor] | double_list |  -  | 
+| [-post_route_res_scale_factor] | double_list |  -  | 
+| [-post_route_xcap_scale_factor] | double_list |  -  | 
+| [-pre_route_cap_scale_factor] | double |  -  | 
+| [-pre_route_clkcap_scale_factor] | double |  -  | 
+| [-pre_route_clkres_scale_factor] | double |  -  | 
+| [-pre_route_res_scale_factor] | double |  -  | 
+| [-rc_tech] | string |  -  | 
+| [-temperature] | double |  -  | 
+
+# 450.COMMAND
+## Description
+**update_skew_group** - update the specified skew group properties.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-delete_ignore_pins] | string_list |  -  | 
+| [-delete_sinks] | string_list |  -  | 
+| [-insert_ignore_pins] | string_list |  -  | 
+| [-insert_sinks] | string_list |  -  | 
+| -skew_group_name | string |  -  | 
+
+# 451.COMMAND
+## Description
+**write_datapath_file** - Writes out the current data path relative placement information into a file which in .datapath format.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-command] | boolean |  -  | 
+| -file | string |  -  | 
+| [-group] | string |  -  | 
+| [-template] | boolean |  -  | 
+| [-update_orientation] | boolean |  -  | 
+| [-update_relative_placement_constraint] | boolean |  -  | 
+
+# 452.COMMAND
+## Description
+**write_db** - write db data.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-copy_reflib] | boolean |  -  | 
+| [-rc] | boolean |  -  | 
+| db_path | string |  -  | 
+
+# 453.COMMAND
+## Description
+**write_def** - Write Def files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-floorplan] | boolean |  -  | 
+| [-no_early_route_wire] | boolean |  -  | 
+| [-no_logical_stdcell] | boolean |  -  | 
+| [-no_routing] | boolean |  -  | 
+| [-no_scanchain] | boolean |  -  | 
+| [-no_special_net] | boolean |  -  | 
+| [-selected] | boolean |  -  | 
+| file_name | string |  -  | 
+
+# 454.COMMAND
+## Description
+**write_gds** - Write GDS2 files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-die_in_polygon] | boolean |  -  | 
+| [-instance_name_attribute] | integer | [1, 127] | 
+| [-library_name] | string |  -  | 
+| [-map] | string |  -  | 
+| [-merge_files] | string_list |  -  | 
+| [-mode] | enum | {all fill_only no_fill no_instances} | 
+| [-net_name_attribute] | integer | [1, 127] | 
+| [-output_macro] | boolean |  -  | 
+| [-top_structure_name] | string |  -  | 
+| [-units] | enum | {100 200 400 800 1000 2000 4000 8000 10000 20000} | 
+| file_name | string |  -  | 
+
+# 455.COMMAND
+## Description
+**write_lef** - Write LEF files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| file_name | string |  -  | 
+
+# 456.COMMAND
+## Description
+**write_mbff_mapping_file** - Write multi-bit flip flop mapping file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-output_dir] | string |  -  | 
+| [-prefix] | string |  -  | 
+
+# 457.COMMAND
+## Description
+**write_partition** - write partition data.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-def] | boolean |  -  | 
+| [-output_dir] | string |  -  | 
+| [-partition] | string_list |  -  | 
+
+# 458.COMMAND
+## Description
+**write_partition_pin** - write pin assignment for partitions to file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-all] | boolean |  -  | 
+| -output_file | string |  -  | 
+| [-partition] | string |  -  | 
+| [-top_only] | boolean |  -  | 
+
+# 459.COMMAND
+## Description
+**write_perf** - Write all current performance indicators to file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-format] | string |  -  | 
+| [-out_file] | string |  -  | 
+| [-pretty] | boolean |  -  | 
+| [-style] | string |  -  | 
+| [-with_unit] | string |  -  | 
+
+# 460.COMMAND
+## Description
+**write_sdc** - Write out the constraint info for the current design.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-view] | string |  -  | 
+| file_name | string |  -  | 
+
+# 461.COMMAND
+## Description
+**write_spef** - Write parasitics of specified corner into a file.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-net] | string |  -  | 
+| [-rc_corner] | string |  -  | 
+| file_name | string |  -  | 
+
+# 462.COMMAND
+## Description
+**write_timing_budget** - write timing budget files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| -output_dir | string |  -  | 
+| [-partition] | string_list |  -  | 
+
+# 463.COMMAND
+## Description
+**write_upf** - Write UPF.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| file_name | string |  -  | 
+
+# 464.COMMAND
+## Description
+**write_verilog** - Write Verilog files.
+## Option
+| Name | Data Type | Legal Values |
+|------|-----------|--------------|
+| [-exclude_cell_instances] | string_list |  -  | 
+| [-exclude_leaf_cells] | boolean |  -  | 
+| [-include_power_ground] | boolean |  -  | 
+| [-physical] | boolean |  -  | 
+| file_name | string |  -  | 
+

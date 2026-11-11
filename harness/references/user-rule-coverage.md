@@ -22,8 +22,18 @@
       "summary": "Skill 只能由用户显式触发，禁止自动触发",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/agents/openai.yaml", "contains": ["allow_implicit_invocation: false"]},
-        {"path": "harness/tests/unit/test_repository_layout.py", "contains": ["allow_implicit_invocation: false"]}
+        {
+          "path": "skill/agents/openai.yaml",
+          "contains": [
+            "allow_implicit_invocation: false"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_repository_layout.py",
+          "contains": [
+            "allow_implicit_invocation: false"
+          ]
+        }
       ]
     },
     {
@@ -31,17 +41,58 @@
       "summary": "注册描述按做什么、何时使用、关键能力三部分组织",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/agents/openai.yaml", "contains": ["short_description:", "用户显式调用", "场景分解", "Excel", "TCL"]},
-        {"path": "harness/tests/unit/test_repository_layout.py", "contains": ["description must contain what, when, and capabilities"]}
+        {
+          "path": "skill/agents/openai.yaml",
+          "contains": [
+            "short_description:",
+            "用户显式调用",
+            "场景分解",
+            "Excel",
+            "TCL"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_repository_layout.py",
+          "contains": [
+            "description must contain what, when, and capabilities"
+          ]
+        }
       ]
     },
     {
       "id": "USR-003",
-      "summary": "支持从命令说明先设计再生成脚本，以及从已有设计表直接生成脚本两种场景",
+      "summary": "统一 Workflow 支持命令说明和已有设计表，按已有产物衔接步骤",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/SKILL.md", "contains": ["场景一：从命令说明设计新用例", "场景二：从已有用例设计表生成脚本"]},
-        {"path": "harness/tests/unit/test_skill_workflow_modes.py", "contains": ["test_routes_command_spec_to_design_then_script", "test_routes_existing_plan_directly_to_script_generation"]}
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "统一 Workflow",
+            "rules/input-rules.md",
+            "rules/output-rules.md",
+            "跳过步骤 2，进入步骤 3"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_skill_workflow_modes.py",
+          "contains": [
+            "test_routes_command_spec_to_design_then_script",
+            "test_routes_existing_plan_directly_to_script_generation"
+          ]
+        },
+        {
+          "path": "skill/rules/input-rules.md",
+          "contains": [
+            "不重新执行场景设计或策略选择",
+            "不得擅自改写已给出的用例设计"
+          ]
+        },
+        {
+          "path": "skill/rules/output-rules.md",
+          "contains": [
+            "确认前不得生成 TCL"
+          ]
+        }
       ]
     },
     {
@@ -49,8 +100,23 @@
       "summary": "所有需要用户确认的暂停点必须用 WAIT 标记并写明等待内容和继续条件",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/SKILL.md", "contains": ["WAIT-STRATEGY", "WAIT-DESIGN-CONFIRMATION", "WAIT-PLAN-FIX", "WAIT-SCRIPT-DELIVERY-FIX", "等待内容：", "继续条件："]},
-        {"path": "harness/tests/unit/test_skill_workflow_modes.py", "contains": ["test_wait_markers_define_resume_conditions"]}
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "WAIT-STRATEGY",
+            "WAIT-DESIGN-CONFIRMATION",
+            "WAIT-PLAN-FIX",
+            "WAIT-SCRIPT-DELIVERY-FIX",
+            "等待内容：",
+            "继续条件："
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_skill_workflow_modes.py",
+          "contains": [
+            "test_wait_markers_define_resume_conditions"
+          ]
+        }
       ]
     },
     {
@@ -58,8 +124,20 @@
       "summary": "Excel 确定性规范由测试计划检查脚本执行",
       "category": "static",
       "evidence": [
-        {"path": "skill/scripts/test_plan_validator.py", "contains": ["PLAN-001", "PLAN-015"]},
-        {"path": "harness/tests/unit/test_test_plan_validator.py", "contains": ["PLAN-001", "PLAN-015"]}
+        {
+          "path": "skill/scripts/test_plan_validator.py",
+          "contains": [
+            "PLAN-001",
+            "PLAN-015"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_test_plan_validator.py",
+          "contains": [
+            "PLAN-001",
+            "PLAN-015"
+          ]
+        }
       ]
     },
     {
@@ -67,8 +145,21 @@
       "summary": "Excel 中需要语义理解的规则只保留在 Agent 语义审查规范",
       "category": "semantic",
       "evidence": [
-        {"path": "skill/references/specs/test-plan-rules.md", "contains": ["PLAN-006", "PLAN-013", "Agent"]},
-        {"path": "skill/SKILL.md", "contains": ["references/specs/test-plan-rules.md", "执行 Agent 语义审查"]}
+        {
+          "path": "skill/references/specs/test-plan-rules.md",
+          "contains": [
+            "PLAN-006",
+            "PLAN-013",
+            "Agent"
+          ]
+        },
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "references/specs/test-plan-rules.md",
+            "执行 Agent 语义审查"
+          ]
+        }
       ]
     },
     {
@@ -76,8 +167,20 @@
       "summary": "TCL 设计追溯、工具语义、检查点充分性和多步数据流由 Agent 语义审查",
       "category": "semantic",
       "evidence": [
-        {"path": "skill/references/specs/tcl-script-rules.md", "contains": ["TCL-SEMANTIC-001", "TCL-SEMANTIC-004"]},
-        {"path": "skill/SKILL.md", "contains": ["references/specs/tcl-script-rules.md", "检查点充分性"]}
+        {
+          "path": "skill/references/specs/tcl-script-rules.md",
+          "contains": [
+            "TCL-SEMANTIC-001",
+            "TCL-SEMANTIC-004"
+          ]
+        },
+        {
+          "path": "skill/rules/output-rules.md",
+          "contains": [
+            "../references/specs/tcl-script-rules.md",
+            "检查点充分性"
+          ]
+        }
       ]
     },
     {
@@ -85,17 +188,56 @@
       "summary": "场景覆盖率和被测选项覆盖率必须分别检查并报告未覆盖项",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/SKILL.md", "contains": ["场景覆盖率", "被测选项覆盖率", "未覆盖项"]},
-        {"path": "harness/tests/unit/test_skill_workflow_tools.py", "contains": ["test_skill_requires_scenario_and_option_coverage"]}
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "rules/output-rules.md"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_skill_workflow_tools.py",
+          "contains": [
+            "test_skill_requires_scenario_and_option_coverage"
+          ]
+        },
+        {
+          "path": "skill/rules/output-rules.md",
+          "contains": [
+            "场景覆盖率",
+            "被测选项覆盖率",
+            "未覆盖项"
+          ]
+        }
       ]
     },
     {
       "id": "USR-009",
-      "summary": "用户确认 design 和 tech 后由映射自动确定 design.tcl 与目标工具方言 mmmc.tcl",
+      "summary": "工艺输入来自 smic180 JSON 管理表，按当前 common 和目标工具模板生成独立归档输入，不跨工具替换 MMMC",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/SKILL.md", "contains": ["根据已登记的 design/tech 资源映射自动确定", "用户无需选择文件", "不得跨工具替换 MMMC"]},
-        {"path": "harness/tests/unit/test_skill_workflow_modes.py", "contains": ["test_archives_selected_design_and_tech_inputs_into_each_case"]}
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "assets/输入件管理表.json",
+            "`smic180`",
+            "assets/templates/tool_cmd/common/design.tcl",
+            "assets/templates/tool_cmd/<tool>/"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_skill_workflow_modes.py",
+          "contains": [
+            "test_archives_selected_design_and_tech_inputs_into_each_case"
+          ]
+        },
+        {
+          "path": "skill/rules/output-rules.md",
+          "contains": [
+            "<case_dir>/tcl/design.tcl",
+            "<case_dir>/tcl/<tool>/mmmc.tcl",
+            "不得跨工具替换 MMMC"
+          ]
+        }
       ]
     },
     {
@@ -103,8 +245,21 @@
       "summary": "每个 case 只有一个工具目录，单步 run.tcl，多步连续 run_1.tcl 到 run_N.tcl",
       "category": "static",
       "evidence": [
-        {"path": "skill/scripts/tcl_convention_validator.py", "contains": ["TCL-STRUCT-001", "TCL-STRUCT-002", "单步/多步 run"]},
-        {"path": "harness/tests/unit/test_tcl_convention_validator.py", "contains": ["TCL-STRUCT-001", "TCL-STRUCT-002"]}
+        {
+          "path": "skill/scripts/tcl_convention_validator.py",
+          "contains": [
+            "TCL-STRUCT-001",
+            "TCL-STRUCT-002",
+            "单步/多步 run"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_tcl_convention_validator.py",
+          "contains": [
+            "TCL-STRUCT-001",
+            "TCL-STRUCT-002"
+          ]
+        }
       ]
     },
     {
@@ -112,8 +267,22 @@
       "summary": "设计输入集中在 design.tcl，MMMC 保持声明式并隔离工具方言",
       "category": "static",
       "evidence": [
-        {"path": "skill/scripts/tcl_convention_validator.py", "contains": ["TCL-DESIGN-001", "TCL-MMMC-001", "TCL-MMMC-002"]},
-        {"path": "harness/tests/unit/test_tcl_convention_validator.py", "contains": ["TCL-DESIGN-001", "TCL-MMMC-001", "TCL-MMMC-002"]}
+        {
+          "path": "skill/scripts/tcl_convention_validator.py",
+          "contains": [
+            "TCL-DESIGN-001",
+            "TCL-MMMC-001",
+            "TCL-MMMC-002"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_tcl_convention_validator.py",
+          "contains": [
+            "TCL-DESIGN-001",
+            "TCL-MMMC-001",
+            "TCL-MMMC-002"
+          ]
+        }
       ]
     },
     {
@@ -121,8 +290,24 @@
       "summary": "每个 run 必须完成初始化，恰好一个 EXPECT、TEST_ACTION 和 checkpoint，并以 pv_rpt_checkpoints、exit 收尾",
       "category": "static",
       "evidence": [
-        {"path": "skill/scripts/tcl_convention_validator.py", "contains": ["TCL-SCRIPT-001", "TCL-SCRIPT-004", "TCL-CHECKPOINT-001", "TCL-SCRIPT-005"]},
-        {"path": "harness/tests/unit/test_tcl_convention_validator.py", "contains": ["TCL-SCRIPT-001", "TCL-SCRIPT-004", "TCL-CHECKPOINT-001", "TCL-SCRIPT-005"]}
+        {
+          "path": "skill/scripts/tcl_convention_validator.py",
+          "contains": [
+            "TCL-SCRIPT-001",
+            "TCL-SCRIPT-004",
+            "TCL-CHECKPOINT-001",
+            "TCL-SCRIPT-005"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_tcl_convention_validator.py",
+          "contains": [
+            "TCL-SCRIPT-001",
+            "TCL-SCRIPT-004",
+            "TCL-CHECKPOINT-001",
+            "TCL-SCRIPT-005"
+          ]
+        }
       ]
     },
     {
@@ -130,8 +315,22 @@
       "summary": "TCL 仅允许 PV_ROOT 与 PV_TOOL，禁止机器绝对路径和伪造检查结果",
       "category": "static",
       "evidence": [
-        {"path": "skill/scripts/tcl_convention_validator.py", "contains": ["TCL-RUNNER-001", "TCL-SCRIPT-003", "TCL-SCRIPT-006"]},
-        {"path": "harness/tests/unit/test_tcl_convention_validator.py", "contains": ["TCL-RUNNER-001", "TCL-SCRIPT-003", "TCL-SCRIPT-006"]}
+        {
+          "path": "skill/scripts/tcl_convention_validator.py",
+          "contains": [
+            "TCL-RUNNER-001",
+            "TCL-SCRIPT-003",
+            "TCL-SCRIPT-006"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_tcl_convention_validator.py",
+          "contains": [
+            "TCL-RUNNER-001",
+            "TCL-SCRIPT-003",
+            "TCL-SCRIPT-006"
+          ]
+        }
       ]
     },
     {
@@ -139,18 +338,43 @@
       "summary": "Skill 运行时验证资产与项目开发验证、测试资源和文档完全分离",
       "category": "project",
       "evidence": [
-        {"path": "AGENTS.md", "contains": ["Skill 产物与项目开发资产必须完全分离", "禁止跨目录混合维护"]},
-        {"path": "harness/tests/unit/test_repository_layout.py", "contains": ["test_runtime_and_development_validation_assets_are_fully_separated"]},
-        {"path": "skill/scripts/validate.py", "must_not_exist": true}
+        {
+          "path": "AGENTS.md",
+          "contains": [
+            "Skill 产物与项目开发资产必须完全分离",
+            "禁止跨目录混合维护"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_repository_layout.py",
+          "contains": [
+            "test_runtime_and_development_validation_assets_are_fully_separated"
+          ]
+        },
+        {
+          "path": "skill/scripts/validate.py",
+          "must_not_exist": true
+        }
       ]
     },
     {
       "id": "USR-015",
-      "summary": "Skill 目录内禁止 README.md，文档只进入 SKILL.md 或 references",
+      "summary": "Skill 目录内禁止 README.md，文档归入 SKILL.md、references 或输入输出 rules",
       "category": "project",
       "evidence": [
-        {"path": "AGENTS.md", "contains": ["目录内禁止存在任何 `README.md`", "`SKILL.md` 或 `references/`"]},
-        {"path": "harness/tests/unit/test_repository_layout.py", "contains": ["test_runtime_tree_contains_no_readme_files"]}
+        {
+          "path": "AGENTS.md",
+          "contains": [
+            "目录内禁止存在任何 `README.md`",
+            "`SKILL.md`、`references/` 或 `rules/`"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_repository_layout.py",
+          "contains": [
+            "test_runtime_tree_contains_no_readme_files"
+          ]
+        }
       ]
     },
     {
@@ -158,8 +382,26 @@
       "summary": "每个用例最大化兼容测试点覆盖，仅在冲突、初始化不同或结果无法共同观察时拆分",
       "category": "workflow",
       "evidence": [
-        {"path": "skill/SKILL.md", "contains": ["Maximize compatible test-point coverage per case", "测试点冲突", "初始化不同"]},
-        {"path": "harness/tests/unit/test_scenario_strategy_contract.py", "contains": ["test_skill_requires_maximum_compatible_coverage_per_case"]}
+        {
+          "path": "skill/SKILL.md",
+          "contains": [
+            "rules/output-rules.md"
+          ]
+        },
+        {
+          "path": "harness/tests/unit/test_scenario_strategy_contract.py",
+          "contains": [
+            "test_skill_requires_maximum_compatible_coverage_per_case"
+          ]
+        },
+        {
+          "path": "skill/rules/output-rules.md",
+          "contains": [
+            "最大化单用例的兼容测试点覆盖",
+            "测试点冲突",
+            "初始化不同"
+          ]
+        }
       ]
     }
   ]

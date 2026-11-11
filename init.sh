@@ -46,6 +46,7 @@ usage() {
   test feature FEATURE_ID     运行指定功能点登记的测试
   test agent-e2e CASE_DIR...  通过 Codex JSONL 会话执行真实 Skill 端到端用例
   test tcl CASE_DIR...        运行指定 TCL 用例目录的规范检查
+  test tcl CASE... --syntax    同时检查 Tcl 语法、Optimus 命令及编程规范（Tcl 8.5/8.6 共享库）
   test plan PLAN [参数...]    运行 Excel 测试计划检查
   test delivery PLAN CASE...  运行 Excel → TCL 交付门禁
   help                        显示本帮助

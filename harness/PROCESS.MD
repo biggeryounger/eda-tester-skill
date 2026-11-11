@@ -1,6 +1,6 @@
 # EDA Tester Skill 项目进度
 
-最后更新：2026-10-20
+最后更新：2026-11-11
 
 项目仓库：<https://github.com/biggeryounger/eda-tester-skill>
 
@@ -8,12 +8,12 @@
 
 ## 当前交接快照
 
-- 当前功能：无；F-040“pv_check_log 命令数量限制”已完成，状态 `passing`。
-- 工作区状态：用户于 2026-10-20 要求“更新远程github仓空”，按上传流程准备候选提交；排除 .DS_Store，保留其本地修改。
-- 最近验证：2026-10-20 测试先行基线 2 项按预期失败；F-040 登记检查全通过（新测试 5/5、原 TCL 测试 47/47、项目清单）；完整门禁 181/181 PASS（含受保护冒烟 10/10）、Skill 结构 PASS。
-- 阻塞项：无本次阻塞；规则计数命令块的顶层 Tcl 命令，不展开 proc、循环或动态脚本；未执行 EDA 实机验证。既有 PV 参数覆盖缺口仍按参考入口记录。
-- 下一条命令：候选分支 `codex/pv-checkpoints-input-selection` 通过门禁后推送，触发 `eda-tester-skill-approved-merge`，由用户在 Jenkins 审批；不得直接推送 main。
-- 涉及文件：`skill/scripts/tcl_convention_validator.py`、`skill/references/pv-checkpoints/index.md`、`skill/SKILL.md`、`harness/tests/unit/test_pv_log_command_limit.py`、`harness/function.json`、`harness/PROCESS.MD`
+- 当前功能：F-048“当前输入模板门禁迁移”和 F-049“当前交付规则与检查依赖门禁”均已完成；F-047 授权阻塞已解除并按当前 JSON 管理表契约更新为 passing，无 active 功能。
+- 工作区状态：本次业务及门禁变更准备提交到 codex/pv-checkpoints-input-selection；已排除本地日志、生成结果、.DS_Store 和示例 design 数据。候选提交后推送并触发 Jenkins，最终发布结果在会话结束记录。
+- 最近验证：2026-11-11 测试先行验证失败后实现；F-048、F-049 专项 PASS，受保护冒烟 10/10 PASS，./init.sh test all 运行 229 项全部通过，项目清单与隔离 Skill 结构 PASS；最终功能状态及交接文档落盘后复核完整门禁同样 PASS。
+- 阻塞项：无本次门禁整改阻塞；完整门禁是静态/假 Codex 验证，不代表真实模型或 EDA 运行通过。后续发布需继续检查已有未跟踪示例中的设计数据及禁止提交项。
+- 下一条命令：若继续发布，先审查 git diff 和待提交文件的秘密/设计数据，再按候选分支、完整检查和 Jenkins 用户审批流程执行。
+- 涉及文件：harness/function.json、harness/PROCESS.MD、harness/references/test-plan.md、harness/references/user-rule-coverage.md、harness/tests/unit/test_current_resource_contract.py、harness/tests/unit/test_current_delivery_contract.py、相关非受保护门禁测试、已授权 E2E runner/case、skill/SKILL.md、skill/rules/、skill/references/optimus-syntax/、skill/references/itools-syntax/、skill/scripts/optimus_defaults.py、skill/scripts/tcl_convention_validator.py
 
 ## 当前目标
 
@@ -22,7 +22,7 @@
 ## 当前状态
 
 - 当前活动功能：无。
-- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-015、F-016、F-017、F-018、F-019、F-020、F-021、F-022、F-023、F-024、F-025、F-026、F-027、F-028、F-029、F-030、F-031、F-032、F-033、F-034、F-035、F-036。
+- 已通过功能：F-002、F-004、F-005、F-006、F-012、F-013、F-015、F-016、F-017、F-018、F-019、F-020、F-022、F-021、F-023、F-024、F-025、F-026、F-027、F-028、F-029、F-030、F-031、F-032、F-033、F-034、F-035、F-036、F-037、F-038、F-039、F-040、F-041、F-042、F-043、F-044、F-045、F-046、F-047、F-048、F-049。
 - F-015 TCL 脚本规范检查器已升级为目录树模型（`nith.run` + `tcl/design.tcl` + `tcl/<tool>/{run_1.tcl…run_N.tcl, mmmc.tcl}`），状态为 `passing`。
 - F-020 TXT 命令说明结构化解析器已实现并通过功能级验证，状态为 `passing`。
 - F-021 工具命令 Help 批量采集脚本已实现并通过功能级验证，状态为 `passing`。
@@ -33,6 +33,72 @@
 ## 历史记录
 
 ### 已完成工作
+
+- 2026-11-11 发布前核验完成：本地工作区及 git 暂存文件导出的干净临时副本分别执行 ./init.sh test all，均为 229 项通过，项目清单和 Skill 结构 PASS；差异格式及禁止文件/秘密/实际用户路径扫描通过。GitHub 候选分支与 origin/main 同基线。Docker 与指定 8081 端口 Jenkins 已恢复，目标任务可访问、无运行中构建；随后提交并推送候选，触发远端候选测试及用户审批。扫描识别到的 /Users/、/home/ 正则仅为检查器拒绝路径的规则，非实际本地用户路径。
+
+- 2026-11-11 用户再次明确要求“推送”：按结束流程准备候选发布。SKILL.md 已覆盖本次实际业务和规则变更，无额外入口文案需要补写；Jenkins README 同步当前 JSON/模板/规则审阅路径。确认 origin 为指定 GitHub，候选分支包含最新 origin/main；排除 .DS_Store、harness/generated、harness/outputs 及示例 design 目录数据，不上传本地设计数据库、网表或附件。发布前重跑完整门禁；后续仅推送候选并等待 Jenkins 人工审批，不直接更新 main。
+
+- 2026-11-11 按“按本次更新整改门禁内容”完成 F-048/F-049：先创建并登记当前资源/交付测试，确认旧门禁失败后迁移。按当前 JSON 管理表、单视图 MMMC、common/工具模板重新核对路径、工艺、LIB/LEF、连接关系及工具方言；新增错误工艺/LEF/LIB、纯注释反例。TCL-DESIGN-003 支持管理表静态声明，保留历史标记兼容；明确输入来源检查不证明真实 EDA 语义。补齐 rules 输入输出入口并保留覆盖率、确认、空表禁止交付和缺口阻断要求，相关测试验证路由及规则正文，更新规则覆盖台账。恢复本机已安装 Skill 中缺失的命令资料，Optimus 原字节 SHA-256 与检查器锁定值一致，iTools 1333 命令规则及原覆盖缺口保留，不回补退役设计目录。Optimus 默认值模块解除对已删除 profile 文件的导入依赖，示例仍需显式选择、缺少 DEF 继续报告。授权范围内将共享 E2E runner 切换当前模板，case_version 2.0 使用 SMIC180，保留比较强度及全部步骤；SMOKE-008 保留四项等待和明确批准断言。F-048/F-049 专项、10 项受保护冒烟、229 项全量验证均 PASS。F-047 阻塞解除，旧目录选择特性说明同步当前输入契约。未提交、推送或触发 Jenkins。
+
+- 2026-11-11 受保护变更授权：用户对本会话列明 SMOKE-008/009/010 范围回复“允许上述范围修改”。允许 008 将 design/tech 确认改为当前 Workflow 的明确设计确认；009/010 共享 runner 从旧 defaults 切换 common/design.tcl 和 Optimus MMMC 模板，SMIC28 输入迁移 SMIC180 并同步版本/预期。四项等待门禁、五类产物比较、重复运行、三轮会话、确认前禁止 TCL 及独立验证保留；不授权减少测试项或放宽比较。
+
+- 2026-11-11 用户要求“推送远程仓”：核对 origin 为指定 GitHub 仓库，当前为 codex/pv-checkpoints-input-selection 候选分支；执行 ./init.sh test all 返回 1。项目清单及 Skill 结构 PASS，216 项单元/回归测试报告 failures=51、errors=13，包括删除资源造成文件缺失、workflow 契约及规则覆盖不匹配。遵循上传失败即停止规则，未提交、推送或触发 Jenkins；未修改受保护测试，function.json 状态保持原样。SKILL.md 已包含此前业务变更，本次发布尝试无新增功能文档内容，无需额外修改 SKILL.md 或 README。下一步先解决失败与资源迁移契约，保护范围变更仍需明确授权，再重新执行完整门禁。
+
+- 2026-11-11 查看本地改动：查看时共 15 个已修改、663 个已删除、46 个未跟踪文件，暂存区为空；主要涉及静态检查器、统一 workflow、输入资源替换及示例。git diff --check PASS；本次未运行功能或全量测试，未修改实现、受保护测试或功能状态，未提交、推送或触发 Jenkins。现有 F-047 阻塞及下一步保持不变；另核对到 SKILL.md 仍引用已删除的 command-spec-format.md，待后续处理。
+
+- 2026-11-11 按用户要求在 TCL 语义规范“应该做”中补充 TCL-SEMANTIC-003 用例检查点：每个用例至少包含一个 pv_check_log、pv_check_qor 或 pv_check_golden，并用于验证用例预期。仅规范补充，未扩展静态检查器或修改受保护测试，功能状态不变；文案核对、Skill 结构及 diff --check PASS，未部署或发布。
+
+- 2026-11-11 按用户要求在第 5 步增加脚本输出件参考 `references/examples/`，说明按示例的用例目录结构、运行入口及目标工具脚本组织方式结合当前用例与模板生成，并补充参考文档索引。目录及 nith.run 示例存在性核对、Skill 结构与 diff --check PASS；仅文档修改，function.json 状态不变，未修改示例、受保护测试或检查实现，未部署或发布。
+
+- 2026-11-10 按用户要求将 `skill/references/specs/tcl-script-rules.md` 按“应该做”和“禁止做”分类。保留 TCL-SEMANTIC-001～004 编号：正向要求按原主题归档，禁止事项按同一编号关联；审查记录、FAIL/SPEC-GAP 定义及停止交付条件保留。逐项核对原规则含义未减少，Skill 结构及 diff --check PASS；仅规范排版整理，function.json 状态不变，未改保护测试、未运行全量、未部署或发布。
+
+- 2026-11-10 按用户要求在 SKILL.md 参考文档索引补齐 common/design.tcl 与 itools/mmmc.tcl、optimus/mmmc.tcl，均位于 assets/templates/tool_cmd。三项索引与目标文件存在性核对通过，Skill 结构及 diff --check PASS。仅文档索引补充，不改功能状态、模板或受保护测试，未部署或发布。
+
+- 2026-11-10 更新 SKILL.md 中 iTools/Optimus initial design 模板索引，分别指向 `assets/templates/tool_cmd/itools/init.tcl` 和 `assets/templates/tool_cmd/optimus/init.tcl`。两份目标文件存在，Skill 结构及 diff --check PASS；仅文档路径修正，无功能状态变化，未修改模板或受保护用例，未部署或发布。
+
+- 2026-11-10 按用户指定删除 SKILL.md 参考文档索引中的 Optimus TCL 语法检查及 iTools 命令检查两项说明；仅移除两条索引，不删除底层检查工具或资料，不修改其他检查流程。条目移除核对、Skill 结构及 diff --check PASS；无功能状态变化，未部署或发布。
+
+- 2026-11-10 按用户要求同步简化 iTools 检查说明为“脚本检查 + 规则语义检查”；保留两个脚本检查命令、本地 source 范围与语义规则入口，详细检查边界和缺口处理路由到既有 iTools 说明，继续要求无未解决缺口才可交付。仅文案修改，不改检查器、受保护测试或功能状态；Skill 结构及 diff --check PASS，未运行全量、未部署或发布。
+
+- 2026-11-10 按用户要求简化 Optimus 检查说明为“脚本检查 + 规则语义检查”，保留 --syntax 执行命令，链接 TCL 语义规则并明确两项通过方可交付；后续统一语义审查步骤继续保留。仅文案调整，未修改检查器、测试或功能状态。Skill 结构与差异检查通过，未运行全量、未部署或发布。
+
+- 2026-11-10 按用户要求简化第 5 步脚本生成说明：替换长篇 design/stage 资源映射与复制说明，保留每条 Excel 用例一个目录，明确必须参考 `assets/templates/tool_cmd/common/design.tcl` 和目标工具目录下 init.tcl/mmmc.tcl 生成对应工具 TCL，工艺路径沿用第 4 步 smic180 管理表。核对 common 及 Optimus/iTools 五份模板文件均存在；仅文案及交接调整，无新增功能，function.json 状态不变，不改受保护测试。未部署或发布。
+
+- 2026-11-10 第 4 步关联工艺输入管理表：按用户指定在 `skill/SKILL.md` 的“确认设计与运行输入”读取 `assets/输入件管理表.json` 的 smic180 对象，明确 tech_dir、lef_files、lib_files；工艺固定且无需询问。design.tcl/MMMC 包括复制输入均必须使用登记值，lib_files 按工具变量映射，保留 PV_ROOT；缺失/不兼容进入 WAIT-PLAN-FIX，不回退历史库或猜测设计信息。输入规则同步引用。仅修改运行文档与交接，不新增功能或修改 function.json 状态，F-047 仍待保护断言授权。Skill 结构、管理表链接/字段/类型/缺失处理核对和 diff --check PASS，未重跑全量、未修改保护测试、未部署或发布。
+
+- 2026-11-10 按用户要求为 JSON 输入管理表增加顶层键 `smic180`，其下保留 tech_dir、lef_files、lib_files，路径值不变。JSON 回读及顶层键检查通过；仅数据结构调整，不变更功能清单、Skill 入口或受保护测试，未部署或发布。
+
+- 2026-11-10 按用户收窄输入管理表范围：`skill/assets/输入件管理表.json` 仅保留 tech_dir、lef_files、lib_files 三个字段，删除设计、profile、来源、状态、说明及其他用例变量。LIB 原 `$tech_dir/synopsys/typical.lib` 以所登记 tech_dir 展开为保留 `$env(PV_ROOT)` 的路径，避免依赖已删除的变量层级；不展开本机环境。JSON 回读、仅三字段及路径替换检查通过；仅数据精简，function.json/SKILL.md 无需修改，F-047 阻塞不变，未修改保护用例或发布。
+
+- 2026-11-10 重建 JSON 输入管理表：用户说明原表已删除，并指定 disconnectDanglingPort/pos002_partition_scope 的 tcl/design.tcl 为来源；重新创建 `skill/assets/输入件管理表.json`，登记 ddp_smic180_2（SMIC180、ddp_partition_top、itools），完整保留 14 个 Tcl 变量，含 LEF/Liberty、网表/SDC、空 DEF 和连接检查专属列表。相对路径以用例根为基准；不展开 PV_ROOT，不保存用户本机绝对路径，不复制外部设计或工艺库。stage 未在来源声明，记 null；来源 SHA-256、变量名集合/各值、JSON 回读及三个本地输入文件存在性检查通过，外部工艺库未验证。此为数据登记，不新增运行功能，SKILL.md/function.json 无需调整，F-047 仍 blocked；未改保护测试、未部署或发布。
+
+- 2026-11-10 输入件管理表格式转换：按用户指定将 `skill/assets/输入件管理表.xlsx` 导出为同目录 `输入件管理表.json`，UTF-8 中文原文与两空格缩进；以工作表名分组、表头为对象字段，保留输入件管理 32 条和输入说明 4 条，以及原值、换行、空值。JSON 回读与全部单元格逐项比较通过，Excel SHA-256 前后一致。仅数据格式转换，无运行功能变更，function.json 与 SKILL.md 无需调整；不替换原配置源，不改写表内既有 SMIC28 路径为 SMIC180。F-047 仍 blocked，受保护断言授权未获得；未运行全量门禁、未部署或上传。
+
+- 2026-11-10 F-047：用户要求“只使用SMIC180工艺，这里不需要询问用户用什么工艺了”。先新增独立自动测试并登记 not_started，预期失败后 active 实现；Workflow 与输入规则固定 tech=SMIC180，仅确认 design/stage，限制输入列表为 SMIC180，禁止其他工艺回退；已有表缺少 tech 不再触发等待。专项 3/3 PASS，现有 SMIC180 下 Optimus/iTools 输入存在。非受保护输入选择与初始化测试同步；SMOKE-008 及共享 setUp 经 AST 比较无变化，保护范围未修改。完整测试 221 项运行，报告 failures=6：保护断言及其冒烟执行失败，另有本轮起始即缺失的 rules 路由、已有设计表跳过步骤、空表交付文案及 USR-003 证据问题。受保护断言需先获明确授权，功能暂 blocked。Skill 结构及 diff --check PASS，未部署、提交、推送或触发 Jenkins。
+
+- 2026-11-10 F-046：用户确认将场景一、场景二合并为单一 Workflow。统一为接收输入、补齐设计、验证计划、确认设计与运行输入、脚本生成与交付五步；已有设计表跳过策略和重新设计，所有计划共用结构及语义检查，新设计保留明确确认，保留全部四项等待状态和交付门禁。先调整非受保护场景路由/输入选择断言并登记 not_started，旧实现按预期失败后 active 实现。发现上轮 rules 文件与路由缺失，补齐并关联统一流程；同步 USR-003 和 USR-015 的规则证据，未削弱约束。首次完整验证因规则文件缺失及旧台账失败，修正后完整 218/218 PASS、专项 12 项 PASS、冒烟 10/10 PASS、结构及差异检查 PASS。SMOKE-008 与共享 setUp 的 AST 对比未变化；未修改任何受保护用例、helper、fixture 或 runner。未部署或发布。
+
+- 2026-11-10 F-045：按用户要求增加 `skill/rules/`，归档 `input-rules.md` 和 `output-rules.md`；入口按输入处理与输出交付时机路由，详细规范继续保持原位置及单一来源。更新安装白名单，使 link/copy 均包含 rules；架构文档明确该目录职责。先新增独立自动测试、登记 not_started 并确认入口/安装缺失失败，再 active 实现；专项 2/2、项目清单、Skill 结构和完整门禁 218/218 PASS，随后 passing。受保护测试、helper、fixture、runner 与保护规则均未修改。未部署、提交、推送或触发 Jenkins。
+
+- 2026-11-03 用户要求“重新部署”：安装器检测同名目标后，按本次重装授权将旧副本移至 Codex skill-install-backups，再执行 `./init.sh deploy --agent codex --mode copy` 成功；结构预检 PASS，全部运行文件逐字节一致、无软链接、未安装 harness。部署包含当前 F-042/F-043 源码；需新建聊天或重启 Codex 重新扫描。仅安装及交接更新，无功能状态变更、无受保护用例修改，未提交或推送。
+
+- 2026-11-03 F-043：根据用户指定检查器归档为独立运行工具 itools_check.py，配套引入 1,333 命令规则（6 个已人工核对命令）；仅调整默认规则定位和 source 路径脱敏，保留手册版本、SHA-256、页码与原始判定语义。不复制原目录 README、开发构建器、缓存或测试到 Skill。先新增独立自动测试、登记 not_started 并确认失败，再 active 实现；iTools workflow 显式运行编程规范及多文件手册检查，对错误、不可用和未解决缺口阻止交付。文档明确其非 Tcl 基础语法检查器，退出码 0 不等同完整 PASS。专项 5/5 与结构检查通过，最终完整门禁 211/211 PASS、git diff --check PASS；受保护用例及其 helper/fixture/runner 均未修改。未部署、提交、推送或触发 Jenkins。
+
+- 2026-11-03 F-042：按用户“用例开发不需要问tools版本，删除skill中关于版本的要求和门禁”，删除 workflow、Excel/TCL 语义审查、知识库回退和 Innovus/PV 参考中的目标版本前置要求；删除 --tool-version CLI 及 API 版本匹配参数，继续按已归档命令资料检查。来源版本、schema 版本和 Tcl 解析库兼容性作为元数据/依赖保留，不询问目标 EDA 工具版本。先登记独立测试与功能（not_started），两项新断言按预期失败后改 active 并实现；专项及完整门禁 206/206、Skill 结构、差异格式全部通过，随后改 passing。未修改受保护模块、fixture、helper、runner 或断言；未重新部署安装副本，未上传。
+
+- 2026-11-03 进度查询：复核功能清单共 40 项，33 passing、7 not_started，无 active/blocked；最新完成为 F-041。工作区仍保留 F-041 实现、测试与文档的未提交变更，以及既有 .DS_Store 修改。此次仅核对文档、功能清单及 Git 状态，未重新运行测试、未修改功能或受保护用例；最近完整验证仍为 2026-10-20 的 204/204 PASS。下一步等待用户指定开发范围，或在明确要求上传代码后执行完整发布流程。
+
+- 2026-10-21 用户截图显示 `$ed` 候选包含知识库 Skill 而缺少测试 Skill。发现当前入口为逐项软链接；沿用用户“嗯允许，重新安装”授权，将该安装移至 Codex skill-install-backups，执行 `./init.sh deploy --agent codex --mode copy` 成功，结构预检 PASS，核对入口为普通文件且无软链接。软链接扫描兼容性仅为排查假设；尚待重启应用后实际确认补全。当前安装已改为独立副本，源码更新后须重新部署。未改功能、元数据或受保护测试。
+
+- 2026-10-21 Codex 重装完成：用户明确回复“嗯允许，重新安装”，授权移走此前确认的旧链接并重装。旧链接已移至 Codex 目录下的 skill-install-backups（仅移动链接，未改项目源文件），随后 `./init.sh deploy --agent codex` 成功；结构预检 PASS，安装入口与全部运行白名单资源的逐项链接检查 PASS，未包含 harness/ 或 AGENTS.md。安装使用默认逐项软链接，目标为 Codex 用户级 skills/eda-tester-skill；新建聊天或重启 Codex 后重新扫描。此次仅安装，无功能变更，无需更新 SKILL.md/function.json，未修改受保护用例，未提交或推送。下一步按用户需求使用 Skill。
+
+- 2026-10-21 用户要求“安装这个skill到codex”：已读取交接与功能清单并执行 `./init.sh deploy --agent codex`；Skill 结构预检 PASS，安装因同名目标已存在而停止。核对旧目标为指向项目根目录的软链接，安装目录下未直接暴露当前 `skill/SKILL.md`。按安装入口“不覆盖已有同名 Skill；需要重装时先人工确认并移走原目标”约定，尚未移动或覆盖，等待用户确认替换旧链接后重新部署。未修改功能、受保护测试或功能状态，无需修改 SKILL.md/function.json；未提交、推送或触发 Jenkins。
+
+- 2026-10-20 F-041：根据用户指定 eda-coverage_20261015_125944/reference/all_cmd_1008.txt 原字节归档并锁定 SHA-256；逐行解析实际 464 命令和 2115 参数、必选性、类型、枚举、数值范围、来源行号及说明明确的阶段/cell-prefix 约束；软件版本保持未知，快照 ID 为 optimus-doc-20261015-1fa52ed045ae。新增 Tcl 8.5/8.6 公共 C 解析 API 适配，只解析不创建解释器或执行用户脚本；检查嵌套控制体、表达式/命令替换、PV 块、静态 source/eval/uplevel/try/switch/lambda，谨慎传播简单字面值，并在可能修改状态的调用后失效。统一 TCL CLI 新增 --syntax，分别报告语法、Optimus 命令和既有编程规范；旧 convention_report/默认 CLI 保持历史规范职责，Skill workflow 强制 --syntax。缺库/资料/版本明确报告 TOOL_UNAVAILABLE，动态或未声明语义报告 SPEC-GAP，非全 PASS 均非零退出。测试先行后实现，期间修正测试样本列表类型、复用设计变量和数字开头 -3d 选项识别，最终 23 项独立测试覆盖全 464 命令最小调用/未知选项与全部参数，以及统一 CLI 正反向完整目录用例；全门禁 204/204、Skill 结构通过。受保护模块、fixture、runner 与断言均未修改；资料原文保留行尾空白以维护来源字节身份，不混同生成代码格式。未上传新变更。
+
+- 2026-10-20 进度复核：功能清单共 39 项，32 passing、7 not_started，无 active/blocked。查询 Jenkins 第 4 次构建已 SUCCESS；获取 origin 后确认 main=2f1747c，候选已合入。完整 Optimus 语法检查器尚未完成：现实现主要覆盖 TCL 编程规范，尚缺完整 Tcl 解析和版本化命令/选项校验，以及语法库不可用时的独立分类。此缺口需后续单独登记，不能将 workflow 契约 passing 视为语法检查能力完成。
+
+- 2026-10-20 上传结果：候选分支 `codex/pv-checkpoints-input-selection` 已推送至 GitHub，提交 `2f1747c`。本地完整门禁 181/181 PASS；Jenkins 第 4 次构建从该远端提交运行 181 项测试通过、Skill 结构 PASS，HTML/JUnit/完整日志均已归档，当前停在 Review and approve，等待用户批准；尚未合入 main。报告：http://localhost:8081/job/eda-tester-skill-approved-merge/4/artifact/harness/outputs/jenkins/index.html 。为不改变已测试/审批绑定的候选提交，此上传结果仅追加在本地交接记录。
 
 - 2026-10-20 用户要求“更新远程github仓空”，授权按上传流程更新当前 GitHub 仓库。SKILL.md 已包含本次 workflow 与参考资料索引；Jenkins README 补充当前报告覆盖与审阅范围；function.json 已登记 F-037～F-040 的状态。待上传资料仅包含 TCL 与参考文档/截图，排除 .DS_Store、日志、缓存和环境凭据；远端 origin 核对为唯一指定 GitHub 仓库。上传前差异检查发现 37 个输入 TCL 文件行尾空白，已仅清理这些格式问题。Jenkins/Docker 起初未运行，启动 Docker 后确认项目 Jenkins 已启动且任务使用远端 main 的 SCM 流水线。
 
@@ -398,3 +464,14 @@ python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py" ski
 3. 确认 `function.json` 的状态、测试路径和验证命令与实际实现一致。
 4. 汇报已完成内容和未解决问题；只有用户明确要求时才提交版本控制变更。
 5. 用户要求提交或推送时，只操作当前 `eda-tester-skill/` 的 GitHub 仓库，不操作父目录中的其他仓库。
+
+- 2026-10-21 触发方式答疑：核对 SKILL.md 与 agents/openai.yaml，当前 allow_implicit_invocation=false，属于显式调用配置；同一聊天中已调用 Skill 后的设计确认是既有 workflow 续行，无需每轮重复 $。新聊天或未调用时应显式指定。截图无法独立证明完整 Skill 已加载。仅核对配置和文档，无功能变更、未运行测试；function.json 与 SKILL.md 无需修改。下一步按用户需求继续，未提交或推送。
+
+## 2026-11-10 F-044 PV检查点直接调用强制门禁
+
+- 用户要求将pv_check_log/pv_check_golden直接调用规范加入静态检查，并要求生成输出必须通过检查。仅修改本功能；原有工作树改动保留，未修改受保护冒烟用例、共享fixture或runner。
+- 测试先行：新增harness/tests/unit/test_pv_direct_calls.py，登记F-044及unit-pv-direct-calls；旧实现无法拦截、测试失败后再实现。默认规则TCL-CHECKPOINT-008扫描全部case内Tcl（含辅助/准备脚本），使用原生Tcl静态解析、不执行输入；检测任意变量返回值接收、跨行、条件/表达式、catch/proc/eval/uplevel及嵌套分支包装。注释、普通字符串和数据不作为调用。检查无法完成也阻止PASS。
+- SKILL.md输出门禁及PV参考已明确：默认调用统一静态检查器必须PASS，违规不交付，不得用人工审查或仅工具语法检查替代；PV/NITH记录汇总机制保留。
+- 自动化验证：./init.sh test feature F-044 PASS；./init.sh test unit共216项PASS。新增5项测试方法包含直接调用/数据不误报、26种返回值及包装组合、精确行号、默认CLI的合法/非法差分、辅助Tcl扫描；switch/apply/namespace嵌套补充测试先失败后通过。没有EDA执行或生成用例。
+- 已同步现有Codex安装的检查器、SKILL.md和PV参考，修改前安装文件备份保留在用例项目内部工作目录。现有loadECO回归：31例73处违规包装被默认门禁拦截，退出非零；该结果证明检测生效，不声称这些用例已整改。
+- F-044状态passing；下一步按用户范围处理现有违规用例，整改前禁止视为合格输出。未提交、推送或触发Jenkins。

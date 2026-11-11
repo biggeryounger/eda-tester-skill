@@ -17,13 +17,18 @@
   存在性、参数形态、路径和同一 run 内 golden 产物的清理/生成/比较顺序。
 - TCL-CHECKPOINT-007：每个 pv_check_log 的命令块最多 4 条顶层 Tcl 命令，
   按换行/分号分隔，忽略注释、空语句和续行，不展开嵌套体或动态调用。
+- TCL-CHECKPOINT-008：pv_check_log/pv_check_golden 必须直接调用，拒绝返回值接收及条件/辅助包装。
 - TCL-CMD-DEF-001：CMD 用例不以 DEF 作为 golden 比较对象。
 - TCL-MMMC-001、TCL-MMMC-002：MMMC 文件保持声明式且命令方言匹配工具。
 - TCL-SCRIPT-001、TCL-SCRIPT-002、TCL-SCRIPT-003、TCL-SCRIPT-004、
   TCL-SCRIPT-005、TCL-SCRIPT-006：EXPECT/TEST_ACTION 标记、占位符、环境变量
   白名单、DESIGN_INIT 结构、pv_rpt_checkpoints/exit 收尾和伪造结果检测。
 
-这些检查只证明可确定性判定的结构和编程约定，不证明命令、初始化、
+通过 --syntax 同时调用 tcl_static_parser / optimus_syntax 的 Tcl 原生解析及
+464 命令快照校验，分别报告 TCL-SYNTAX、OPTIMUS-COMMANDS、TCL-CONVENTIONS。
+历史 convention_report API 仍只做规范检查。
+
+编程规范检查只证明可确定性判定的结构和编程约定，不证明命令、初始化、
 MMMC、检查点或多步数据流的 EDA 业务语义正确。Agent 语义审查依据
 references/specs/tcl-script-rules.md 单独执行，脚本 PASS 不得替代该审查。
 """
@@ -31,6 +36,8 @@ references/specs/tcl-script-rules.md 单独执行，脚本 PASS 不得替代该�
 from __future__ import annotations
 
 import argparse
+import importlib.util
+from functools import lru_cache
 import json
 import math
 import re
@@ -109,8 +116,162 @@ class TclConventionDiagnostic:
         }
 
 
+def matches_central_design_source(text: str) -> bool:
+    """Accept legacy provenance or exact current registered process assignments.
+
+    This checks static declarations only, without evaluating any input Tcl.
+    Business design inputs remain subject to the separate semantic review.
+    """
+    if re.search(r"(?m)^# Generated from central design profile: [a-z][a-z0-9_]*$", text):
+        return True
+    try:
+        process = json.loads((Path(__file__).resolve().parents[1] /
+                              "assets/输入件管理表.json").read_text())["smic180"]
+        expected = {
+            "tech_dir": '"' + process["tech_dir"] + '"',
+            "lef_files": '[list ' + ' '.join('"' + value + '"' for value in process["lef_files"]) + ']',
+            "liberty_files": '[list ' + ' '.join('"' + value.replace(process["tech_dir"], '$tech_dir', 1) + '"'
+                                               for value in process["lib_files"]) + ']',
+        }
+    except (OSError, KeyError, TypeError, ValueError):
+        return False
+    normalized = re.sub(r"\\\n[ \t]*", " ", text)
+    for name, value in expected.items():
+        assignments = re.findall(r"(?m)^[ \t]*set[ \t]+" + name + r"[ \t]+([^\n]+)$", normalized)
+        if len(assignments) != 1 or ' '.join(assignments[0].split()) != value:
+            return False
+    return True
+
+
 def _line(text: str, position: int) -> int:
     return text.count("\n", 0, position) + 1
+
+
+@lru_cache(maxsize=1)
+def _pv_call_parser():
+    # Use Tcl's parser, never execute user input or scan comments as commands.
+    name = "_eda_pv_call_tcl_parser"
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name("tcl_static_parser.py"))
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module.TclParser()
+
+
+def _validate_pv_direct_calls(text, path, diagnostics):
+    rule = "TCL-CHECKPOINT-008"
+    try:
+        parser = _pv_call_parser()
+
+        def script(value, line=1, wrapped=False, depth=0):
+            if depth > 100:
+                raise ValueError("PV direct-call nesting exceeds static inspection limit")
+            for command in parser.parse(value, line):
+                words = command.words
+                name = (words[0].literal or "").removeprefix("::")
+                if name in {"pv_check_log", "pv_check_golden"} and wrapped:
+                    diagnostics.append(TclConventionDiagnostic(
+                        rule, path, command.line,
+                        f"{name} must be called directly; do not capture its return value or wrap it in a condition/helper; use PV/NITH checkpoint reporting",
+                    ))
+                for word in words:
+                    for substitution, subline in word.substitutions:
+                        script(substitution, subline, True, depth + 1)
+                args = words[1:]
+
+                def body(word, indirect=wrapped):
+                    if word.literal is not None:
+                        script(word.literal, word.line, indirect, depth + 1)
+
+                def expression(word):
+                    if word.literal is not None:
+                        for substitution, subline in parser.expression(word.literal, word.line):
+                            script(substitution, subline, True, depth + 1)
+
+                if name == "if":
+                    index = 0
+                    while index < len(args):
+                        if args[index].literal == "else":
+                            if index + 1 < len(args):
+                                body(args[index + 1])
+                            break
+                        if args[index].literal == "elseif":
+                            index += 1
+                        if index >= len(args):
+                            break
+                        expression(args[index])
+                        index += 1
+                        if index < len(args) and args[index].literal == "then":
+                            index += 1
+                        if index < len(args):
+                            body(args[index])
+                        index += 1
+                elif name == "expr":
+                    for word in args:
+                        expression(word)
+                elif name == "proc" and len(args) == 3:
+                    body(args[2], True)
+                elif name in {"catch", "time"} and args:
+                    body(args[0], True)
+                elif name in {"eval", "uplevel"} and args:
+                    values = args
+                    if name == "uplevel" and (args[0].literal or "").lstrip("#").isdigit():
+                        values = args[1:]
+                    if values and all(word.literal is not None for word in values):
+                        script(parser.concat([word.literal for word in values]), values[0].line, True, depth + 1)
+                elif name == "while" and len(args) == 2:
+                    expression(args[0])
+                    body(args[1])
+                elif name == "for" and len(args) == 4:
+                    body(args[0])
+                    expression(args[1])
+                    body(args[2])
+                    body(args[3])
+                elif name in {"foreach", "lmap", "foreach_in_collection"} and args:
+                    body(args[-1])
+                elif name == "switch" and args:
+                    index = 0
+                    while index < len(args) and (args[index].literal or "").startswith("-"):
+                        option = args[index].literal
+                        index += 1
+                        if option == "--":
+                            break
+                        if option in {"-matchvar", "-indexvar"}:
+                            index += 1
+                    alternatives = args[index + 1:]
+                    if len(alternatives) == 1 and alternatives[0].literal is not None:
+                        values = parser.split_list(alternatives[0].literal)
+                        for value in values[1::2]:
+                            if value != "-":
+                                script(value, alternatives[0].line, wrapped, depth + 1)
+                    else:
+                        for word in alternatives[1::2]:
+                            if word.literal != "-":
+                                body(word)
+                elif name == "apply" and args and args[0].literal is not None:
+                    values = parser.split_list(args[0].literal)
+                    if len(values) >= 2:
+                        script(values[1], args[0].line, True, depth + 1)
+                elif name == "namespace" and len(args) >= 3 and args[0].literal == "eval":
+                    values = args[2:]
+                    if all(word.literal is not None for word in values):
+                        script(parser.concat([word.literal for word in values]), values[0].line, wrapped, depth + 1)
+                elif name == "try" and args:
+                    body(args[0], True)
+                    for index, word in enumerate(args[1:], 1):
+                        if word.literal == "finally" and index + 1 < len(args):
+                            body(args[index + 1], True)
+                        elif word.literal in {"on", "trap"} and index + 3 < len(args):
+                            body(args[index + 3], True)
+                elif name in {"pv_check_log", "pv_check_qor"} and args:
+                    body(args[0], True)
+
+        script(text)
+    except (RuntimeError, ValueError, ImportError, OSError) as exc:
+        diagnostics.append(TclConventionDiagnostic(
+            rule, path, getattr(exc, "line", None),
+            f"PV direct-call inspection could not complete: {exc}",
+        ))
 
 
 def _commands(text: str) -> list[tuple[str, str, int, int]]:
@@ -592,6 +753,10 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
     if struct_missing:
         diagnostics.append(TclConventionDiagnostic("TCL-STRUCT-001", case_dir, None, "case tree incomplete: missing " + ", ".join(struct_missing)))
 
+    # This mandatory rule also covers helper and preparation scripts, not just runs.
+    for inspected in sorted(case_dir.rglob("*.tcl")):
+        _validate_pv_direct_calls(_read(inspected) or "", inspected, diagnostics)
+
     tcl_files = [p for p in (design_path, mmmc_path, *run_files) if p is not None and p.is_file()]
     all_files = tcl_files + ([nith_path] if nith_text is not None else [])
 
@@ -622,12 +787,10 @@ def validate_tcl_conventions(case_dir: Path) -> list[TclConventionDiagnostic]:
 
     if design_text is not None and not DESIGN_CATEGORY.search(design_text):
         diagnostics.append(TclConventionDiagnostic("TCL-DESIGN-001", design_path, None, "design.tcl must declare top/netlist/lef/lib/sdc input paths"))
-    if design_text is not None and not re.search(
-        r"(?m)^# Generated from central design profile: [a-z][a-z0-9_]*$", design_text
-    ):
+    if design_text is not None and not matches_central_design_source(design_text):
         diagnostics.append(TclConventionDiagnostic(
             "TCL-DESIGN-003", design_path, None,
-            "design.tcl must be generated from assets/design-profiles.json and record its profile",
+            "design.tcl must match assets/输入件管理表.json SMIC180 process assignments or record a legacy central profile",
         ))
 
     for helper_path, helper_text in ((design_path, design_text), (mmmc_path, mmmc_text)):
@@ -682,13 +845,35 @@ def convention_report(case_dir: Path) -> dict[str, object]:
     return {"id": "L2B", "status": status, "input": str(case_dir.resolve()), "diagnostics": diagnostics}
 
 
+def static_report(case_dir: Path, *, database: Path | None = None) -> dict[str, object]:
+    """Opt-in full static gate; preserve convention_report's historical contract."""
+    from optimus_syntax import check_scripts
+
+    conventions = convention_report(case_dir)
+    tools = [name for name in ALLOWED_TOOLS if (case_dir / "tcl" / name).is_dir()]
+    tool = tools[0] if len(tools) == 1 else "unknown"
+    scripts = sorted((case_dir / "tcl").rglob("*.tcl"))
+    report = check_scripts(scripts, tool=tool, database=database)
+    checks = list(report["checks"])
+    checks.append({"id": "TCL-CONVENTIONS", "status": conventions["status"], "diagnostics": conventions["diagnostics"]})
+    statuses = {check["status"] for check in checks}
+    status = next((value for value in ("FAIL", "TOOL_UNAVAILABLE", "SPEC-GAP") if value in statuses), "PASS")
+    return {**report, "id": "L2B", "status": status, "input": str(case_dir.resolve()),
+            "checks": checks, "diagnostics": [item for check in checks for item in check["diagnostics"]]}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run static checks on one or more TCL case directories.")
     parser.add_argument("cases", nargs="+", type=Path)
+    parser.add_argument("--syntax", action="store_true", help="also parse Tcl and validate Optimus commands against the bundled snapshot")
+    parser.add_argument("--syntax-db", type=Path, help="explicit provenance-locked command snapshot")
     args = parser.parse_args()
-    checks = [convention_report(case) for case in args.cases]
+    if args.syntax_db and not args.syntax:
+        parser.error("--syntax-db requires --syntax")
+    checks = [static_report(case, database=args.syntax_db) if args.syntax else convention_report(case) for case in args.cases]
     diagnostics = [item for check in checks for item in check["diagnostics"]]
-    status = "PASS" if checks and all(check["status"] == "PASS" for check in checks) else "FAIL"
+    statuses = {check["status"] for check in checks}
+    status = next((value for value in ("FAIL", "TOOL_UNAVAILABLE", "SPEC-GAP") if value in statuses), "PASS" if checks else "FAIL")
     report = {"status": status, "checks": checks, "diagnostics": diagnostics}
     json.dump(report, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")

@@ -14,7 +14,7 @@
 - 不提交 EDA 许可证、PDK、设计数据库、运行日志、Python 缓存或用户本地路径。
 - Skill 产物与项目开发资产必须完全分离：`skill/` 只存放运行时验证脚本、运行时资源和 Skill 文档；项目开发验证脚本、测试资源及开发文档只能放在 `harness/`。禁止脚本、测试 fixture、规范或入口同时承担 Skill 运行时与项目开发职责，禁止跨目录混合维护。
 - 构建 Skill 测试用例必须使用可重复、可稳定运行的自动化脚本用例；禁止以一次性人工操作或不可复现的交互结果作为测试用例。
-- `skill/` 目录内禁止存在任何 `README.md`；Skill 文档只能维护在 `SKILL.md` 或 `references/` 中。
+- `skill/` 目录内禁止存在任何 `README.md`；Skill 文档维护在 `SKILL.md`、`references/` 或 `rules/` 中；`rules/` 专门归档 Skill 输入输出规则。
 - `harness/function.json` 是项目特性及状态的唯一清单，新增功能时应同步更新。
 - `harness/function.json` 中功能点的 `status` 只能是 `not_started`、`active`、`blocked`、`passing`。
 - 每次只开发一个功能点，`harness/function.json` 中最多只能有一个功能点处于 `active`。
@@ -147,7 +147,8 @@ eda-tester-skill/
 │   ├── SKILL.md                      # Skill 入口
 │   ├── agents/                       # Skill 界面元数据
 │   ├── assets/                       # 运行资产与模板
-│   ├── references/                   # 生成与输出规范
+│   ├── rules/                        # Skill 输入输出规则归档
+│   ├── references/                   # 详细规范、接口与参考资料
 │   └── scripts/                      # 运行脚本和输出检查器
 └── harness/                          # 项目开环开发与验收环境
     ├── PROCESS.MD                    # 项目进度与会话交接

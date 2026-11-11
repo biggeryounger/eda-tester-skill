@@ -50,7 +50,7 @@ eda_dump_command_help {{eda_test_two}}
         self.assertIn("two -help", completed.stdout)
 
     def test_parser_contract_documents_help_capture_input(self) -> None:
-        reference = (ROOT / "skill" / "references" / "command-spec-format.md").read_text(encoding="utf-8")
+        reference = (ROOT / "skill" / "rules" / "input-rules.md").read_text(encoding="utf-8")
         self.assertIn("dump_tool_help.tcl", reference)
         self.assertIn("eda_dump_all_help", reference)
 

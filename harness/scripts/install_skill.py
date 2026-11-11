@@ -31,7 +31,7 @@ DEV_ONLY_NAMES = frozenset({
 })
 JUNK_NAMES = frozenset({".git", ".DS_Store", "__pycache__"})
 TOP_LEVEL_EXCLUDED = DEV_ONLY_NAMES | JUNK_NAMES
-RUNTIME_TOP_LEVEL = frozenset({"SKILL.md", "agents", "assets", "references", "scripts"})
+RUNTIME_TOP_LEVEL = frozenset({"SKILL.md", "agents", "assets", "references", "rules", "scripts"})
 PROJECT_ONLY_RELATIVE = frozenset({
     "references/test-plan.md",
     "references/e2e-test-set.md",

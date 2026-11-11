@@ -9,16 +9,18 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 
-_CENTRAL_CONFIG = json.loads((Path(__file__).resolve().parents[1] / "assets/design-profiles.json").read_text(encoding="utf-8"))
-_CENTRAL_EXAMPLE = _CENTRAL_CONFIG["profiles"]["repository_example"]
+_RUNTIME = Path(__file__).resolve().parents[1]
+_PROCESS = json.loads((_RUNTIME / "assets/输入件管理表.json").read_text(encoding="utf-8"))["smic180"]
+# Explicit opt-in example corresponding to the current common template. Never
+# use these design values implicitly for a user's design.
 EXAMPLE_PROFILE = {
     "optimus_version": "21.1",
-    "lef_path": " ".join(_CENTRAL_EXAMPLE["lef_files"]),
-    "netlist_path": _CENTRAL_EXAMPLE["netlist_file"],
-    "def_path": _CENTRAL_EXAMPLE["def_file"],
-    "top_cell": _CENTRAL_EXAMPLE["top_cell"],
-    "power_net": _CENTRAL_EXAMPLE["power_net"],
-    "ground_net": _CENTRAL_EXAMPLE["ground_net"],
+    "lef_path": " ".join(_PROCESS["lef_files"]),
+    "netlist_path": "./design/input.v",
+    "def_path": "",
+    "top_cell": "ddp_partition_top",
+    "power_net": "VDD",
+    "ground_net": "VSS",
     "mmmc_path": "./tcl/optimus/mmmc.tcl",
 }
 

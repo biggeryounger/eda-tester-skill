@@ -25,7 +25,8 @@ class TestPlanGeneratorTests(unittest.TestCase):
     def test_skill_delivery_contract_excludes_case_tree_and_requires_generator(self) -> None:
         skill = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("generate_test_plan.py", skill)
-        self.assertIn("Do not hand off an empty workbook", skill)
+        self.assertIn("rules/output-rules.md", skill)
+        self.assertIn("禁止空表交付", (ROOT / "skill/rules/output-rules.md").read_text())
         self.assertNotIn("Create one `case.toml`", skill)
         self.assertNotIn("Generate a real case tree", skill)
         self.assertNotIn("用例目录与运行说明", skill)

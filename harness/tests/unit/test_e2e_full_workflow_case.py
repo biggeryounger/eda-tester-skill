@@ -68,7 +68,7 @@ class FullWorkflowE2ECaseTests(unittest.TestCase):
         self.assertEqual("user", turns["confirm_design"]["role"])
         self.assertTrue(turns["confirm_design"]["approved"])
         self.assertEqual("riscv", turns["confirm_design"]["design"])
-        self.assertEqual("SMIC28", turns["confirm_design"]["tech"])
+        self.assertEqual("SMIC180", turns["confirm_design"]["tech"])
 
     def test_expected_outputs_and_comparisons_cover_plan_tcl_and_trace(self) -> None:
         expected_ids = {item["id"] for item in self.case["expected_output"]["items"]}

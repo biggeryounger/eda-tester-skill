@@ -41,7 +41,7 @@ Version Differences:
 class CommandSpecParserTests(unittest.TestCase):
     def test_skill_registers_txt_parser_workflow(self) -> None:
         skill = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
-        reference = (ROOT / "skill" / "references" / "command-spec-format.md").read_text(encoding="utf-8")
+        reference = (ROOT / "skill" / "rules" / "input-rules.md").read_text(encoding="utf-8")
         self.assertIn("scripts/parse_command_spec.py", skill)
         self.assertIn("SPEC-GAP", skill)
         self.assertIn("schema_version", reference)
