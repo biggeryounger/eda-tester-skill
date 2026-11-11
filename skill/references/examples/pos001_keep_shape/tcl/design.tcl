@@ -13,4 +13,3 @@ set netlist $design_dir/floorplan.v.gz
 #def
 set def $design_dir/floorplan.def.gz
 set scan_def $design_dir/scan.def.gz
-

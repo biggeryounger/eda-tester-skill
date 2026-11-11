@@ -4,7 +4,7 @@ source ./tcl/design.tcl
 set_options setup.lef_file $lef_files
 set_options setup.verilog $netlist
 set_options setup.mmmc_file ./tcl/optimus/mmmc.tcl
-setup_design 
+setup_design
 
 #======= test_point ========
 place

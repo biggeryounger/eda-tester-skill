@@ -17,4 +17,3 @@ nith.input[""] = f"tcl/{nith.PV_TOOL}/run.tcl"
 nith_run()
 
 nith_done()
-

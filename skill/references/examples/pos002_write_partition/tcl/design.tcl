@@ -10,4 +10,3 @@ set lef_files "$tech_dir/smic18_6lm_0202_ndr.lef"
 #netlist
 set netlist $design_dir/place.v.gz
 set def $design_dir/place.def.gz
-

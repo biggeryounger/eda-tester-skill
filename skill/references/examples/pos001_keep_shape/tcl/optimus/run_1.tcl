@@ -1,6 +1,6 @@
 
 source ./tcl/design.tcl
-source $env(PV_ROOT)/scripts/pv.tcl 
+source $env(PV_ROOT)/scripts/pv.tcl
 set_options setup.lef_file $lef_files
 set_options setup.verilog $netlist
 set_options setup.mmmc_file tcl/optimus/mmmc.tcl

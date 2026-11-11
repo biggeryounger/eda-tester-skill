@@ -12,12 +12,12 @@ create_rc_corner -name corner_Cworst
 create_analysis_corner -name delay_corner_rcbest \
 	-rc_corner corner_RCbest \
 	-late_lib_set slowLibSet_40c \
-	-early_lib_set fastLibSet_40c 
+	-early_lib_set fastLibSet_40c
 
 create_analysis_corner -name delay_corner_rcworst \
 	-rc_corner corner_RCworst \
 	-late_lib_set slowLibSet_40c \
-	-early_lib_set fastLibSet_40c 
+	-early_lib_set fastLibSet_40c
 
 create_analysis_corner -name delay_corner_cbest \
 	-rc_corner corner_Cbest \
